@@ -1,34 +1,16 @@
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import Home from './pages/Home'
+import Game from './pages/Game'
 import './App.css'
 
 function App() {
-  const handlePlay = () => {
-    console.log('Game Starting...')
-    // Add your game start logic here
-  }
-
   return (
-    <div className="game-container">
-      <div className="stars"></div>
-      <div className="content">
-        <div className="logo-section">
-          <img 
-            src="/logo.png" 
-            alt="LowXena Logo" 
-            className="game-logo"
-          />
-          <h1 className="game-title">LowXena</h1>
-        </div>
-        
-        <button className="play-button" onClick={handlePlay}>
-          <span className="button-text">PLAY NOW</span>
-          <span className="button-glow"></span>
-        </button>
-      </div>
-      
-      <footer className="creator-credit">
-        <p>Created by Dharmik Gohil</p>
-      </footer>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/game" element={<Game />} />
+      </Routes>
+    </Router>
   )
 }
 

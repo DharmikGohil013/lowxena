@@ -1,0 +1,121 @@
+#root {
+  width: 100%;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+.game-container {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  background: url('/background.jpg') center center / cover no-repeat;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Animated stars background */
+.stars {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(3px 3px at 20px 30px, #60a5fa, transparent),
+    radial-gradient(2px 2px at 60px 70px, #a78bfa, transparent),
+    radial-gradient(2px 2px at 50px 50px, #f472b6, transparent),
+    radial-gradient(3px 3px at 130px 80px, #34d399, transparent),
+    radial-gradient(2px 2px at 90px 10px, #fbbf24, transparent);
+  background-repeat: repeat;
+  background-size: 200px 200px;
+  animation: stars-move 20s linear infinite;
+  opacity: 0.3;
+}
+
+@keyframes stars-move {
+  from { transform: translateY(0); }
+  to { transform: translateY(-200px); }
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  animation: fade-in 1s ease-out;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.logo-section {
+  margin-bottom: 60px;
+}
+
+.game-logo {
+  width: 200px;
+  height: 200px;
+  margin-bottom: 20px;
+  filter: drop-shadow(0 0 30px rgba(139, 92, 246, 0.6));
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+.game-title {
+  font-size: 72px;
+  font-weight: 900;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0;
+  letter-spacing: 8px;
+  text-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+}
+
+.game-info {
+  margin-top: 40px;
+}
+
+.game-info p {
+  color: #a78bfa;
+  font-size: 20px;
+  letter-spacing: 2px;
+}
+
+.creator-credit {
+  position: absolute;
+  bottom: 20px;
+  width: 100%;
+  text-align: center;
+  z-index: 2;
+}
+
+.creator-credit p {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 14px;
+  letter-spacing: 1px;
+  margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .game-logo {
+    width: 150px;
+    height: 150px;
+  }
+
+  .game-title {
+    font-size: 48px;
+  }
+
+  .game-info p {
+    font-size: 16px;
+  }
+}
