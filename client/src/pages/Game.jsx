@@ -1,6 +1,23 @@
+import { useState, useEffect } from 'react'
+import Loader from '../components/Loader'
 import './Game.css'
 
 function Game() {
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    // Simulate game loading
+    const timer = setTimeout(() => {
+      setLoading(false)
+    }, 1500)
+
+    return () => clearTimeout(timer)
+  }, [])
+
+  if (loading) {
+    return <Loader message="Loading Game..." />
+  }
+
   return (
     <div className="game-container">
       <div className="stars"></div>

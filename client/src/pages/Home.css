@@ -475,6 +475,20 @@
   transform: scale(1.15);
 }
 
+/* Lottie Loader Container */
+.lottie-loader-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.lottie-loader-container p {
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
 .login-info {
   display: flex;
   flex-direction: column;

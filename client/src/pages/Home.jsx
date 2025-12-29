@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google'
+import Loader from '../components/Loader'
 import { authAPI } from '../services/api'
 import './Home.css'
 
@@ -312,23 +313,8 @@ function Home() {
             
             <div className="google-login-container">
               {loading ? (
-                <div style={{ 
-                  color: 'white', 
-                  padding: '30px',
-                  fontSize: '16px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px'
-                }}>
-                  <div style={{
-                    width: '20px',
-                    height: '20px',
-                    border: '3px solid rgba(139, 92, 246, 0.3)',
-                    borderTop: '3px solid #8b5cf6',
-                    borderRadius: '50%',
-                    animation: 'spin 1s linear infinite'
-                  }}></div>
-                  Signing you in...
+                <div style={{ position: 'relative', minHeight: '200px' }}>
+                  <Loader message="Signing you in..." />
                 </div>
               ) : (
                 <GoogleLogin
