@@ -12,7 +12,8 @@ import {
   joinRoom,
   leaveRoom,
   startGame,
-  kickPlayer
+  kickPlayer,
+  checkUserRoom
 } from '../controllers/roomController.js';
 import { authenticateToken } from '../middleware/auth.js';
 
@@ -97,5 +98,12 @@ router.post('/start-game/:roomId', startGame);
  * @access  Private
  */
 router.post('/kick-player/:roomId', kickPlayer);
+
+/**
+ * @route   GET /api/game/check-room
+ * @desc    Check if user is in any room
+ * @access  Private
+ */
+router.get('/check-room', checkUserRoom);
 
 export default router;

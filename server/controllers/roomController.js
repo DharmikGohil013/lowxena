@@ -400,3 +400,38 @@ export const kickPlayer = async (req, res) => {
     res.status(500).json({ error: 'Failed to kick player' });
   }
 };
+
+// Check if user is in any room
+export const checkUserRoom = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // Check if user is in any room
+    const { data: membership, error } = await supabaseAdmin
+      .from('room_members')
+      .select(`
+        room_id,
+        room:rooms(id, room_name, status)
+      `)
+      .eq('user_id', userId)
+      .single();
+
+    if (error && error.code !== 'PGRST116') {
+      throw error;
+    }
+
+    if (membership && membership.room) {
+      res.json({
+        inRoom: true,
+        roomId: membership.room.id,
+        roomName: membership.room.room_name,
+        status: membership.room.status
+      });
+    } else {
+      res.json({ inRoom: false });
+    }
+  } catch (error) {
+    console.error('Error checking user room:', error);
+    res.status(500).json({ error: 'Failed to check user room' });
+  }
+};

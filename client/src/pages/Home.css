@@ -1610,3 +1610,135 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Room Warning Modal */
+.room-warning-modal {
+  max-width: 500px;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.1) 100%);
+  border: 2px solid rgba(239, 68, 68, 0.4);
+  backdrop-filter: blur(20px);
+}
+
+.room-warning-modal .modal-header h2 {
+  color: #fbbf24;
+  font-size: 28px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.room-warning-content {
+  padding: 20px 0;
+}
+
+.warning-text {
+  color: white;
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.warning-text strong {
+  color: #60a5fa;
+  font-weight: 800;
+  display: block;
+  margin-top: 8px;
+  font-size: 22px;
+}
+
+.warning-subtext {
+  color: #e5e7eb;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
+  margin: 20px 0 30px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+
+.status-badge {
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 15px;
+  font-weight: 700;
+  text-transform: capitalize;
+  letter-spacing: 0.5px;
+}
+
+.status-badge.status-waiting {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.25) 0%, rgba(245, 158, 11, 0.25) 100%);
+  color: #fbbf24;
+  border: 2px solid rgba(251, 191, 36, 0.5);
+  box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);
+}
+
+.status-badge.status-playing {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.25) 0%, rgba(22, 163, 74, 0.25) 100%);
+  color: #22c55e;
+  border: 2px solid rgba(34, 197, 94, 0.5);
+  box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+}
+
+.room-warning-actions {
+  display: flex;
+  gap: 15px;
+  margin-top: 25px;
+}
+
+.btn-go-to-room,
+.btn-leave-room {
+  flex: 1;
+  padding: 16px 24px;
+  border: none;
+  border-radius: 14px;
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.btn-go-to-room {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+  border: 2px solid rgba(102, 126, 234, 0.3);
+}
+
+.btn-go-to-room:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 35px rgba(102, 126, 234, 0.6);
+  background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%);
+}
+
+.btn-leave-room {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+  border: 2px solid rgba(239, 68, 68, 0.3);
+}
+
+.btn-leave-room:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 35px rgba(239, 68, 68, 0.6);
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+}
+
+.btn-go-to-room:active,
+.btn-leave-room:active {
+  transform: translateY(-1px);
+}
+

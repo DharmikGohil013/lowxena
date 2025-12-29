@@ -56,6 +56,8 @@ function Home() {
   const [leaderboard, setLeaderboard] = useState([])
   const [userRank, setUserRank] = useState(null)
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(false)
+  const [showRoomWarning, setShowRoomWarning] = useState(false)
+  const [currentRoomInfo, setCurrentRoomInfo] = useState(null)
 
   // Check for existing token on mount (auto-login)
   useEffect(() => {
@@ -73,6 +75,25 @@ function Home() {
     };
     checkAuth();
   }, []);
+
+  // Check if user is in any room
+  useEffect(() => {
+    const checkUserRoom = async () => {
+      if (!isLoggedIn) return;
+      
+      try {
+        const response = await gameAPI.checkUserRoom();
+        if (response.inRoom) {
+          setCurrentRoomInfo(response);
+          setShowRoomWarning(true);
+        }
+      } catch (error) {
+        console.error('Error checking user room:', error);
+      }
+    };
+
+    checkUserRoom();
+  }, [isLoggedIn]);
 
   // Fetch leaderboard
   useEffect(() => {
@@ -218,6 +239,27 @@ function Home() {
     setPlayerPicture('');
     setUserId('');
   }
+
+  const handleLeaveCurrentRoom = async () => {
+    if (!currentRoomInfo || !currentRoomInfo.roomId) return;
+    
+    try {
+      await gameAPI.leaveRoom(currentRoomInfo.roomId);
+      setShowRoomWarning(false);
+      setCurrentRoomInfo(null);
+      alert('You have left the room');
+    } catch (error) {
+      console.error('Error leaving room:', error);
+      alert('Failed to leave room');
+    }
+  };
+
+  const handleGoToRoom = () => {
+    if (currentRoomInfo && currentRoomInfo.roomId) {
+      setShowRoomWarning(false);
+      navigate(`/room/${currentRoomInfo.roomId}`);
+    }
+  };
 
   const handleProfileClick = () => {
     setProfileData({
@@ -716,6 +758,49 @@ function Home() {
         <h1 className="title-text">LowXena</h1>
         <p className="subtitle-text">Where the Lowest Wins.</p>
       </div>
+
+      {/* Room Warning Modal */}
+      {showRoomWarning && currentRoomInfo && (
+        <div className="modal-overlay" onClick={() => setShowRoomWarning(false)}>
+          <div className="modal-content room-warning-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>⚠️ Already in Room</h2>
+              <div className="close-button" onClick={() => setShowRoomWarning(false)}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </div>
+            </div>
+
+            <div className="room-warning-content">
+              <p className="warning-text">
+                You are already in <strong>{currentRoomInfo.roomName}</strong>
+              </p>
+              <p className="warning-subtext">
+                Status: <span className={`status-badge status-${currentRoomInfo.status}`}>
+                  {currentRoomInfo.status === 'waiting' ? 'Waiting' : 'Playing'}
+                </span>
+              </p>
+              
+              <div className="room-warning-actions">
+                <button 
+                  className="btn-primary btn-go-to-room" 
+                  onClick={handleGoToRoom}
+                >
+                  🎮 Go to Room
+                </button>
+                <button 
+                  className="btn-danger btn-leave-room" 
+                  onClick={handleLeaveCurrentRoom}
+                >
+                  🚪 Leave Room
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
     </GoogleOAuthProvider>
   )

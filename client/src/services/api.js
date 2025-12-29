@@ -193,6 +193,16 @@ export const gameAPI = {
       throw error.response?.data || error.message;
     }
   },
+
+  // Check if user is in any room
+  checkUserRoom: async () => {
+    try {
+      const response = await apiClient.get('/game/check-room');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
 };
 
 export default apiClient;

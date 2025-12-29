@@ -25,7 +25,7 @@ function RoomLobby() {
 
   const fetchCurrentUser = async () => {
     try {
-      const userData = JSON.parse(localStorage.getItem('user'));
+      const userData = JSON.parse(localStorage.getItem('userData'));
       console.log('User from localStorage:', userData);
       if (userData) {
         setCurrentUser(userData);
@@ -70,13 +70,9 @@ function RoomLobby() {
   const handleStartGame = async () => {
     if (!isHost()) return;
     
-    // Check if all players are ready
-    const allReady = roomDetails.players.every(player => 
-      player.id === currentUser.id || playerReadyStates[player.id]
-    );
-    
-    if (!allReady) {
-      alert('All players must be ready before starting the game');
+    // Check minimum player count
+    if (roomDetails?.players?.length < 2) {
+      alert('Need at least 2 players to start the game');
       return;
     }
     
@@ -103,10 +99,15 @@ function RoomLobby() {
 
   const isHost = () => {
     const result = currentUser && roomDetails && currentUser.id === roomDetails.hostId;
-    console.log('isHost check:', {
+    console.log('🔍 isHost check:', {
       currentUserId: currentUser?.id,
+      currentUserIdType: typeof currentUser?.id,
       hostId: roomDetails?.hostId,
-      isHost: result
+      hostIdType: typeof roomDetails?.hostId,
+      areEqual: currentUser?.id === roomDetails?.hostId,
+      isHost: result,
+      currentUser: currentUser,
+      roomDetails: roomDetails
     });
     return result;
   };
@@ -284,7 +285,7 @@ function RoomLobby() {
               <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M8 5v14l11-7z"/>
               </svg>
-              Start Game
+              {roomDetails?.players?.length < 2 ? 'Waiting for Players...' : '🎮 Start Game'}
             </button>
           ) : (
             <button 
