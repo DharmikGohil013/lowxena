@@ -38,6 +38,14 @@ function RoomLobby() {
     try {
       const response = await gameAPI.getRoomDetails(roomId);
       console.log('Room details response:', response);
+      
+      // Check if game has started and navigate all players to game page
+      if (response.status === 'playing') {
+        console.log('🎮 Game has started! Navigating to game page...');
+        navigate(`/game?roomId=${roomId}`);
+        return;
+      }
+      
       setRoomDetails(response);
       setLoading(false);
     } catch (err) {
