@@ -46,6 +46,13 @@ function Home() {
   })
   const [saving, setSaving] = useState(false)
   const [showGameModeModal, setShowGameModeModal] = useState(false)
+  const [showCustomMatchModal, setShowCustomMatchModal] = useState(false)
+  const [customMatchConfig, setCustomMatchConfig] = useState({
+    maxPoints: 200,
+    numPlayers: 4,
+    isPrivate: false,
+    roomCode: ''
+  })
   const [leaderboard, setLeaderboard] = useState([])
   const [userRank, setUserRank] = useState(null)
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(false)
@@ -108,8 +115,57 @@ function Home() {
 
   const handleGameModeSelect = (mode) => {
     setShowGameModeModal(false)
-    // Navigate to game with selected mode
-    navigate('/game', { state: { mode } })
+    
+    if (mode === 'custom') {
+      setShowCustomMatchModal(true)
+    } else if (mode === 'find') {
+      navigate('/rooms')
+    } else {
+      // Navigate to game with selected mode
+      navigate('/game', { state: { mode } })
+    }
+  }
+
+  const generateRoomCode = () => {
+    return Math.floor(100000 + Math.random() * 900000).toString()
+  }
+
+  const handleCustomMatchSubmit = async () => {
+    const config = { ...customMatchConfig }
+    
+    if (config.isPrivate && !config.roomCode) {
+      config.roomCode = generateRoomCode()
+    } else if (!config.isPrivate) {
+      config.roomCode = ''
+    }
+    
+    setCustomMatchConfig(config)
+    setShowCustomMatchModal(false)
+    
+    try {
+      // Create room via API
+      const response = await gameAPI.createRoom({
+        maxPoints: config.maxPoints,
+        maxPlayers: config.numPlayers,
+        isPrivate: config.isPrivate,
+        roomCode: config.roomCode
+      })
+      
+      // Navigate to room lobby
+      navigate(`/room/${response.data.roomId}`)
+    } catch (err) {
+      console.error('Error creating room:', err)
+      alert('Failed to create room. Please try again.')
+    }
+  }
+
+  const handlePrivateToggle = () => {
+    const newIsPrivate = !customMatchConfig.isPrivate
+    setCustomMatchConfig({
+      ...customMatchConfig,
+      isPrivate: newIsPrivate,
+      roomCode: newIsPrivate ? generateRoomCode() : ''
+    })
   }
 
   const handleLoginClick = () => {
@@ -426,6 +482,20 @@ function Home() {
               </button>
 
               <button 
+                className="game-mode-btn find-room"
+                onClick={() => handleGameModeSelect('find')}
+              >
+                <div className="mode-icon">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.35-4.35"></path>
+                  </svg>
+                </div>
+                <h3>Find Room</h3>
+                <p>Browse and join available rooms</p>
+              </button>
+
+              <button 
                 className="game-mode-btn join-bots"
                 onClick={() => handleGameModeSelect('bots')}
               >
@@ -450,6 +520,130 @@ function Home() {
                 </div>
                 <h3>Fast Join</h3>
                 <p>Jump into a random game instantly</p>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Custom Match Configuration Modal */}
+      {showCustomMatchModal && (
+        <div className="modal-overlay" onClick={() => setShowCustomMatchModal(false)}>
+          <div className="custom-match-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-close" onClick={() => setShowCustomMatchModal(false)}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </div>
+            <h2>⚙️ Custom Match Setup</h2>
+            <p className="modal-subtitle">Configure your game settings</p>
+            
+            <div className="custom-match-form">
+              {/* Max Points */}
+              <div className="form-group">
+                <label htmlFor="maxPoints">
+                  <span className="label-icon">🎯</span>
+                  Max Points to Win
+                </label>
+                <div className="range-container">
+                  <input
+                    type="range"
+                    id="maxPoints"
+                    min="100"
+                    max="200"
+                    step="10"
+                    value={customMatchConfig.maxPoints}
+                    onChange={(e) => setCustomMatchConfig({
+                      ...customMatchConfig,
+                      maxPoints: parseInt(e.target.value)
+                    })}
+                    className="range-slider"
+                  />
+                  <div className="range-value">{customMatchConfig.maxPoints}</div>
+                </div>
+                <div className="range-labels">
+                  <span>100</span>
+                  <span>200</span>
+                </div>
+              </div>
+
+              {/* Number of Players */}
+              <div className="form-group">
+                <label htmlFor="numPlayers">
+                  <span className="label-icon">👥</span>
+                  Number of Players
+                </label>
+                <div className="range-container">
+                  <input
+                    type="range"
+                    id="numPlayers"
+                    min="2"
+                    max="8"
+                    step="1"
+                    value={customMatchConfig.numPlayers}
+                    onChange={(e) => setCustomMatchConfig({
+                      ...customMatchConfig,
+                      numPlayers: parseInt(e.target.value)
+                    })}
+                    className="range-slider"
+                  />
+                  <div className="range-value">{customMatchConfig.numPlayers}</div>
+                </div>
+                <div className="range-labels">
+                  <span>2</span>
+                  <span>8</span>
+                </div>
+              </div>
+
+              {/* Private/Public Toggle */}
+              <div className="form-group">
+                <label>
+                  <span className="label-icon">🔒</span>
+                  Match Type
+                </label>
+                <div className="toggle-container">
+                  <button
+                    className={`toggle-btn ${!customMatchConfig.isPrivate ? 'active' : ''}`}
+                    onClick={() => handlePrivateToggle()}
+                  >
+                    🌐 Public
+                  </button>
+                  <button
+                    className={`toggle-btn ${customMatchConfig.isPrivate ? 'active' : ''}`}
+                    onClick={() => handlePrivateToggle()}
+                  >
+                    🔐 Private
+                  </button>
+                </div>
+              </div>
+
+              {/* Room Code (only for private) */}
+              {customMatchConfig.isPrivate && (
+                <div className="form-group room-code-group">
+                  <label>
+                    <span className="label-icon">🎫</span>
+                    Room Code
+                  </label>
+                  <div className="room-code-display">
+                    <span className="code">{customMatchConfig.roomCode}</span>
+                    <button 
+                      className="copy-btn"
+                      onClick={() => {
+                        navigator.clipboard.writeText(customMatchConfig.roomCode);
+                        alert('Room code copied!');
+                      }}
+                    >
+                      📋 Copy
+                    </button>
+                  </div>
+                  <p className="room-code-hint">Share this code with your friends to join</p>
+                </div>
+              )}
+
+              {/* Submit Button */}
+              <button className="start-game-btn" onClick={handleCustomMatchSubmit}>
+                🎮 Start Game
               </button>
             </div>
           </div>

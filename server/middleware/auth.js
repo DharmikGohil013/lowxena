@@ -16,21 +16,41 @@ export const authenticateToken = async (req, res, next) => {
       });
     }
 
-    // Verify with Supabase
-    const { data: { user }, error } = await supabase.auth.getUser(token);
+    // Verify JWT token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    if (error || !user) {
+    if (!decoded || !decoded.userId) {
       return res.status(403).json({
         success: false,
         message: 'Invalid or expired token'
       });
     }
 
-    // Attach user to request
-    req.user = user;
+    // Attach user info to request
+    req.user = {
+      id: decoded.userId,
+      email: decoded.email,
+      name: decoded.name
+    };
+    
     next();
   } catch (error) {
     console.error('Auth middleware error:', error);
+    
+    if (error.name === 'JsonWebTokenError') {
+      return res.status(403).json({
+        success: false,
+        message: 'Invalid token'
+      });
+    }
+    
+    if (error.name === 'TokenExpiredError') {
+      return res.status(403).json({
+        success: false,
+        message: 'Token expired'
+      });
+    }
+    
     return res.status(500).json({
       success: false,
       message: 'Authentication error',

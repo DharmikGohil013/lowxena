@@ -123,6 +123,76 @@ export const gameAPI = {
       throw error.response?.data || error.message;
     }
   },
+
+  // Create room
+  createRoom: async (config) => {
+    try {
+      const response = await apiClient.post('/game/create-room', config);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  // Get all available rooms
+  getRooms: async () => {
+    try {
+      const response = await apiClient.get('/game/rooms');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  // Get room details
+  getRoomDetails: async (roomId) => {
+    try {
+      const response = await apiClient.get(`/game/room/${roomId}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  // Join room
+  joinRoom: async (roomId, code = null) => {
+    try {
+      const response = await apiClient.post(`/game/join-room/${roomId}`, { code });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  // Leave room
+  leaveRoom: async (roomId) => {
+    try {
+      const response = await apiClient.post(`/game/leave-room/${roomId}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  // Start game in room
+  startGame: async (roomId) => {
+    try {
+      const response = await apiClient.post(`/game/start-game/${roomId}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  // Kick player from room
+  kickPlayer: async (roomId, playerId) => {
+    try {
+      const response = await apiClient.post(`/game/kick-player/${roomId}`, { playerId });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
 };
 
 export default apiClient;

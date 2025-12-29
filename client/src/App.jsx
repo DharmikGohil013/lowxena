@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Home from './pages/Home'
 import Game from './pages/Game'
 import Rules from './pages/Rules'
+import RoomList from './pages/RoomList'
+import RoomLobby from './pages/RoomLobby'
 import Loader from './components/Loader'
 import './App.css'
 
@@ -28,6 +30,8 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/game" element={<Game />} />
         <Route path="/rules" element={<Rules />} />
+        <Route path="/rooms" element={<RoomList />} />
+        <Route path="/room/:roomId" element={<RoomLobby />} />
       </Routes>
     </Router>
   )
