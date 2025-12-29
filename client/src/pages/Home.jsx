@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google'
 import Loader from '../components/Loader'
-import { authAPI } from '../services/api'
+import { authAPI, gameAPI, userAPI } from '../services/api'
 import './Home.css'
 
 // GOOGLE OAUTH SETUP INSTRUCTIONS:
@@ -46,6 +46,9 @@ function Home() {
   })
   const [saving, setSaving] = useState(false)
   const [showGameModeModal, setShowGameModeModal] = useState(false)
+  const [leaderboard, setLeaderboard] = useState([])
+  const [userRank, setUserRank] = useState(null)
+  const [loadingLeaderboard, setLoadingLeaderboard] = useState(false)
 
   // Check for existing token on mount (auto-login)
   useEffect(() => {
@@ -63,6 +66,41 @@ function Home() {
     };
     checkAuth();
   }, []);
+
+  // Fetch leaderboard
+  useEffect(() => {
+    const fetchLeaderboard = async () => {
+      setLoadingLeaderboard(true);
+      try {
+        const response = await gameAPI.getLeaderboard(5);
+        if (response.success && response.leaderboard) {
+          setLeaderboard(response.leaderboard);
+          
+          // If user is logged in, find their rank
+          if (userId) {
+            const fullLeaderboard = await gameAPI.getLeaderboard(1000);
+            if (fullLeaderboard.success && fullLeaderboard.leaderboard) {
+              const userIndex = fullLeaderboard.leaderboard.findIndex(
+                player => player.id === userId
+              );
+              if (userIndex !== -1) {
+                setUserRank({
+                  rank: userIndex + 1,
+                  ...fullLeaderboard.leaderboard[userIndex]
+                });
+              }
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching leaderboard:', error);
+      } finally {
+        setLoadingLeaderboard(false);
+      }
+    };
+
+    fetchLeaderboard();
+  }, [userId]);
 
   const handlePlay = () => {
     setShowGameModeModal(true)
@@ -191,6 +229,59 @@ function Home() {
         <div className="stars"></div>
         <div className="particles"></div>
         <div className="gradient-overlay"></div>
+      </div>
+
+      {/* Leaderboard Section - Top Left */}
+      <div className="leaderboard-section">
+        <div className="leaderboard-header">
+          <h3>🏆 Leaderboard</h3>
+        </div>
+        <div className="leaderboard-content">
+          {loadingLeaderboard ? (
+            <div className="leaderboard-loading">Loading...</div>
+          ) : (
+            <>
+              {leaderboard.map((player, index) => (
+                <div key={player.id} className={`leaderboard-item ${player.id === userId ? 'current-user' : ''}`}>
+                  <div className="rank">#{index + 1}</div>
+                  <div className="player-info">
+                    <img 
+                      src={player.avatar_url || "/avatar.png"} 
+                      alt={player.name}
+                      className="player-avatar"
+                      onError={(e) => e.target.src = "/avatar.png"}
+                    />
+                    <span className="player-name">{player.name || 'Anonymous'}</span>
+                  </div>
+                  <div className="score">{player.high_score || 0}</div>
+                </div>
+              ))}
+              
+              {userRank && userRank.rank > 5 && (
+                <>
+                  <div className="leaderboard-divider">...</div>
+                  <div className="leaderboard-item current-user">
+                    <div className="rank">#{userRank.rank}</div>
+                    <div className="player-info">
+                      <img 
+                        src={playerPicture || "/avatar.png"} 
+                        alt={playerName}
+                        className="player-avatar"
+                        onError={(e) => e.target.src = "/avatar.png"}
+                      />
+                      <span className="player-name">You</span>
+                    </div>
+                    <div className="score">{userRank.high_score || 0}</div>
+                  </div>
+                </>
+              )}
+              
+              <button className="see-more-btn" onClick={() => navigate('/leaderboard')}>
+                See More
+              </button>
+            </>
+          )}
+        </div>
       </div>
 
       {/* Profile Section - Top Right */}
@@ -407,6 +498,22 @@ function Home() {
           <span className="play-icon">▶</span>
           <span className="play-text">PLAY</span>
           <div className="button-glow"></div>
+        </button>
+      </div>
+
+      {/* Read Rules Button - Bottom Right */}
+      <div className="rules-button-container">
+        <button className="rules-button" onClick={() => navigate('/rules')}>
+          <span className="rules-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+              <line x1="10" y1="8" x2="16" y2="8"></line>
+              <line x1="10" y1="12" x2="16" y2="12"></line>
+              <line x1="10" y1="16" x2="14" y2="16"></line>
+            </svg>
+          </span>
+          <span className="rules-text">READ RULES</span>
         </button>
       </div>
 
