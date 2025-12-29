@@ -152,7 +152,7 @@ function Home() {
       })
       
       // Navigate to room lobby
-      navigate(`/room/${response.data.roomId}`)
+      navigate(`/room/${response.roomId}`)
     } catch (err) {
       console.error('Error creating room:', err)
       alert('Failed to create room. Please try again.')

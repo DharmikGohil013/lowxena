@@ -27,11 +27,11 @@ function RoomList() {
   const fetchRooms = async () => {
     try {
       const response = await gameAPI.getRooms()
-      if (response.success && response.rooms) {
-        setRooms(response.rooms)
-      }
+      console.log('Fetched rooms:', response)
+      setRooms(Array.isArray(response) ? response : [])
     } catch (error) {
       console.error('Error fetching rooms:', error)
+      setRooms([])
     }
   }
 
@@ -40,15 +40,15 @@ function RoomList() {
 
     // Filter by type
     if (filter === 'public') {
-      filtered = filtered.filter(room => !room.is_private)
+      filtered = filtered.filter(room => !room.isPrivate)
     } else if (filter === 'private') {
-      filtered = filtered.filter(room => room.is_private)
+      filtered = filtered.filter(room => room.isPrivate)
     }
 
     // Filter by search query
     if (searchQuery) {
       filtered = filtered.filter(room => 
-        room.room_name.toLowerCase().includes(searchQuery.toLowerCase())
+        room.roomName.toLowerCase().includes(searchQuery.toLowerCase())
       )
     }
 
@@ -56,7 +56,7 @@ function RoomList() {
   }
 
   const handleJoinRoom = (room) => {
-    if (room.is_private) {
+    if (room.isPrivate) {
       setSelectedRoom(room)
       setShowJoinModal(true)
     } else {
@@ -67,15 +67,11 @@ function RoomList() {
   const joinRoom = async (roomId, code = null) => {
     setLoading(true)
     try {
-      const response = await gameAPI.joinRoom(roomId, code)
-      if (response.success) {
-        navigate(`/room/${roomId}`)
-      } else {
-        alert(response.message || 'Failed to join room')
-      }
+      await gameAPI.joinRoom(roomId, code)
+      navigate(`/room/${roomId}`)
     } catch (error) {
       console.error('Error joining room:', error)
-      alert('Failed to join room')
+      alert(error.error || 'Failed to join room')
     } finally {
       setLoading(false)
       setShowJoinModal(false)
@@ -141,13 +137,13 @@ function RoomList() {
               className={`filter-btn ${filter === 'public' ? 'active' : ''}`}
               onClick={() => setFilter('public')}
             >
-              🌐 Public ({rooms.filter(r => !r.is_private).length})
+              🌍 Public ({rooms.filter(r => !r.isPrivate).length})
             </button>
             <button 
               className={`filter-btn ${filter === 'private' ? 'active' : ''}`}
               onClick={() => setFilter('private')}
             >
-              🔒 Private ({rooms.filter(r => r.is_private).length})
+              🔒 Private ({rooms.filter(r => r.isPrivate).length})
             </button>
           </div>
         </div>
@@ -168,8 +164,8 @@ function RoomList() {
               <div key={room.id} className="room-card">
                 <div className="room-header">
                   <div className="room-name">
-                    {room.is_private && <span className="lock-icon">🔒</span>}
-                    <h3>{room.room_name}</h3>
+                    {room.isPrivate && <span className="lock-icon">🔒</span>}
+                    <h3>{room.roomName}</h3>
                   </div>
                   <div className={`room-status ${room.status}`}>
                     {room.status === 'waiting' ? '⏳ Waiting' : '🎮 Playing'}
@@ -179,26 +175,26 @@ function RoomList() {
                 <div className="room-info">
                   <div className="info-item">
                     <span className="label">Players:</span>
-                    <span className="value">{room.current_players}/{room.max_players}</span>
+                    <span className="value">{room.currentPlayers}/{room.maxPlayers}</span>
                   </div>
                   <div className="info-item">
                     <span className="label">Max Points:</span>
-                    <span className="value">{room.max_points}</span>
+                    <span className="value">{room.maxPoints}</span>
                   </div>
                   <div className="info-item">
                     <span className="label">Host:</span>
-                    <span className="value">{room.host_name || 'Unknown'}</span>
+                    <span className="value">{room.hostName || 'Unknown'}</span>
                   </div>
                 </div>
 
                 <button 
                   className="join-room-btn"
                   onClick={() => handleJoinRoom(room)}
-                  disabled={room.current_players >= room.max_players || room.status === 'playing'}
+                  disabled={room.currentPlayers >= room.maxPlayers || room.status === 'playing'}
                 >
-                  {room.current_players >= room.max_players ? 'Room Full' : 
+                  {room.currentPlayers >= room.maxPlayers ? 'Room Full' : 
                    room.status === 'playing' ? 'Game Started' : 
-                   room.is_private ? '🔐 Join with Code' : '✓ Join Room'}
+                   room.isPrivate ? '🔐 Join with Code' : '✓ Join Room'}
                 </button>
               </div>
             ))
