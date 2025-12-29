@@ -10,7 +10,6 @@ function RoomLobby() {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [playerReadyStates, setPlayerReadyStates] = useState({});
 
   useEffect(() => {
     fetchCurrentUser();
@@ -58,13 +57,19 @@ function RoomLobby() {
     }
   };
 
-  const handleToggleReady = () => {
+  const handleToggleReady = async () => {
     if (!currentUser) return;
     
-    setPlayerReadyStates(prev => ({
-      ...prev,
-      [currentUser.id]: !prev[currentUser.id]
-    }));
+    try {
+      console.log('🔄 Toggling ready status for room:', roomId);
+      const response = await gameAPI.toggleReady(roomId);
+      console.log('✅ Ready status updated:', response);
+      // Refresh room details to show updated ready status
+      await fetchRoomDetails();
+    } catch (err) {
+      console.error('❌ Error toggling ready:', err);
+      alert('Failed to update ready status. Please refresh the page.');
+    }
   };
 
   const handleStartGame = async () => {
@@ -73,6 +78,15 @@ function RoomLobby() {
     // Check minimum player count
     if (roomDetails?.players?.length < 2) {
       alert('Need at least 2 players to start the game');
+      return;
+    }
+    
+    // Check if all non-host players are ready
+    const nonHostPlayers = roomDetails.players.filter(p => p.id !== roomDetails.hostId);
+    const allReady = nonHostPlayers.every(p => p.isReady);
+    
+    if (!allReady && nonHostPlayers.length > 0) {
+      alert('All players must be ready before starting the game');
       return;
     }
     
@@ -221,7 +235,6 @@ function RoomLobby() {
             <div className="players-list">
               {roomDetails?.players?.map((player) => {
                 const isPlayerHost = player.id === roomDetails.hostId;
-                const isReady = playerReadyStates[player.id];
                 const isCurrentPlayer = currentUser && player.id === currentUser.id;
 
                 return (
@@ -250,8 +263,8 @@ function RoomLobby() {
                         {isPlayerHost ? 'Master' : 'Member'}
                       </div>
                       {!isPlayerHost && (
-                        <div className={`player-status ${isReady ? 'ready' : 'not-ready'}`}>
-                          {isReady ? '✓ Ready' : 'Not Ready'}
+                        <div className={`player-status ${player.isReady ? 'ready' : 'not-ready'}`}>
+                          {player.isReady ? '✓ Ready' : 'Not Ready'}
                         </div>
                       )}
                     </div>
@@ -277,32 +290,67 @@ function RoomLobby() {
         {/* Action Buttons */}
         <div className="lobby-actions">
           {isHost() ? (
-            <button 
-              className="start-game-btn" 
-              onClick={handleStartGame}
-              disabled={roomDetails?.players?.length < 2}
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M8 5v14l11-7z"/>
-              </svg>
-              {roomDetails?.players?.length < 2 ? 'Waiting for Players...' : '🎮 Start Game'}
-            </button>
-          ) : (
-            <button 
-              className={`ready-btn ${playerReadyStates[currentUser?.id] ? 'ready' : ''}`}
-              onClick={handleToggleReady}
-            >
-              {playerReadyStates[currentUser?.id] ? (
-                <>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                    <polyline points="20 6 9 17 4 12"></polyline>
+            <>
+              {roomDetails?.players?.length < 2 ? (
+                <button 
+                  className="start-game-btn disabled" 
+                  disabled
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M8 5v14l11-7z"/>
                   </svg>
-                  Ready
-                </>
-              ) : (
-                'Mark as Ready'
-              )}
-            </button>
+                  Waiting for Players...
+                </button>
+              ) : (() => {
+                const nonHostPlayers = roomDetails.players.filter(p => p.id !== roomDetails.hostId);
+                const allReady = nonHostPlayers.every(p => p.isReady);
+                return allReady ? (
+                  <button 
+                    className="start-game-btn" 
+                    onClick={handleStartGame}
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M8 5v14l11-7z"/>
+                    </svg>
+                    🎮 Start Game
+                  </button>
+                ) : (
+                  <button 
+                    className="start-game-btn disabled" 
+                    disabled
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M8 5v14l11-7z"/>
+                    </svg>
+                    Waiting for Players to Ready...
+                  </button>
+                );
+              })()}
+            </>
+          ) : (
+            <>
+              {(() => {
+                const currentPlayerData = roomDetails?.players?.find(p => p.id === currentUser?.id);
+                const isReady = currentPlayerData?.isReady || false;
+                return (
+                  <button 
+                    className={`ready-btn ${isReady ? 'ready' : ''}`}
+                    onClick={handleToggleReady}
+                  >
+                    {isReady ? (
+                      <>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                          <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        Ready
+                      </>
+                    ) : (
+                      'Mark as Ready'
+                    )}
+                  </button>
+                );
+              })()}
+            </>
           )}
         </div>
       </div>

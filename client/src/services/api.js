@@ -203,6 +203,16 @@ export const gameAPI = {
       throw error.response?.data || error.message;
     }
   },
+
+  // Toggle ready status
+  toggleReady: async (roomId) => {
+    try {
+      const response = await apiClient.post(`/game/toggle-ready/${roomId}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
 };
 
 export default apiClient;

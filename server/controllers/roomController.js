@@ -138,7 +138,8 @@ export const getRoomDetails = async (req, res) => {
       .from('room_members')
       .select(`
         user:users(id, name, avatar_url),
-        is_host
+        is_host,
+        is_ready
       `)
       .eq('room_id', roomId);
 
@@ -149,7 +150,8 @@ export const getRoomDetails = async (req, res) => {
       id: member.user.id,
       name: member.user.name,
       avatarUrl: member.user.avatar_url,
-      isHost: member.is_host
+      isHost: member.is_host,
+      isReady: member.is_ready || false
     }));
 
     res.json({
@@ -433,5 +435,42 @@ export const checkUserRoom = async (req, res) => {
   } catch (error) {
     console.error('Error checking user room:', error);
     res.status(500).json({ error: 'Failed to check user room' });
+  }
+};
+
+// Toggle player ready status
+export const toggleReady = async (req, res) => {
+  try {
+    const { roomId } = req.params;
+    const userId = req.user.id;
+
+    // Get current ready status
+    const { data: membership, error: fetchError } = await supabaseAdmin
+      .from('room_members')
+      .select('is_ready')
+      .eq('room_id', roomId)
+      .eq('user_id', userId)
+      .single();
+
+    if (fetchError || !membership) {
+      return res.status(404).json({ error: 'Not in this room' });
+    }
+
+    // Toggle ready status
+    const { error: updateError } = await supabaseAdmin
+      .from('room_members')
+      .update({ is_ready: !membership.is_ready })
+      .eq('room_id', roomId)
+      .eq('user_id', userId);
+
+    if (updateError) throw updateError;
+
+    res.json({ 
+      message: 'Ready status updated',
+      isReady: !membership.is_ready
+    });
+  } catch (error) {
+    console.error('Error toggling ready status:', error);
+    res.status(500).json({ error: 'Failed to toggle ready status' });
   }
 };

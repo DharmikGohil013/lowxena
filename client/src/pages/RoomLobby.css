@@ -393,12 +393,16 @@
   color: #667eea;
   border: 3px solid #667eea;
   box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+  pointer-events: auto;
+  cursor: pointer;
 }
 
 .ready-btn.ready {
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: white;
   border-color: #10b981;
+  pointer-events: auto;
+  cursor: pointer;
 }
 
 .ready-btn:hover {
@@ -408,6 +412,10 @@
 
 .ready-btn.ready:hover {
   box-shadow: 0 15px 40px rgba(16, 185, 129, 0.5);
+}
+
+.ready-btn:active {
+  transform: translateY(-1px);
 }
 
 /* Loading & Error */

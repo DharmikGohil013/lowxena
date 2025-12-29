@@ -13,7 +13,8 @@ import {
   leaveRoom,
   startGame,
   kickPlayer,
-  checkUserRoom
+  checkUserRoom,
+  toggleReady
 } from '../controllers/roomController.js';
 import { authenticateToken } from '../middleware/auth.js';
 
@@ -105,5 +106,12 @@ router.post('/kick-player/:roomId', kickPlayer);
  * @access  Private
  */
 router.get('/check-room', checkUserRoom);
+
+/**
+ * @route   POST /api/game/toggle-ready/:roomId
+ * @desc    Toggle player ready status
+ * @access  Private
+ */
+router.post('/toggle-ready/:roomId', toggleReady);
 
 export default router;
