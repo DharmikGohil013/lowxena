@@ -45,6 +45,7 @@ function Home() {
     avatar_url: ''
   })
   const [saving, setSaving] = useState(false)
+  const [showGameModeModal, setShowGameModeModal] = useState(false)
 
   // Check for existing token on mount (auto-login)
   useEffect(() => {
@@ -64,7 +65,13 @@ function Home() {
   }, []);
 
   const handlePlay = () => {
-    navigate('/game')
+    setShowGameModeModal(true)
+  }
+
+  const handleGameModeSelect = (mode) => {
+    setShowGameModeModal(false)
+    // Navigate to game with selected mode
+    navigate('/game', { state: { mode } })
   }
 
   const handleLoginClick = () => {
@@ -292,6 +299,66 @@ function Home() {
                 disabled={saving}
               >
                 {saving ? 'Saving...' : 'Save Profile'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Game Mode Selection Modal */}
+      {showGameModeModal && (
+        <div className="modal-overlay" onClick={() => setShowGameModeModal(false)}>
+          <div className="game-mode-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-close" onClick={() => setShowGameModeModal(false)}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </div>
+            <h2>Choose Game Mode</h2>
+            <p>Select how you want to play</p>
+            
+            <div className="game-mode-options">
+              <button 
+                className="game-mode-btn create-custom"
+                onClick={() => handleGameModeSelect('custom')}
+              >
+                <div className="mode-icon">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="12" y1="8" x2="12" y2="16"></line>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                  </svg>
+                </div>
+                <h3>Create Custom Game</h3>
+                <p>Set your own rules and invite friends</p>
+              </button>
+
+              <button 
+                className="game-mode-btn join-bots"
+                onClick={() => handleGameModeSelect('bots')}
+              >
+                <div className="mode-icon">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                  </svg>
+                </div>
+                <h3>Join Fast with Bots</h3>
+                <p>Practice with AI opponents</p>
+              </button>
+
+              <button 
+                className="game-mode-btn fast-join"
+                onClick={() => handleGameModeSelect('quick')}
+              >
+                <div className="mode-icon">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                  </svg>
+                </div>
+                <h3>Fast Join</h3>
+                <p>Jump into a random game instantly</p>
               </button>
             </div>
           </div>
