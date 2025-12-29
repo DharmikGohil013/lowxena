@@ -167,6 +167,17 @@ function Home() {
   return (
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
     <div className="home-container">
+      {/* Video Background */}
+      <video 
+        className="video-background" 
+        autoPlay 
+        loop 
+        muted 
+        playsInline
+      >
+        <source src="/background.mp4" type="video/mp4" />
+      </video>
+      
       {/* Animated background */}
       <div className="animated-bg">
         <div className="stars"></div>
@@ -297,11 +308,28 @@ function Home() {
               </svg>
             </div>
             <h2>Welcome to LowXena</h2>
-            <p>Sign in with your Google account to continue</p>
+            <p>Sign in with your Google account to start your gaming journey</p>
             
             <div className="google-login-container">
               {loading ? (
-                <div style={{ color: 'white', padding: '20px' }}>Logging in...</div>
+                <div style={{ 
+                  color: 'white', 
+                  padding: '30px',
+                  fontSize: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px'
+                }}>
+                  <div style={{
+                    width: '20px',
+                    height: '20px',
+                    border: '3px solid rgba(139, 92, 246, 0.3)',
+                    borderTop: '3px solid #8b5cf6',
+                    borderRadius: '50%',
+                    animation: 'spin 1s linear infinite'
+                  }}></div>
+                  Signing you in...
+                </div>
               ) : (
                 <GoogleLogin
                   onSuccess={handleGoogleSuccess}
@@ -312,13 +340,9 @@ function Home() {
                   text="signin_with"
                   shape="rectangular"
                   logo_alignment="left"
+                  width="340"
                 />
               )}
-            </div>
-            
-            <div className="login-info">
-              <p className="info-text">🔒 Secure authentication via Google</p>
-              <p className="info-text">⚡ Quick and easy access</p>
             </div>
           </div>
         </div>
@@ -336,7 +360,7 @@ function Home() {
       {/* Game Title - Center (optional) */}
       <div className="game-title-center">
         <h1 className="title-text">LowXena</h1>
-        <p className="subtitle-text">Enter the Arena</p>
+        <p className="subtitle-text">Where the Lowest Wins.</p>
       </div>
     </div>
     </GoogleOAuthProvider>
