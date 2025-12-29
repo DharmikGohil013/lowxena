@@ -148,18 +148,18 @@ export const getRoomDetails = async (req, res) => {
     const players = members.map(member => ({
       id: member.user.id,
       name: member.user.name,
-      avatar_url: member.user.avatar_url,
+      avatarUrl: member.user.avatar_url,
       isHost: member.is_host
     }));
 
     res.json({
       id: room.id,
-      room_name: room.room_name,
-      room_code: room.room_code,
-      host_id: room.host_id,
-      max_players: room.max_players,
-      max_points: room.max_points,
-      is_private: room.is_private,
+      roomName: room.room_name,
+      roomCode: room.room_code,
+      hostId: room.host_id,
+      maxPlayers: room.max_players,
+      maxPoints: room.max_points,
+      isPrivate: room.is_private,
       status: room.status,
       players
     });

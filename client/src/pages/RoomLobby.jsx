@@ -26,9 +26,9 @@ function RoomLobby() {
   const fetchCurrentUser = async () => {
     try {
       const userData = JSON.parse(localStorage.getItem('user'));
+      console.log('User from localStorage:', userData);
       if (userData) {
-        const response = await authAPI.getProfile(userData.id);
-        setCurrentUser(response.data);
+        setCurrentUser(userData);
       }
     } catch (err) {
       console.error('Error fetching user:', err);
@@ -38,7 +38,8 @@ function RoomLobby() {
   const fetchRoomDetails = async () => {
     try {
       const response = await gameAPI.getRoomDetails(roomId);
-      setRoomDetails(response.data);
+      console.log('Room details response:', response);
+      setRoomDetails(response);
       setLoading(false);
     } catch (err) {
       console.error('Error fetching room details:', err);
@@ -101,12 +102,18 @@ function RoomLobby() {
   };
 
   const isHost = () => {
-    return currentUser && roomDetails && currentUser.id === roomDetails.host_id;
+    const result = currentUser && roomDetails && currentUser.id === roomDetails.hostId;
+    console.log('isHost check:', {
+      currentUserId: currentUser?.id,
+      hostId: roomDetails?.hostId,
+      isHost: result
+    });
+    return result;
   };
 
   const copyRoomCode = () => {
-    if (roomDetails?.room_code) {
-      navigator.clipboard.writeText(roomDetails.room_code);
+    if (roomDetails?.roomCode) {
+      navigator.clipboard.writeText(roomDetails.roomCode);
       alert('Room code copied to clipboard!');
     }
   };
@@ -170,13 +177,13 @@ function RoomLobby() {
             Leave Room
           </button>
           <div className="room-title">
-            <h1>{roomDetails?.room_name}</h1>
-            {roomDetails?.is_private && (
+            <h1>{roomDetails?.roomName}</h1>
+            {roomDetails?.isPrivate && (
               <div className="room-code-display" onClick={copyRoomCode}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M12 17a2 2 0 0 1-2-2c0-1.11.89-2 2-2a2 2 0 0 1 2 2 2 2 0 0 1-2 2m6 3V10H6v10h12m0-12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V10c0-1.11.89-2 2-2h1V6a5 5 0 0 1 5-5 5 5 0 0 1 5 5v2h1m-6-5a3 3 0 0 0-3 3v2h6V6a3 3 0 0 0-3-3z"/>
                 </svg>
-                Code: {roomDetails?.room_code}
+                Code: {roomDetails?.roomCode}
                 <span className="copy-hint">Click to copy</span>
               </div>
             )}
@@ -189,15 +196,15 @@ function RoomLobby() {
             <h3>Room Settings</h3>
             <div className="setting-item">
               <span className="setting-label">Max Points:</span>
-              <span className="setting-value">{roomDetails?.max_points}</span>
+              <span className="setting-value">{roomDetails?.maxPoints}</span>
             </div>
             <div className="setting-item">
               <span className="setting-label">Max Players:</span>
-              <span className="setting-value">{roomDetails?.players?.length || 0} / {roomDetails?.max_players}</span>
+              <span className="setting-value">{roomDetails?.players?.length || 0} / {roomDetails?.maxPlayers}</span>
             </div>
             <div className="setting-item">
               <span className="setting-label">Room Type:</span>
-              <span className="setting-value">{roomDetails?.is_private ? 'Private' : 'Public'}</span>
+              <span className="setting-value">{roomDetails?.isPrivate ? 'Private' : 'Public'}</span>
             </div>
             <div className="setting-item">
               <span className="setting-label">Status:</span>
@@ -209,10 +216,10 @@ function RoomLobby() {
 
           {/* Players List */}
           <div className="players-panel">
-            <h3>Players ({roomDetails?.players?.length || 0}/{roomDetails?.max_players})</h3>
+            <h3>Players ({roomDetails?.players?.length || 0}/{roomDetails?.maxPlayers})</h3>
             <div className="players-list">
               {roomDetails?.players?.map((player) => {
-                const isPlayerHost = player.id === roomDetails.host_id;
+                const isPlayerHost = player.id === roomDetails.hostId;
                 const isReady = playerReadyStates[player.id];
                 const isCurrentPlayer = currentUser && player.id === currentUser.id;
 
@@ -222,8 +229,8 @@ function RoomLobby() {
                     className={`player-card ${isPlayerHost ? 'host-card' : ''} ${isCurrentPlayer ? 'current-player' : ''}`}
                   >
                     <div className="player-avatar">
-                      {player.avatar_url ? (
-                        <img src={player.avatar_url} alt={player.name} />
+                      {player.avatarUrl ? (
+                        <img src={player.avatarUrl} alt={player.name} />
                       ) : (
                         <div className="avatar-placeholder">
                           {player.name?.charAt(0).toUpperCase()}
