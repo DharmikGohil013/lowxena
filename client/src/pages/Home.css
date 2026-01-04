@@ -1134,16 +1134,40 @@
   transition: all 0.4s ease;
   box-shadow: 0 8px 30px rgba(251, 191, 36, 0.5);
   margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }
 
-.start-game-btn:hover {
+.start-game-btn:hover:not(:disabled) {
   transform: translateY(-3px);
   box-shadow: 0 12px 40px rgba(251, 191, 36, 0.7);
   background: linear-gradient(135deg, #dc2626 0%, #f59e0b 50%, #fbbf24 100%);
 }
 
-.start-game-btn:active {
+.start-game-btn:active:not(:disabled) {
   transform: translateY(-1px);
+}
+
+.start-game-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  background: linear-gradient(135deg, #9ca3af 0%, #6b7280 50%, #4b5563 100%);
+  box-shadow: 0 8px 30px rgba(107, 114, 128, 0.3);
+}
+
+.start-game-btn .spinner {
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #1f2937;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 /* Responsive for custom match modal */

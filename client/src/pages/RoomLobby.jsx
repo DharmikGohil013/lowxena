@@ -9,6 +9,7 @@ function RoomLobby() {
   const [roomDetails, setRoomDetails] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [leavingRoom, setLeavingRoom] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -56,12 +57,14 @@ function RoomLobby() {
   };
 
   const handleLeaveRoom = async () => {
+    setLeavingRoom(true);
     try {
       await gameAPI.leaveRoom(roomId);
       navigate('/rooms');
     } catch (err) {
       console.error('Error leaving room:', err);
       alert('Failed to leave room');
+      setLeavingRoom(false);
     }
   };
 
@@ -193,11 +196,20 @@ function RoomLobby() {
       <div className="room-lobby-content">
         {/* Room Header */}
         <div className="room-lobby-header">
-          <button className="back-btn" onClick={handleLeaveRoom}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M19 12H5M12 19l-7-7 7-7"/>
-            </svg>
-            Leave Room
+          <button className="back-btn" onClick={handleLeaveRoom} disabled={leavingRoom}>
+            {leavingRoom ? (
+              <>
+                <span className="spinner"></span>
+                Leaving...
+              </>
+            ) : (
+              <>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Leave Room
+              </>
+            )}
           </button>
           <div className="room-title">
             <h1>{roomDetails?.roomName}</h1>

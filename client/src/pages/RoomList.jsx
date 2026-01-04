@@ -8,6 +8,7 @@ function RoomList() {
   const [rooms, setRooms] = useState([])
   const [filteredRooms, setFilteredRooms] = useState([])
   const [loading, setLoading] = useState(false)
+  const [fetchingRooms, setFetchingRooms] = useState(true)
   const [filter, setFilter] = useState('all') // all, public, private
   const [searchQuery, setSearchQuery] = useState('')
   const [showJoinModal, setShowJoinModal] = useState(false)
@@ -32,6 +33,8 @@ function RoomList() {
     } catch (error) {
       console.error('Error fetching rooms:', error)
       setRooms([])
+    } finally {
+      setFetchingRooms(false)
     }
   }
 
@@ -149,7 +152,13 @@ function RoomList() {
         </div>
 
         <div className="rooms-grid">
-          {filteredRooms.length === 0 ? (
+          {fetchingRooms ? (
+            <div className="loading-rooms">
+              <div className="spinner-large"></div>
+              <h3>Loading rooms...</h3>
+              <p>Please wait while we fetch available rooms</p>
+            </div>
+          ) : filteredRooms.length === 0 ? (
             <div className="no-rooms">
               <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
