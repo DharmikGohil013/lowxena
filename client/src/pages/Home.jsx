@@ -53,6 +53,7 @@ function Home() {
     isPrivate: false,
     roomCode: ''
   })
+  const [creatingRoom, setCreatingRoom] = useState(false)
   const [leaderboard, setLeaderboard] = useState([])
   const [userRank, setUserRank] = useState(null)
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(false)
@@ -161,7 +162,7 @@ function Home() {
     }
     
     setCustomMatchConfig(config)
-    setShowCustomMatchModal(false)
+    setCreatingRoom(true)
     
     try {
       // Create room via API
@@ -177,6 +178,7 @@ function Home() {
     } catch (err) {
       console.error('Error creating room:', err)
       alert('Failed to create room. Please try again.')
+      setCreatingRoom(false)
     }
   }
 
@@ -684,8 +686,21 @@ function Home() {
               )}
 
               {/* Submit Button */}
-              <button className="start-game-btn" onClick={handleCustomMatchSubmit}>
-                🎮 Start Game
+              <button 
+                className="start-game-btn" 
+                onClick={handleCustomMatchSubmit}
+                disabled={creatingRoom}
+              >
+                {creatingRoom ? (
+                  <>
+                    <span className="spinner"></span>
+                    Creating Room...
+                  </>
+                ) : (
+                  <>
+                    🎮 Start Game
+                  </>
+                )}
               </button>
             </div>
           </div>
