@@ -234,9 +234,46 @@
 }
 
 .player-card.host-card {
-  background: linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(245, 158, 11, 0.15) 100%);
-  border-color: rgba(251, 191, 36, 0.5);
-  box-shadow: 0 4px 15px rgba(251, 191, 36, 0.2);
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.2) 0%, rgba(245, 158, 11, 0.2) 100%);
+  border: 3px solid rgba(251, 191, 36, 0.7);
+  box-shadow: 0 6px 25px rgba(251, 191, 36, 0.4), 0 0 30px rgba(251, 191, 36, 0.2);
+  animation: masterGlow 3s ease-in-out infinite;
+}
+
+@keyframes masterGlow {
+  0%, 100% {
+    box-shadow: 0 6px 25px rgba(251, 191, 36, 0.4), 0 0 30px rgba(251, 191, 36, 0.2);
+    border-color: rgba(251, 191, 36, 0.7);
+  }
+  50% {
+    box-shadow: 0 10px 35px rgba(251, 191, 36, 0.6), 0 0 40px rgba(251, 191, 36, 0.3);
+    border-color: rgba(251, 191, 36, 0.9);
+  }
+}
+
+.player-card.host-card:hover {
+  transform: translateX(10px) scale(1.03);
+  box-shadow: 0 12px 45px rgba(251, 191, 36, 0.5), 0 0 50px rgba(251, 191, 36, 0.4);
+}
+
+.player-card.host-card .player-name {
+  color: #d97706;
+  text-shadow: 0 2px 10px rgba(251, 191, 36, 0.3);
+}
+
+.player-card.host-card .player-role {
+  color: #f59e0b;
+  font-weight: 800;
+}
+
+.player-card.host-card .avatar-placeholder {
+  border-color: rgba(251, 191, 36, 0.6);
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.4);
+}
+
+.player-card.host-card .player-avatar img {
+  border-color: rgba(251, 191, 36, 0.6);
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.4);
 }
 
 .player-card.current-player {
