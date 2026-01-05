@@ -385,6 +385,11 @@ function RoomLobby() {
           )}
         </div>
       </div>
+
+      {/* Show loader when toggling ready status */}
+      {togglingReady && (
+        <Loader message={roomDetails?.players?.find(p => p.id === currentUser?.id)?.isReady ? "Unmarking ready..." : "Marking as ready..."} />
+      )}
     </div>
   );
 }
