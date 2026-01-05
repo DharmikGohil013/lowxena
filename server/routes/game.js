@@ -3,7 +3,9 @@ import {
   getLeaderboard,
   saveGameScore,
   getGameHistory,
-  getGameSettings
+  getGameSettings,
+  updateGameState,
+  getGameState
 } from '../controllers/gameController.js';
 import {
   createRoom,
@@ -113,5 +115,19 @@ router.get('/check-room', checkUserRoom);
  * @access  Private
  */
 router.post('/toggle-ready/:roomId', toggleReady);
+
+/**
+ * @route   POST /api/game/update-state/:roomId
+ * @desc    Update game state for synchronization
+ * @access  Private
+ */
+router.post('/update-state/:roomId', updateGameState);
+
+/**
+ * @route   GET /api/game/state/:roomId
+ * @desc    Get game state for synchronization
+ * @access  Private
+ */
+router.get('/state/:roomId', getGameState);
 
 export default router;

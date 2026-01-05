@@ -192,4 +192,68 @@ export const getGameSettings = async (req, res) => {
   }
 };
 
-export default { getLeaderboard, saveGameScore, getGameHistory, getGameSettings };
+/**
+ * Update game state
+ */
+export const updateGameState = async (req, res) => {
+  try {
+    const { roomId } = req.params;
+    const gameState = req.body;
+
+    // Store game state in rooms table metadata
+    const { error } = await supabase
+      .from('rooms')
+      .update({
+        game_state: gameState,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', roomId);
+
+    if (error) throw error;
+
+    res.json({
+      success: true,
+      message: 'Game state updated successfully'
+    });
+
+  } catch (error) {
+    console.error('Update game state error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update game state',
+      error: error.message
+    });
+  }
+};
+
+/**
+ * Get game state
+ */
+export const getGameState = async (req, res) => {
+  try {
+    const { roomId } = req.params;
+
+    const { data: room, error } = await supabase
+      .from('rooms')
+      .select('game_state')
+      .eq('id', roomId)
+      .single();
+
+    if (error) throw error;
+
+    res.json({
+      success: true,
+      gameState: room.game_state || {}
+    });
+
+  } catch (error) {
+    console.error('Get game state error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch game state',
+      error: error.message
+    });
+  }
+};
+
+export default { getLeaderboard, saveGameScore, getGameHistory, getGameSettings, updateGameState, getGameState };

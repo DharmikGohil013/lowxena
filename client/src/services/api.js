@@ -213,6 +213,26 @@ export const gameAPI = {
       throw error.response?.data || error.message;
     }
   },
+
+  // Update game state
+  updateGameState: async (roomId, gameState) => {
+    try {
+      const response = await apiClient.post(`/game/update-state/${roomId}`, gameState);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  // Get game state
+  getGameState: async (roomId) => {
+    try {
+      const response = await apiClient.get(`/game/state/${roomId}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
 };
 
 export default apiClient;

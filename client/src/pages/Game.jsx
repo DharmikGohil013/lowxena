@@ -67,49 +67,48 @@ function Game() {
     fetchCurrentUser()
     if (roomId) {
       fetchRoomDetails()
+      fetchGameState() // Load initial game state from backend
       initializeGame()
     } else {
       setLoading(false)
     }
     
-    // Poll for game updates
+    // Poll for game updates - fetch from backend for sync across all players
     const interval = setInterval(() => {
       if (roomId) {
         fetchRoomDetails()
-        syncGameState()
+        fetchGameState()
       }
-    }, 2000)
+    }, 1000) // Poll every 1 second for real-time sync
     
     return () => clearInterval(interval)
   }, [roomId])
 
   // Sync game state across all players
-  const syncGameState = () => {
+  const fetchGameState = async () => {
     if (!roomId) return
     
-    const storageKey = `game_state_${roomId}`
-    const storedState = localStorage.getItem(storageKey)
-    
-    if (storedState) {
-      try {
-        const parsedState = JSON.parse(storedState)
-        // Update game state with synced values
+    try {
+      const data = await gameAPI.getGameState(roomId)
+      
+      if (data && data.gameState) {
+        // Update game state with synced values from backend
         setGameState(prev => ({
           ...prev,
-          currentTurn: parsedState.currentTurn,
-          currentTurnIndex: parsedState.currentTurnIndex,
-          gameStarted: parsedState.gameStarted
+          currentTurn: data.gameState.currentTurn || prev.currentTurn,
+          currentTurnIndex: data.gameState.currentTurnIndex ?? prev.currentTurnIndex,
+          gameStarted: data.gameState.gameStarted ?? prev.gameStarted
         }))
         
-        // Sync countdown
-        if (parsedState.countdownTimestamp) {
-          const elapsed = Math.floor((Date.now() - parsedState.countdownTimestamp) / 1000)
+        // Sync countdown from server timestamp
+        if (data.gameState.countdownTimestamp) {
+          const elapsed = Math.floor((Date.now() - data.gameState.countdownTimestamp) / 1000)
           const remaining = Math.max(0, 30 - elapsed)
           setCountdown(remaining)
         }
-      } catch (e) {
-        console.error('Error syncing game state:', e)
       }
+    } catch (error) {
+      console.error('Error fetching game state:', error)
     }
   }
 
@@ -130,12 +129,15 @@ function Game() {
     
     const timer = setInterval(() => {
       setCountdown(prev => {
-        if (prev <= 1) {
-          // Auto-advance to next player
+        const newCount = prev - 1
+        
+        // Auto-advance if time is up and it's my turn
+        if (newCount <= 0 && isMyTurn()) {
           handleNextTurn()
           return 30
         }
-        return prev - 1
+        
+        return newCount > 0 ? newCount : prev
       })
     }, 1000)
     
@@ -232,14 +234,13 @@ function Game() {
           currentTurnIndex: 0
         }))
         
-        // Store initial game state in localStorage for sync
-        const storageKey = `game_state_${roomId}`
-        localStorage.setItem(storageKey, JSON.stringify({
+        // Save initial game state to backend for sync
+        gameAPI.updateGameState(roomId, {
           currentTurn: roomDetails.players[0]?.id,
           currentTurnIndex: 0,
           gameStarted: true,
           countdownTimestamp: Date.now()
-        }))
+        }).catch(err => console.error('Error saving game state:', err))
         
         // Reset countdown for first turn
         setCountdown(30)
@@ -255,7 +256,7 @@ function Game() {
     }, 150) // Deal one card every 150ms
   }
 
-  const handleNextTurn = () => {
+  const handleNextTurn = async () => {
     if (!roomDetails?.players) return
     
     const nextIndex = (gameState.currentTurnIndex + 1) % roomDetails.players.length
@@ -267,14 +268,17 @@ function Game() {
       currentTurnIndex: nextIndex
     }))
     
-    // Store turn state in localStorage for sync across all players
-    const storageKey = `game_state_${roomId}`
-    localStorage.setItem(storageKey, JSON.stringify({
-      currentTurn: nextPlayer.id,
-      currentTurnIndex: nextIndex,
-      gameStarted: true,
-      countdownTimestamp: Date.now()
-    }))
+    // Save turn state to backend for sync across all players
+    try {
+      await gameAPI.updateGameState(roomId, {
+        currentTurn: nextPlayer.id,
+        currentTurnIndex: nextIndex,
+        gameStarted: true,
+        countdownTimestamp: Date.now()
+      })
+    } catch (error) {
+      console.error('Error updating game state:', error)
+    }
     
     setCountdown(30)
   }
