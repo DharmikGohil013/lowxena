@@ -48,7 +48,7 @@ function Home() {
   const [showGameModeModal, setShowGameModeModal] = useState(false)
   const [showCustomMatchModal, setShowCustomMatchModal] = useState(false)
   const [customMatchConfig, setCustomMatchConfig] = useState({
-    maxPoints: 200,
+    maxPoints: 40,
     numPlayers: 4,
     isPrivate: false,
     roomCode: ''
@@ -585,9 +585,9 @@ function Home() {
                   <input
                     type="range"
                     id="maxPoints"
-                    min="100"
-                    max="200"
-                    step="10"
+                    min="10"
+                    max="40"
+                    step="5"
                     value={customMatchConfig.maxPoints}
                     onChange={(e) => setCustomMatchConfig({
                       ...customMatchConfig,
@@ -598,8 +598,8 @@ function Home() {
                   <div className="range-value">{customMatchConfig.maxPoints}</div>
                 </div>
                 <div className="range-labels">
-                  <span>100</span>
-                  <span>200</span>
+                  <span>10</span>
+                  <span>40</span>
                 </div>
               </div>
 
@@ -614,7 +614,7 @@ function Home() {
                     type="range"
                     id="numPlayers"
                     min="2"
-                    max="8"
+                    max="7"
                     step="1"
                     value={customMatchConfig.numPlayers}
                     onChange={(e) => setCustomMatchConfig({
@@ -627,7 +627,7 @@ function Home() {
                 </div>
                 <div className="range-labels">
                   <span>2</span>
-                  <span>8</span>
+                  <span>7</span>
                 </div>
               </div>
 

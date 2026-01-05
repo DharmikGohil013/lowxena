@@ -12,12 +12,12 @@ export const createRoom = async (req, res) => {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    if (maxPoints < 100 || maxPoints > 200) {
-      return res.status(400).json({ error: 'Max points must be between 100 and 200' });
+    if (maxPoints < 10 || maxPoints > 40) {
+      return res.status(400).json({ error: 'Max points must be between 10 and 40' });
     }
 
-    if (maxPlayers < 2 || maxPlayers > 8) {
-      return res.status(400).json({ error: 'Max players must be between 2 and 8' });
+    if (maxPlayers < 2 || maxPlayers > 7) {
+      return res.status(400).json({ error: 'Max players must be between 2 and 7' });
     }
 
     // Check if user is already in a room
