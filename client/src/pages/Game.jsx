@@ -51,11 +51,13 @@ function Game() {
     playerHands: {}, // Store each player's cards
     playedCards: [],
     currentTurn: null,
+    currentTurnIndex: 0,
     gameStarted: false,
     isShuffling: false,
     isDealing: false,
     dealingCardIndex: 0
   })
+  const [countdown, setCountdown] = useState(30)
   const [showScoreboard, setShowScoreboard] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
   const navigate = useNavigate()
@@ -72,11 +74,44 @@ function Game() {
     
     // Poll for game updates
     const interval = setInterval(() => {
-      if (roomId) fetchRoomDetails()
+      if (roomId) {
+        fetchRoomDetails()
+        syncGameState()
+      }
     }, 2000)
     
     return () => clearInterval(interval)
   }, [roomId])
+
+  // Sync game state across all players
+  const syncGameState = () => {
+    if (!roomId) return
+    
+    const storageKey = `game_state_${roomId}`
+    const storedState = localStorage.getItem(storageKey)
+    
+    if (storedState) {
+      try {
+        const parsedState = JSON.parse(storedState)
+        // Update game state with synced values
+        setGameState(prev => ({
+          ...prev,
+          currentTurn: parsedState.currentTurn,
+          currentTurnIndex: parsedState.currentTurnIndex,
+          gameStarted: parsedState.gameStarted
+        }))
+        
+        // Sync countdown
+        if (parsedState.countdownTimestamp) {
+          const elapsed = Math.floor((Date.now() - parsedState.countdownTimestamp) / 1000)
+          const remaining = Math.max(0, 30 - elapsed)
+          setCountdown(remaining)
+        }
+      } catch (e) {
+        console.error('Error syncing game state:', e)
+      }
+    }
+  }
 
   // Auto-deal cards when game initializes and players are loaded
   useEffect(() => {
@@ -88,6 +123,24 @@ function Game() {
       return () => clearTimeout(timer)
     }
   }, [roomDetails?.players, gameState.deck.length, gameState.gameStarted, gameState.isShuffling, gameState.isDealing])
+
+  // Countdown timer effect
+  useEffect(() => {
+    if (!gameState.gameStarted || !roomDetails?.players) return
+    
+    const timer = setInterval(() => {
+      setCountdown(prev => {
+        if (prev <= 1) {
+          // Auto-advance to next player
+          handleNextTurn()
+          return 30
+        }
+        return prev - 1
+      })
+    }, 1000)
+    
+    return () => clearInterval(timer)
+  }, [gameState.gameStarted, gameState.currentTurnIndex, roomDetails?.players])
 
   const fetchCurrentUser = () => {
     const userData = JSON.parse(localStorage.getItem('userData'))
@@ -175,8 +228,21 @@ function Game() {
           gameStarted: true,
           isDealing: false,
           dealingCardIndex: 0,
-          currentTurn: roomDetails.players[0]?.id
+          currentTurn: roomDetails.players[0]?.id,
+          currentTurnIndex: 0
         }))
+        
+        // Store initial game state in localStorage for sync
+        const storageKey = `game_state_${roomId}`
+        localStorage.setItem(storageKey, JSON.stringify({
+          currentTurn: roomDetails.players[0]?.id,
+          currentTurnIndex: 0,
+          gameStarted: true,
+          countdownTimestamp: Date.now()
+        }))
+        
+        // Reset countdown for first turn
+        setCountdown(30)
         
         console.log('Cards dealt! Remaining in deck:', remainingDeck.length)
       } else {
@@ -187,6 +253,59 @@ function Game() {
         cardIndex++
       }
     }, 150) // Deal one card every 150ms
+  }
+
+  const handleNextTurn = () => {
+    if (!roomDetails?.players) return
+    
+    const nextIndex = (gameState.currentTurnIndex + 1) % roomDetails.players.length
+    const nextPlayer = roomDetails.players[nextIndex]
+    
+    setGameState(prev => ({
+      ...prev,
+      currentTurn: nextPlayer.id,
+      currentTurnIndex: nextIndex
+    }))
+    
+    // Store turn state in localStorage for sync across all players
+    const storageKey = `game_state_${roomId}`
+    localStorage.setItem(storageKey, JSON.stringify({
+      currentTurn: nextPlayer.id,
+      currentTurnIndex: nextIndex,
+      gameStarted: true,
+      countdownTimestamp: Date.now()
+    }))
+    
+    setCountdown(30)
+  }
+
+  const handleMove = () => {
+    if (!isMyTurn()) return
+    
+    // TODO: Implement move logic
+    console.log('Move button pressed')
+    
+    // Advance to next turn
+    handleNextTurn()
+  }
+
+  const handleLowXena = () => {
+    if (!isMyTurn()) return
+    
+    // TODO: Implement LowXena logic
+    console.log('LowXena button pressed')
+    
+    // Advance to next turn
+    handleNextTurn()
+  }
+
+  const isMyTurn = () => {
+    return currentUser && gameState.currentTurn === currentUser.id
+  }
+
+  const getCurrentTurnPlayer = () => {
+    if (!roomDetails?.players || !gameState.currentTurn) return null
+    return roomDetails.players.find(p => p.id === gameState.currentTurn)
   }
 
   const isHost = () => {
@@ -443,19 +562,45 @@ function Game() {
 
       {/* Game Action Buttons */}
       <div className="game-action-controls">
-        <button className="game-action-btn move-btn">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M5 12h14"></path>
-            <path d="M12 5l7 7-7 7"></path>
-          </svg>
-          Move
-        </button>
-        <button className="game-action-btn lowxena-btn">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-          </svg>
-          LowXena
-        </button>
+        {gameState.gameStarted && (
+          <>
+            <div className="turn-info">
+              <div className="turn-player">
+                {isMyTurn() ? 'Your Turn!' : `${getCurrentTurnPlayer()?.name}'s Turn`}
+              </div>
+              <div className="turn-countdown">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                {countdown}s
+              </div>
+            </div>
+            <div className="action-buttons-row">
+              <button 
+                className={`game-action-btn move-btn ${!isMyTurn() ? 'disabled' : ''}`}
+                onClick={handleMove}
+                disabled={!isMyTurn()}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M5 12h14"></path>
+                  <path d="M12 5l7 7-7 7"></path>
+                </svg>
+                Move
+              </button>
+              <button 
+                className={`game-action-btn lowxena-btn ${!isMyTurn() ? 'disabled' : ''}`}
+                onClick={handleLowXena}
+                disabled={!isMyTurn()}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                </svg>
+                LowXena
+              </button>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Shuffle Animation Overlay */}
