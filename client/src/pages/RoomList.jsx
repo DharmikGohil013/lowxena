@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { gameAPI, authAPI } from '../services/api'
+import Loader from '../components/Loader'
 import './RoomList.css'
 
 function RoomList() {
@@ -14,6 +15,7 @@ function RoomList() {
   const [showJoinModal, setShowJoinModal] = useState(false)
   const [selectedRoom, setSelectedRoom] = useState(null)
   const [roomCode, setRoomCode] = useState('')
+  const [joiningRoomId, setJoiningRoomId] = useState(null) // Track which room is being joined
 
   useEffect(() => {
     fetchRooms()
@@ -69,6 +71,7 @@ function RoomList() {
 
   const joinRoom = async (roomId, code = null) => {
     setLoading(true)
+    setJoiningRoomId(roomId) // Set the room being joined
     try {
       await gameAPI.joinRoom(roomId, code)
       navigate(`/room/${roomId}`)
@@ -77,6 +80,7 @@ function RoomList() {
       alert(error.error || 'Failed to join room')
     } finally {
       setLoading(false)
+      setJoiningRoomId(null) // Clear joining state
       setShowJoinModal(false)
       setRoomCode('')
     }
@@ -242,6 +246,11 @@ function RoomList() {
             </button>
           </div>
         </div>
+      )}
+
+      {/* Show loader when joining a room */}
+      {joiningRoomId && (
+        <Loader message="Joining room... Please wait!" />
       )}
     </div>
   )

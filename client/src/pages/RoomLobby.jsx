@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { gameAPI, authAPI } from '../services/api';
+import Loader from '../components/Loader';
 import './RoomLobby.css';
 
 function RoomLobby() {
@@ -10,6 +11,7 @@ function RoomLobby() {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [leavingRoom, setLeavingRoom] = useState(false);
+  const [togglingReady, setTogglingReady] = useState(false); // Track ready toggle loading
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -69,8 +71,9 @@ function RoomLobby() {
   };
 
   const handleToggleReady = async () => {
-    if (!currentUser) return;
+    if (!currentUser || togglingReady) return;
     
+    setTogglingReady(true); // Start loading
     try {
       console.log('🔄 Toggling ready status for room:', roomId);
       const response = await gameAPI.toggleReady(roomId);
@@ -80,6 +83,8 @@ function RoomLobby() {
     } catch (err) {
       console.error('❌ Error toggling ready:', err);
       alert('Failed to update ready status. Please refresh the page.');
+    } finally {
+      setTogglingReady(false); // Stop loading
     }
   };
 
@@ -354,10 +359,16 @@ function RoomLobby() {
                 const isReady = currentPlayerData?.isReady || false;
                 return (
                   <button 
-                    className={`ready-btn ${isReady ? 'ready' : ''}`}
+                    className={`ready-btn ${isReady ? 'ready' : ''} ${togglingReady ? 'loading' : ''}`}
                     onClick={handleToggleReady}
+                    disabled={togglingReady}
                   >
-                    {isReady ? (
+                    {togglingReady ? (
+                      <>
+                        <div className="btn-spinner"></div>
+                        {isReady ? 'Updating...' : 'Getting Ready...'}
+                      </>
+                    ) : isReady ? (
                       <>
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
                           <polyline points="20 6 9 17 4 12"></polyline>
