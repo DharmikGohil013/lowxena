@@ -26,6 +26,21 @@ const shuffleArray = (array) => {
   return shuffled
 }
 
+// Calculate card point value
+const getCardValue = (cardValue) => {
+  if (cardValue === 'A') return 1
+  if (cardValue === 'J') return 11
+  if (cardValue === 'Q') return 12
+  if (cardValue === 'K') return 13
+  return parseInt(cardValue)
+}
+
+// Calculate total points for a hand
+const calculateHandPoints = (cards) => {
+  if (!cards || cards.length === 0) return 0
+  return cards.reduce((total, card) => total + getCardValue(card.value), 0)
+}
+
 function Game() {
   const [loading, setLoading] = useState(true)
   const [searchParams] = useSearchParams()
@@ -337,6 +352,9 @@ function Game() {
             <div className="current-player-details">
               <div className="current-player-name">{orderedPlayers[0].name}</div>
               <div className="current-player-score">0/3</div>
+              <div className="current-player-card-count">
+                Cards: {gameState.playerHands[orderedPlayers[0].id]?.length || 0} | Total Points: {calculateHandPoints(gameState.playerHands[orderedPlayers[0].id])}
+              </div>
             </div>
           </div>
           
@@ -423,19 +441,22 @@ function Game() {
         </div>
       </div>
 
-      {/* Host Controls */}
-      {isHost() && (
-        <div className="host-controls">
-          <button className="end-game-btn" onClick={handleEndGame}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="15" y1="9" x2="9" y2="15"></line>
-              <line x1="9" y1="9" x2="15" y2="15"></line>
-            </svg>
-            End Game
-          </button>
-        </div>
-      )}
+      {/* Game Action Buttons */}
+      <div className="game-action-controls">
+        <button className="game-action-btn move-btn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M5 12h14"></path>
+            <path d="M12 5l7 7-7 7"></path>
+          </svg>
+          Move
+        </button>
+        <button className="game-action-btn lowxena-btn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+          </svg>
+          LowXena
+        </button>
+      </div>
 
       {/* Shuffle Animation Overlay */}
       {gameState.isShuffling && (
