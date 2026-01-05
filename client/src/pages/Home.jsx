@@ -506,64 +506,55 @@ function Home() {
                 <line x1="6" y1="6" x2="18" y2="18"></line>
               </svg>
             </div>
-            <h2>Choose Game Mode</h2>
-            <p>Select how you want to play</p>
+            <div className="modal-header">
+              <div className="modal-title-icon">🎮</div>
+              <h2>Pick Your Adventure!</h2>
+              <p className="modal-subtitle">Choose how you want to play and let the fun begin</p>
+            </div>
             
-            <div className="game-mode-options">
+            <div className="game-mode-grid">
               <button 
-                className="game-mode-btn create-custom"
+                className="game-mode-card create-custom"
                 onClick={() => handleGameModeSelect('custom')}
               >
-                <div className="mode-icon">
-                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                    <line x1="12" y1="8" x2="12" y2="16"></line>
-                    <line x1="8" y1="12" x2="16" y2="12"></line>
-                  </svg>
-                </div>
-                <h3>Create Custom Game</h3>
-                <p>Set your own rules and invite friends</p>
+                <div className="card-glow"></div>
+                <div className="mode-emoji">✨</div>
+                <h3>Create Your Game</h3>
+                <p>Set custom rules, invite friends, and be the boss!</p>
+                <div className="card-badge">For Groups</div>
               </button>
 
               <button 
-                className="game-mode-btn find-room"
+                className="game-mode-card find-room"
                 onClick={() => handleGameModeSelect('find')}
               >
-                <div className="mode-icon">
-                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <path d="m21 21-4.35-4.35"></path>
-                  </svg>
-                </div>
-                <h3>Find Room</h3>
-                <p>Browse and join available rooms</p>
+                <div className="card-glow"></div>
+                <div className="mode-emoji">🔍</div>
+                <h3>Browse Rooms</h3>
+                <p>Explore open games and join the action</p>
+                <div className="card-badge">Casual</div>
               </button>
 
               <button 
-                className="game-mode-btn join-bots"
+                className="game-mode-card join-bots"
                 onClick={() => handleGameModeSelect('bots')}
               >
-                <div className="mode-icon">
-                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                  </svg>
-                </div>
-                <h3>Join Fast with Bots</h3>
-                <p>Practice with AI opponents</p>
+                <div className="card-glow"></div>
+                <div className="mode-emoji">🤖</div>
+                <h3>Practice Mode</h3>
+                <p>Play against AI and sharpen your skills</p>
+                <div className="card-badge">Solo</div>
               </button>
 
               <button 
-                className="game-mode-btn fast-join"
+                className="game-mode-card fast-join"
                 onClick={() => handleGameModeSelect('quick')}
               >
-                <div className="mode-icon">
-                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-                  </svg>
-                </div>
-                <h3>Fast Join</h3>
-                <p>Jump into a random game instantly</p>
+                <div className="card-glow"></div>
+                <div className="mode-emoji">⚡</div>
+                <h3>Quick Match</h3>
+                <p>Jump into a game instantly and play now!</p>
+                <div className="card-badge">Fast</div>
               </button>
             </div>
           </div>
