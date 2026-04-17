@@ -289,7 +289,9 @@ function RoomLobby() {
                       </div>
                       {!isPlayerHost && (
                         <div className={`player-status ${player.isReady ? 'ready' : 'not-ready'}`}>
-                          {player.isReady ? '✓ Ready' : 'Not Ready'}
+                          {player.isReady ? (
+                            <><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"></polyline></svg> Ready</>
+                          ) : 'Not Ready'}
                         </div>
                       )}
                     </div>
@@ -337,7 +339,7 @@ function RoomLobby() {
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M8 5v14l11-7z"/>
                     </svg>
-                    🎮 Start Game
+                    Start Game
                   </button>
                 ) : (
                   <button 

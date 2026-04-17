@@ -48,18 +48,33 @@ function Game() {
   const [currentUser, setCurrentUser] = useState(null)
   const [gameState, setGameState] = useState({
     deck: [],
-    playerHands: {}, // Store each player's cards
+    playerHands: {},
     playedCards: [],
     currentTurn: null,
     currentTurnIndex: 0,
     gameStarted: false,
     isShuffling: false,
     isDealing: false,
-    dealingCardIndex: 0
+    dealingCardIndex: 0,
+    // New fields
+    scores: {},           // { playerId: totalScore }
+    roundNumber: 1,
+    eliminatedPlayers: [], // playerIds who exceeded maxPoints
+    mustPickup: false,     // current player must pick up before turn ends
+    hasPlayedCard: false,  // current player played a card this turn
+    gameOver: false,
+    gameWinner: null,      // player object who won the whole game
   })
   const [countdown, setCountdown] = useState(30)
   const [showScoreboard, setShowScoreboard] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
+  const [selectedCard, setSelectedCard] = useState(null)
+  const [draggingCard, setDraggingCard] = useState(null)
+  const [dropHover, setDropHover] = useState(false)
+  const [showRoundResult, setShowRoundResult] = useState(null) // { winner, loser, roundScores }
+  const [showEliminated, setShowEliminated] = useState(null)   // { playerName }
+  const [showGameWin, setShowGameWin] = useState(null)         // { winnerName }
+  const [showGameLoss, setShowGameLoss] = useState(false)      // current user got eliminated
   const navigate = useNavigate()
   const roomId = searchParams.get('roomId')
 
@@ -104,10 +119,29 @@ function Game() {
           playedCards: data.gameState.playedCards || prev.playedCards,
           currentTurn: data.gameState.currentTurn || prev.currentTurn,
           currentTurnIndex: data.gameState.currentTurnIndex ?? prev.currentTurnIndex,
+          scores: data.gameState.scores || prev.scores,
+          roundNumber: data.gameState.roundNumber ?? prev.roundNumber,
+          eliminatedPlayers: data.gameState.eliminatedPlayers || prev.eliminatedPlayers,
+          mustPickup: data.gameState.mustPickup ?? prev.mustPickup,
+          hasPlayedCard: data.gameState.hasPlayedCard ?? prev.hasPlayedCard,
+          gameOver: data.gameState.gameOver ?? prev.gameOver,
+          gameWinner: data.gameState.gameWinner || prev.gameWinner,
           gameStarted: true,
           isShuffling: false,
           isDealing: false
         }))
+        
+        // Check if current user got eliminated
+        if (data.gameState.eliminatedPlayers && currentUser) {
+          if (data.gameState.eliminatedPlayers.includes(currentUser.id)) {
+            setShowGameLoss(true)
+          }
+        }
+        
+        // Check if game is over with a winner
+        if (data.gameState.gameOver && data.gameState.gameWinner) {
+          setShowGameWin({ winnerName: data.gameState.gameWinner.name })
+        }
         
         // Sync countdown from server timestamp
         if (data.gameState.countdownTimestamp) {
@@ -165,6 +199,10 @@ function Game() {
       setGameState(prev => ({ ...prev, isDealing: true }))
       
       setTimeout(() => {
+        // Initialize scores for all players
+        const initialScores = {}
+        roomDetails.players.forEach(p => { initialScores[p.id] = 0 })
+        
         const newState = {
           deck: remainingDeck,
           playerHands: newPlayerHands,
@@ -174,7 +212,14 @@ function Game() {
           gameStarted: true,
           isShuffling: false,
           isDealing: false,
-          countdownTimestamp: Date.now()
+          countdownTimestamp: Date.now(),
+          scores: initialScores,
+          roundNumber: 1,
+          eliminatedPlayers: [],
+          mustPickup: false,
+          hasPlayedCard: false,
+          gameOver: false,
+          gameWinner: null,
         }
         
         setGameState(prev => ({ ...prev, ...newState }))
@@ -189,7 +234,7 @@ function Game() {
 
   // Countdown timer effect
   useEffect(() => {
-    if (!gameState.gameStarted || !roomDetails?.players) return
+    if (!gameState.gameStarted || !roomDetails?.players || gameState.gameOver) return
     
     const timer = setInterval(() => {
       setCountdown(prev => {
@@ -197,7 +242,12 @@ function Game() {
         
         // Auto-advance if time is up and it's my turn
         if (newCount <= 0 && isMyTurn()) {
-          handleNextTurn()
+          // Auto pickup if they haven't yet
+          if (gameState.hasPlayedCard && gameState.mustPickup) {
+            handlePickupCard()
+          } else {
+            handleAutoEndTurn()
+          }
           return 30
         }
         
@@ -206,7 +256,7 @@ function Game() {
     }, 1000)
     
     return () => clearInterval(timer)
-  }, [gameState.gameStarted, gameState.currentTurnIndex, roomDetails?.players])
+  }, [gameState.gameStarted, gameState.currentTurnIndex, gameState.mustPickup, gameState.hasPlayedCard, roomDetails?.players])
 
   const fetchCurrentUser = () => {
     const userData = JSON.parse(localStorage.getItem('userData'))
@@ -224,26 +274,39 @@ function Game() {
     }
   }
 
-  const handleNextTurn = async () => {
+  // Get active (non-eliminated) players
+  const getActivePlayers = () => {
+    if (!roomDetails?.players) return []
+    return roomDetails.players.filter(p => !gameState.eliminatedPlayers.includes(p.id))
+  }
+
+  const handleNextTurn = async (stateOverride = null) => {
     if (!roomDetails?.players) return
     
-    const nextIndex = (gameState.currentTurnIndex + 1) % roomDetails.players.length
-    const nextPlayer = roomDetails.players[nextIndex]
+    const activePlayers = getActivePlayers()
+    if (activePlayers.length === 0) return
+    
+    const baseState = stateOverride || gameState
+    const currentActiveIndex = activePlayers.findIndex(p => p.id === baseState.currentTurn)
+    const nextActiveIndex = (currentActiveIndex + 1) % activePlayers.length
+    const nextPlayer = activePlayers[nextActiveIndex]
     
     const updatedState = {
-      ...gameState,
+      ...baseState,
       currentTurn: nextPlayer.id,
-      currentTurnIndex: nextIndex,
+      currentTurnIndex: roomDetails.players.findIndex(p => p.id === nextPlayer.id),
       gameStarted: true,
       countdownTimestamp: Date.now(),
+      mustPickup: false,
+      hasPlayedCard: false,
       isShuffling: false,
       isDealing: false
     }
     
     setGameState(updatedState)
     setCountdown(30)
+    setSelectedCard(null)
     
-    // Sync to server
     try {
       await gameAPI.updateGameState(roomId, updatedState)
     } catch (error) {
@@ -251,24 +314,348 @@ function Game() {
     }
   }
 
-  const handleMove = () => {
+  // Auto end turn when timer runs out - pickup if needed, then advance
+  const handleAutoEndTurn = () => {
     if (!isMyTurn()) return
-    
-    // TODO: Implement move logic
-    console.log('Move button pressed')
-    
-    // Advance to next turn
     handleNextTurn()
   }
 
-  const handleLowXena = () => {
+  // Pick up a random card from the deck
+  const handlePickupCard = async () => {
+    if (!isMyTurn() || !currentUser) return
+    if (gameState.deck.length === 0) {
+      // No cards to pick up, just advance turn
+      handleNextTurn()
+      return
+    }
+
+    const myId = currentUser.id
+    const newDeck = [...gameState.deck]
+    const randomIndex = Math.floor(Math.random() * newDeck.length)
+    const pickedCard = newDeck.splice(randomIndex, 1)[0]
+
+    const newHand = [...(gameState.playerHands[myId] || []), pickedCard]
+
+    const updatedHands = {
+      ...gameState.playerHands,
+      [myId]: newHand
+    }
+
+    // After pickup, advance turn
+    const activePlayers = getActivePlayers()
+    const currentActiveIndex = activePlayers.findIndex(p => p.id === gameState.currentTurn)
+    const nextActiveIndex = (currentActiveIndex + 1) % activePlayers.length
+    const nextPlayer = activePlayers[nextActiveIndex]
+
+    const updatedState = {
+      ...gameState,
+      deck: newDeck,
+      playerHands: updatedHands,
+      currentTurn: nextPlayer.id,
+      currentTurnIndex: roomDetails.players.findIndex(p => p.id === nextPlayer.id),
+      mustPickup: false,
+      hasPlayedCard: false,
+      countdownTimestamp: Date.now(),
+      gameStarted: true,
+      isShuffling: false,
+      isDealing: false
+    }
+
+    setGameState(updatedState)
+    setCountdown(30)
+    setSelectedCard(null)
+
+    try {
+      await gameAPI.updateGameState(roomId, updatedState)
+    } catch (error) {
+      console.error('Error picking up card:', error)
+    }
+  }
+
+  const handleMove = () => {
     if (!isMyTurn()) return
-    
-    // TODO: Implement LowXena logic
-    console.log('LowXena button pressed')
-    
-    // Advance to next turn
+    // Move = skip turn (just advance)
     handleNextTurn()
+  }
+
+  // LowXena button: can only be pressed when hand points <= 10
+  const handleLowXena = async () => {
+    if (!isMyTurn() || !currentUser || !roomDetails?.players) return
+
+    const myId = currentUser.id
+    const myHand = gameState.playerHands[myId] || []
+    const myPoints = calculateHandPoints(myHand)
+
+    if (myPoints > 10) {
+      // Can't call LowXena if hand > 10 points
+      return
+    }
+
+    // Compare all active players' hand points
+    const activePlayers = getActivePlayers()
+    const playerScoresThisRound = activePlayers.map(p => ({
+      id: p.id,
+      name: p.name,
+      handPoints: calculateHandPoints(gameState.playerHands[p.id] || [])
+    }))
+
+    // Find the lowest points (the round winner)
+    const minPoints = Math.min(...playerScoresThisRound.map(p => p.handPoints))
+    const roundWinner = playerScoresThisRound.find(p => p.handPoints === minPoints)
+
+    // Calculate new cumulative scores
+    const newScores = { ...(gameState.scores || {}) }
+    playerScoresThisRound.forEach(p => {
+      if (!newScores[p.id]) newScores[p.id] = 0
+      newScores[p.id] += p.handPoints
+    })
+
+    // Round winner gets their score reset to 0
+    if (roundWinner) {
+      newScores[roundWinner.id] = 0
+    }
+
+    // Check for eliminations - use maxPoints from room settings
+    const maxPoints = roomDetails.maxPoints || 40
+    const newEliminated = [...gameState.eliminatedPlayers]
+    const newlyEliminated = []
+
+    activePlayers.forEach(p => {
+      if (newScores[p.id] >= maxPoints && !newEliminated.includes(p.id)) {
+        newEliminated.push(p.id)
+        newlyEliminated.push(p)
+      }
+    })
+
+    // Check remaining players after elimination
+    const remainingPlayers = roomDetails.players.filter(p => !newEliminated.includes(p.id))
+
+    let gameOver = false
+    let gameWinner = null
+
+    if (remainingPlayers.length <= 1) {
+      gameOver = true
+      gameWinner = remainingPlayers[0] || null
+    }
+
+    // Show round result
+    setShowRoundResult({
+      winner: roundWinner,
+      playerScores: playerScoresThisRound,
+      newCumulativeScores: newScores,
+      newlyEliminated,
+      roundNumber: gameState.roundNumber,
+    })
+
+    // After 3 seconds, start new round or end game
+    setTimeout(async () => {
+      setShowRoundResult(null)
+
+      if (gameOver) {
+        const finalState = {
+          ...gameState,
+          scores: newScores,
+          eliminatedPlayers: newEliminated,
+          gameOver: true,
+          gameWinner: gameWinner,
+        }
+        setGameState(finalState)
+        if (gameWinner) setShowGameWin({ winnerName: gameWinner.name })
+        if (currentUser && newEliminated.includes(currentUser.id)) setShowGameLoss(true)
+        try {
+          await gameAPI.updateGameState(roomId, finalState)
+        } catch (err) {
+          console.error('Error saving final state:', err)
+        }
+        return
+      }
+
+      // Show eliminated players briefly
+      if (newlyEliminated.length > 0) {
+        newlyEliminated.forEach(p => {
+          if (p.id === currentUser?.id) {
+            setShowGameLoss(true)
+          }
+        })
+        setShowEliminated({ playerNames: newlyEliminated.map(p => p.name) })
+        setTimeout(() => setShowEliminated(null), 2500)
+      }
+
+      // Start new round: reshuffle and redeal for remaining players
+      startNewRound(newScores, newEliminated, gameState.roundNumber + 1)
+    }, 3500)
+  }
+
+  // Start a new round with reshuffle and redeal
+  const startNewRound = async (scores, eliminated, roundNumber) => {
+    const remaining = roomDetails.players.filter(p => !eliminated.includes(p.id))
+    if (remaining.length <= 1) return
+
+    // Create new shuffled deck
+    const fullDeck = []
+    SUITS.forEach(suit => {
+      VALUES.forEach(value => {
+        fullDeck.push({
+          suit, value,
+          id: `${value}-${suit}-r${roundNumber}`,
+          color: (suit === 'hearts' || suit === 'diamonds') ? 'red' : 'black'
+        })
+      })
+    })
+    const shuffledDeck = shuffleArray(fullDeck)
+
+    // Show shuffle animation
+    setGameState(prev => ({ ...prev, isShuffling: true }))
+
+    setTimeout(() => {
+      // Deal 7 cards to each remaining player
+      const cardsPerPlayer = 7
+      const newPlayerHands = {}
+      remaining.forEach((player, index) => {
+        newPlayerHands[player.id] = shuffledDeck.slice(index * cardsPerPlayer, (index + 1) * cardsPerPlayer)
+      })
+      // Eliminated players get empty hands
+      eliminated.forEach(id => { newPlayerHands[id] = [] })
+
+      const remainingDeck = shuffledDeck.slice(remaining.length * cardsPerPlayer)
+
+      setGameState(prev => ({ ...prev, isDealing: true, isShuffling: false }))
+
+      setTimeout(async () => {
+        const newState = {
+          deck: remainingDeck,
+          playerHands: newPlayerHands,
+          playedCards: [],
+          currentTurn: remaining[0]?.id,
+          currentTurnIndex: roomDetails.players.findIndex(p => p.id === remaining[0]?.id),
+          gameStarted: true,
+          isShuffling: false,
+          isDealing: false,
+          countdownTimestamp: Date.now(),
+          scores: scores,
+          roundNumber: roundNumber,
+          eliminatedPlayers: eliminated,
+          mustPickup: false,
+          hasPlayedCard: false,
+          gameOver: false,
+          gameWinner: null,
+        }
+
+        setGameState(newState)
+        setCountdown(30)
+        setSelectedCard(null)
+
+        try {
+          await gameAPI.updateGameState(roomId, newState)
+        } catch (err) {
+          console.error('Error saving new round state:', err)
+        }
+      }, 1500)
+    }, 2000)
+  }
+
+  // Play a card (or two same-value cards) from hand to the table
+  const handlePlayCard = async (card) => {
+    if (!isMyTurn() || !card || !currentUser) return
+    if (gameState.hasPlayedCard) return // Already played this turn, must pickup
+
+    const myId = currentUser.id
+    const myHand = gameState.playerHands[myId]
+    if (!myHand) return
+
+    const cardIndex = myHand.findIndex(c => c.id === card.id)
+    if (cardIndex === -1) return
+
+    const newHand = [...myHand]
+    const cardsToPlay = [card]
+    newHand.splice(cardIndex, 1)
+
+    // Check for a matching card with the same value (double play)
+    const matchingIndex = newHand.findIndex(c => c.value === card.value)
+    if (matchingIndex !== -1) {
+      const matchingCard = newHand[matchingIndex]
+      cardsToPlay.push(matchingCard)
+      newHand.splice(matchingIndex, 1)
+    }
+
+    const updatedHands = {
+      ...gameState.playerHands,
+      [myId]: newHand
+    }
+
+    const updatedPlayed = [...gameState.playedCards, ...cardsToPlay]
+
+    // Don't advance turn yet - must pickup first
+    const updatedState = {
+      ...gameState,
+      playerHands: updatedHands,
+      playedCards: updatedPlayed,
+      mustPickup: true,
+      hasPlayedCard: true,
+      gameStarted: true,
+      isShuffling: false,
+      isDealing: false
+    }
+
+    setGameState(updatedState)
+    setSelectedCard(null)
+    setDraggingCard(null)
+
+    try {
+      await gameAPI.updateGameState(roomId, updatedState)
+    } catch (error) {
+      console.error('Error playing card:', error)
+    }
+  }
+
+  // Click a card to select it, click again or click played area to play it
+  const handleCardClick = (card) => {
+    if (!isMyTurn()) return
+    if (selectedCard && selectedCard.id === card.id) {
+      // Clicking the same card again deselects
+      setSelectedCard(null)
+    } else {
+      setSelectedCard(card)
+    }
+  }
+
+  // Drag handlers
+  const handleDragStart = (e, card) => {
+    if (!isMyTurn()) return
+    setDraggingCard(card)
+    setSelectedCard(null)
+    e.dataTransfer.setData('text/plain', card.id)
+    e.dataTransfer.effectAllowed = 'move'
+  }
+
+  const handleDragEnd = () => {
+    setDraggingCard(null)
+    setDropHover(false)
+  }
+
+  const handleDragOver = (e) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+    setDropHover(true)
+  }
+
+  const handleDragLeave = () => {
+    setDropHover(false)
+  }
+
+  const handleDrop = (e) => {
+    e.preventDefault()
+    setDropHover(false)
+    if (draggingCard) {
+      handlePlayCard(draggingCard)
+    }
+  }
+
+  // Click on played area to play selected card
+  const handlePlayedAreaClick = () => {
+    if (selectedCard && isMyTurn()) {
+      handlePlayCard(selectedCard)
+    }
   }
 
   const isMyTurn = () => {
@@ -377,8 +764,11 @@ function Game() {
 
         {gameState.gameStarted && (
           <div className="turn-indicator">
+            <span className="round-badge">R{gameState.roundNumber}</span>
             <span className="turn-label">
-              {isMyTurn() ? '🎯 Your Turn' : `⏳ ${getCurrentTurnPlayer()?.name}'s Turn`}
+              {isMyTurn() 
+                ? (gameState.mustPickup ? '📦 Pick Up a Card!' : '🎯 Your Turn') 
+                : `⏳ ${getCurrentTurnPlayer()?.name}'s Turn`}
             </span>
             <span className="turn-timer">{countdown}s</span>
           </div>
@@ -399,7 +789,7 @@ function Game() {
       {/* Other Players Row */}
       <div className="opponents-row">
         {otherPlayers.map((player) => (
-          <div key={player.id} className={`opponent-card ${gameState.currentTurn === player.id ? 'active-turn' : ''}`}>
+          <div key={player.id} className={`opponent-card ${gameState.currentTurn === player.id ? 'active-turn' : ''} ${gameState.eliminatedPlayers.includes(player.id) ? 'eliminated' : ''}`}>
             <div className="opponent-avatar">
               {player.avatarUrl ? (
                 <img src={player.avatarUrl} alt={player.name} />
@@ -407,10 +797,11 @@ function Game() {
                 <span className="opponent-letter">{player.name?.charAt(0).toUpperCase()}</span>
               )}
               {player.isHost && <span className="crown-badge">👑</span>}
+              {gameState.eliminatedPlayers.includes(player.id) && <span className="eliminated-badge">✕</span>}
             </div>
             <div className="opponent-info">
               <span className="opponent-name">{player.name}</span>
-              <span className="opponent-score">0 pts</span>
+              <span className="opponent-score">{gameState.scores?.[player.id] || 0} pts</span>
               <span className="opponent-cards">{gameState.playerHands[player.id]?.length || 0} cards</span>
             </div>
           </div>
@@ -422,8 +813,14 @@ function Game() {
         <div className="table-surface">
           <div className="table-felt"></div>
           
-          {/* Deck */}
-          <div className="deck-area">
+          {/* Deck - click to pick up */}
+          <div className={`deck-area ${gameState.mustPickup && isMyTurn() ? 'deck-pickup-ready' : ''}`}
+            onClick={() => {
+              if (gameState.mustPickup && isMyTurn()) {
+                handlePickupCard()
+              }
+            }}
+          >
             <div className="deck-stack">
               {gameState.deck.length > 0 ? (
                 [...Array(Math.min(4, gameState.deck.length))].map((_, i) => (
@@ -439,19 +836,44 @@ function Game() {
                 <div className="empty-deck">Empty</div>
               )}
             </div>
-            <span className="deck-label">{gameState.deck.length}</span>
+            <span className="deck-label">
+              {gameState.deck.length}
+              {gameState.mustPickup && isMyTurn() && <span className="pickup-hint"> ← Pick up!</span>}
+            </span>
           </div>
 
           {/* Played Cards */}
-          <div className="played-area">
+          <div 
+            className={`played-area ${dropHover ? 'drop-hover' : ''} ${selectedCard && isMyTurn() ? 'can-drop' : ''}`}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            onClick={handlePlayedAreaClick}
+          >
             {gameState.playedCards.length === 0 ? (
-              <div className="play-placeholder">Play here</div>
+              <div className="play-placeholder">
+                {selectedCard && isMyTurn() ? 'Tap to play' : 'Play here'}
+              </div>
             ) : (
-              gameState.playedCards.map((card, index) => (
+              gameState.playedCards.slice(-3).map((card, index) => (
                 <div key={card.id} className="played-card" style={{ 
-                  transform: `rotate(${Math.random() * 20 - 10}deg)`,
+                  transform: `rotate(${(index * 7) - 7}deg) translateX(${(index - 1) * 12}px)`,
                   zIndex: index 
-                }}></div>
+                }}>
+                  <div className="playing-card" data-color={card.color}>
+                    <div className="card-corner top-left">
+                      <span className="card-value">{card.value}</span>
+                      <span className="card-suit">{SUIT_SYMBOLS[card.suit]}</span>
+                    </div>
+                    <div className="card-center">
+                      <span className="card-suit-large">{SUIT_SYMBOLS[card.suit]}</span>
+                    </div>
+                    <div className="card-corner bottom-right">
+                      <span className="card-value">{card.value}</span>
+                      <span className="card-suit">{SUIT_SYMBOLS[card.suit]}</span>
+                    </div>
+                  </div>
+                </div>
               ))
             )}
           </div>
@@ -459,22 +881,34 @@ function Game() {
       </div>
 
       {/* Action Buttons */}
-      {gameState.gameStarted && (
+      {gameState.gameStarted && !gameState.gameOver && (
         <div className="game-actions">
-          <button 
-            className={`action-btn btn-move ${!isMyTurn() ? 'disabled' : ''}`}
-            onClick={handleMove}
-            disabled={!isMyTurn()}
-          >
-            Move
-          </button>
-          <button 
-            className={`action-btn btn-lowxena ${!isMyTurn() ? 'disabled' : ''}`}
-            onClick={handleLowXena}
-            disabled={!isMyTurn()}
-          >
-            LowXena!
-          </button>
+          {gameState.mustPickup && isMyTurn() ? (
+            <button 
+              className="action-btn btn-pickup pulse-btn"
+              onClick={handlePickupCard}
+            >
+              Pick Up Card
+            </button>
+          ) : (
+            <>
+              <button 
+                className={`action-btn btn-move ${!isMyTurn() || gameState.hasPlayedCard ? 'disabled' : ''}`}
+                onClick={handleMove}
+                disabled={!isMyTurn() || gameState.hasPlayedCard}
+              >
+                Move
+              </button>
+              <button 
+                className={`action-btn btn-lowxena ${!isMyTurn() || calculateHandPoints(myCards) > 10 ? 'disabled' : ''}`}
+                onClick={handleLowXena}
+                disabled={!isMyTurn() || calculateHandPoints(myCards) > 10}
+                title={calculateHandPoints(myCards) > 10 ? 'Need 10 or fewer points' : 'Call LowXena!'}
+              >
+                LowXena!
+              </button>
+            </>
+          )}
         </div>
       )}
 
@@ -492,15 +926,19 @@ function Game() {
             </div>
             <div className="my-details">
               <span className="my-name">{orderedPlayers[0].name}</span>
-              <span className="my-stats">{myCards?.length || 0} cards · {calculateHandPoints(myCards)} pts</span>
+              <span className="my-stats">{myCards?.length || 0} cards · {calculateHandPoints(myCards)} pts · Score: {gameState.scores?.[orderedPlayers[0]?.id] || 0}</span>
             </div>
           </div>
           <div className="my-cards-fan">
             {myCards?.map((card, i) => (
               <div 
                 key={card.id} 
-                className="hand-card"
+                className={`hand-card ${selectedCard?.id === card.id ? 'selected' : ''} ${draggingCard?.id === card.id ? 'dragging' : ''} ${!isMyTurn() ? 'not-my-turn' : ''}`}
                 style={{ '--i': i, '--total': myCards.length }}
+                draggable={isMyTurn()}
+                onDragStart={(e) => handleDragStart(e, card)}
+                onDragEnd={handleDragEnd}
+                onClick={() => handleCardClick(card)}
               >
                 <div className="playing-card" data-color={card.color}>
                   <div className="card-corner top-left">
@@ -563,12 +1001,18 @@ function Game() {
           <div className="game-modal" onClick={(e) => e.stopPropagation()}>
             <button className="modal-close" onClick={() => setShowScoreboard(false)}>✕</button>
             <h2 className="modal-heading">📊 Scoreboard</h2>
+            <div className="round-info">Round {gameState.roundNumber} · Max {roomDetails?.maxPoints || 40} pts</div>
             <div className="scoreboard-list">
-              {roomDetails?.players?.map((player, index) => (
-                <div key={player.id} className="score-row">
+              {roomDetails?.players
+                ?.sort((a, b) => (gameState.scores?.[a.id] || 0) - (gameState.scores?.[b.id] || 0))
+                .map((player, index) => (
+                <div key={player.id} className={`score-row ${gameState.eliminatedPlayers.includes(player.id) ? 'score-eliminated' : ''}`}>
                   <span className="score-rank">#{index + 1}</span>
-                  <span className="score-name">{player.name}</span>
-                  <span className="score-pts">0 pts</span>
+                  <span className="score-name">
+                    {player.name}
+                    {gameState.eliminatedPlayers.includes(player.id) && ' (OUT)'}
+                  </span>
+                  <span className="score-pts">{gameState.scores?.[player.id] || 0} pts</span>
                 </div>
               ))}
             </div>
@@ -588,6 +1032,82 @@ function Game() {
               </button>
               <button className="settings-item" onClick={() => navigate(`/room/${roomId}`)}>
                 ← Back to Lobby
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Round Result Overlay */}
+      {showRoundResult && (
+        <div className="overlay-screen round-result-overlay">
+          <div className="overlay-content round-result-content">
+            <h2 className="overlay-title">Round {showRoundResult.roundNumber} Complete!</h2>
+            <div className="round-result-winner">
+              <span className="trophy-icon">🏆</span>
+              <span>{showRoundResult.winner?.name} wins the round!</span>
+            </div>
+            <div className="round-scores-list">
+              {showRoundResult.playerScores?.map(p => (
+                <div key={p.id} className="round-score-item">
+                  <span className="round-score-name">{p.name}</span>
+                  <span className="round-score-hand">Hand: {p.handPoints} pts</span>
+                  <span className="round-score-total">Total: {showRoundResult.newCumulativeScores?.[p.id] || 0} pts</span>
+                </div>
+              ))}
+            </div>
+            {showRoundResult.newlyEliminated?.length > 0 && (
+              <div className="round-eliminated">
+                {showRoundResult.newlyEliminated.map(p => (
+                  <span key={p.id} className="eliminated-name">💀 {p.name} eliminated!</span>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Eliminated Player Notification */}
+      {showEliminated && (
+        <div className="overlay-screen eliminated-overlay">
+          <div className="overlay-content">
+            <h2 className="overlay-title">Player Eliminated!</h2>
+            {showEliminated.playerNames?.map((name, i) => (
+              <p key={i} className="eliminated-text">💀 {name} has been eliminated</p>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Game Win Screen */}
+      {showGameWin && (
+        <div className="overlay-screen game-win-overlay">
+          <div className="overlay-content game-win-content">
+            <div className="win-trophy">🏆</div>
+            <h2 className="overlay-title game-win-title">
+              {showGameWin.winnerName === currentUser?.name ? 'You Win!' : `${showGameWin.winnerName} Wins!`}
+            </h2>
+            <p className="win-subtitle">Game Over</p>
+            <button className="win-btn" onClick={() => navigate(`/room/${roomId}`)}>
+              Back to Lobby
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Game Loss Screen */}
+      {showGameLoss && !showGameWin && (
+        <div className="overlay-screen game-loss-overlay">
+          <div className="overlay-content game-loss-content">
+            <div className="loss-icon">💀</div>
+            <h2 className="overlay-title game-loss-title">You've Been Eliminated!</h2>
+            <p className="loss-subtitle">Your score exceeded {roomDetails?.maxPoints || 40} points</p>
+            <div className="loss-actions">
+              <button className="loss-btn" onClick={() => setShowGameLoss(false)}>
+                Watch Game
+              </button>
+              <button className="loss-btn loss-btn-leave" onClick={() => navigate(`/room/${roomId}`)}>
+                Leave
               </button>
             </div>
           </div>

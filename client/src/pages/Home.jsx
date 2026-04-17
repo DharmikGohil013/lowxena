@@ -535,7 +535,7 @@ function Home() {
             </div>
             <div className="modal-header">
               <div className="modal-title-icon">
-                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
                   <rect x="2" y="6" width="20" height="12" rx="3"></rect>
                   <circle cx="8" cy="12" r="2"></circle>
                   <circle cx="16" cy="12" r="2"></circle>
@@ -553,7 +553,7 @@ function Home() {
               >
                 <div className="card-glow"></div>
                 <div className="mode-icon">
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M12 5v14M5 12h14"></path>
                     <rect x="3" y="3" width="18" height="18" rx="3"></rect>
                   </svg>
@@ -569,7 +569,7 @@ function Home() {
               >
                 <div className="card-glow"></div>
                 <div className="mode-icon">
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <circle cx="11" cy="11" r="7"></circle>
                     <path d="M21 21l-4.35-4.35"></path>
                     <path d="M8 11h6M11 8v6"></path>
@@ -586,7 +586,7 @@ function Home() {
               >
                 <div className="card-glow"></div>
                 <div className="mode-icon">
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <rect x="4" y="8" width="16" height="12" rx="2"></rect>
                     <path d="M9 8V6a3 3 0 0 1 6 0v2"></path>
                     <circle cx="9" cy="14" r="1.5" fill="currentColor"></circle>
@@ -605,7 +605,7 @@ function Home() {
               >
                 <div className="card-glow"></div>
                 <div className="mode-icon">
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
                   </svg>
                 </div>
@@ -628,15 +628,28 @@ function Home() {
                 <line x1="6" y1="6" x2="18" y2="18"></line>
               </svg>
             </div>
-            <h2>⚙️ Custom Match Setup</h2>
-            <p className="modal-subtitle">Configure your game settings</p>
+            <div className="cm-header">
+              <div className="cm-header-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="3"></circle>
+                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>
+              </div>
+              <h2>Room Configuration</h2>
+              <p className="modal-subtitle">Set up your game preferences</p>
+            </div>
             
             <div className="custom-match-form">
               {/* Max Points */}
               <div className="form-group">
                 <label htmlFor="maxPoints">
-                  <span className="label-icon">🎯</span>
-                  Max Points to Win
+                  <span className="label-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <path d="M12 8v4l3 3"></path>
+                    </svg>
+                  </span>
+                  Points to Win
                 </label>
                 <div className="range-container">
                   <input
@@ -663,8 +676,15 @@ function Home() {
               {/* Number of Players */}
               <div className="form-group">
                 <label htmlFor="numPlayers">
-                  <span className="label-icon">👥</span>
-                  Number of Players
+                  <span className="label-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="9" cy="7" r="4"></circle>
+                      <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                      <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                  </span>
+                  Player Count
                 </label>
                 <div className="range-container">
                   <input
@@ -691,21 +711,35 @@ function Home() {
               {/* Private/Public Toggle */}
               <div className="form-group">
                 <label>
-                  <span className="label-icon">🔒</span>
-                  Match Type
+                  <span className="label-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                  </span>
+                  Room Visibility
                 </label>
                 <div className="toggle-container">
                   <button
                     className={`toggle-btn ${!customMatchConfig.isPrivate ? 'active' : ''}`}
                     onClick={() => handlePrivateToggle()}
                   >
-                    🌐 Public
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <line x1="2" y1="12" x2="22" y2="12"></line>
+                      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                    </svg>
+                    Public
                   </button>
                   <button
                     className={`toggle-btn ${customMatchConfig.isPrivate ? 'active' : ''}`}
                     onClick={() => handlePrivateToggle()}
                   >
-                    🔐 Private
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                    Private
                   </button>
                 </div>
               </div>
@@ -714,7 +748,12 @@ function Home() {
               {customMatchConfig.isPrivate && (
                 <div className="form-group room-code-group">
                   <label>
-                    <span className="label-icon">🎫</span>
+                    <span className="label-icon">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+                        <path d="M7 15h0M2 9.5h20"></path>
+                      </svg>
+                    </span>
                     Room Code
                   </label>
                   <div className="room-code-display">
@@ -726,10 +765,14 @@ function Home() {
                         alert('Room code copied!');
                       }}
                     >
-                      📋 Copy
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                      </svg>
+                      Copy
                     </button>
                   </div>
-                  <p className="room-code-hint">Share this code with your friends to join</p>
+                  <p className="room-code-hint">Share this code with players to join</p>
                 </div>
               )}
 
@@ -742,11 +785,14 @@ function Home() {
                 {creatingRoom ? (
                   <>
                     <span className="spinner"></span>
-                    Creating Room...
+                    Creating...
                   </>
                 ) : (
                   <>
-                    🎮 Start Game
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg>
+                    Create Room
                   </>
                 )}
               </button>
