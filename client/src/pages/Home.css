@@ -835,22 +835,58 @@
 }
 
 .modal-title-icon {
-  font-size: 42px;
-  margin-bottom: 10px;
-  animation: icon-bounce 2s ease-in-out infinite;
-  display: inline-block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 14px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(245, 158, 11, 0.08) 100%);
+  border: 2px solid rgba(251, 191, 36, 0.3);
+  color: #fbbf24;
 }
 
-@keyframes icon-bounce {
-  0%, 100% {
-    transform: translateY(0) rotate(0deg);
-  }
-  25% {
-    transform: translateY(-15px) rotate(-5deg);
-  }
-  75% {
-    transform: translateY(-5px) rotate(5deg);
-  }
+.mode-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 14px;
+  margin-bottom: 14px;
+  transition: all 0.4s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.create-custom .mode-icon {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(109, 40, 217, 0.1));
+  border: 1.5px solid rgba(139, 92, 246, 0.3);
+  color: #a78bfa;
+}
+
+.find-room .mode-icon {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(29, 78, 216, 0.1));
+  border: 1.5px solid rgba(59, 130, 246, 0.3);
+  color: #60a5fa;
+}
+
+.join-bots .mode-icon {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.1));
+  border: 1.5px solid rgba(16, 185, 129, 0.3);
+  color: #34d399;
+}
+
+.fast-join .mode-icon {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.1));
+  border: 1.5px solid rgba(245, 158, 11, 0.3);
+  color: #fbbf24;
+}
+
+.game-mode-card:hover .mode-icon {
+  transform: scale(1.12);
+  box-shadow: 0 0 24px rgba(251, 191, 36, 0.25);
 }
 
 .game-mode-modal h2 {
@@ -936,28 +972,6 @@
   transform: translateY(-5px) scale(1.01);
 }
 
-.mode-emoji {
-  font-size: 52px;
-  margin-bottom: 14px;
-  animation: emoji-float 3s ease-in-out infinite;
-  transition: all 0.4s ease;
-  filter: drop-shadow(0 8px 20px rgba(251, 191, 36, 0.3));
-}
-
-@keyframes emoji-float {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-8px);
-  }
-}
-
-.game-mode-card:hover .mode-emoji {
-  transform: scale(1.2) rotate(10deg);
-  filter: drop-shadow(0 12px 30px rgba(251, 191, 36, 0.6));
-}
-
 .game-mode-card h3 {
   color: #fde68a;
   font-size: 17px;
@@ -1019,8 +1033,9 @@
     padding: 26px 20px 22px;
   }
 
-  .mode-emoji {
-    font-size: 48px;
+  .mode-icon {
+    width: 54px;
+    height: 54px;
   }
 }
 
@@ -1032,7 +1047,13 @@
   }
 
   .modal-title-icon {
-    font-size: 36px;
+    width: 56px;
+    height: 56px;
+  }
+
+  .modal-title-icon svg {
+    width: 30px;
+    height: 30px;
   }
 
   .game-mode-modal h2 {
@@ -1057,8 +1078,14 @@
     padding: 24px 20px 20px;
   }
 
-  .mode-emoji {
-    font-size: 44px;
+  .mode-icon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .mode-icon svg {
+    width: 26px;
+    height: 26px;
   }
 
   .game-mode-card h3 {

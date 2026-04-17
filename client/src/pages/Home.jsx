@@ -534,9 +534,16 @@ function Home() {
               </svg>
             </div>
             <div className="modal-header">
-              <div className="modal-title-icon">🎮</div>
-              <h2>Pick Your Adventure!</h2>
-              <p className="modal-subtitle">Choose how you want to play and let the fun begin</p>
+              <div className="modal-title-icon">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                  <rect x="2" y="6" width="20" height="12" rx="3"></rect>
+                  <circle cx="8" cy="12" r="2"></circle>
+                  <circle cx="16" cy="12" r="2"></circle>
+                  <path d="M8 10v4M6 12h4M14 11h4M14 13h4"></path>
+                </svg>
+              </div>
+              <h2>Select Game Mode</h2>
+              <p className="modal-subtitle">Choose your preferred way to play LowXena</p>
             </div>
             
             <div className="game-mode-grid">
@@ -545,10 +552,15 @@ function Home() {
                 onClick={() => handleGameModeSelect('custom')}
               >
                 <div className="card-glow"></div>
-                <div className="mode-emoji">✨</div>
-                <h3>Create Your Game</h3>
-                <p>Set custom rules, invite friends, and be the boss!</p>
-                <div className="card-badge">For Groups</div>
+                <div className="mode-icon">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M12 5v14M5 12h14"></path>
+                    <rect x="3" y="3" width="18" height="18" rx="3"></rect>
+                  </svg>
+                </div>
+                <h3>Create Room</h3>
+                <p>Set up a private game with custom rules and invite players</p>
+                <div className="card-badge">Multiplayer</div>
               </button>
 
               <button 
@@ -556,9 +568,15 @@ function Home() {
                 onClick={() => handleGameModeSelect('find')}
               >
                 <div className="card-glow"></div>
-                <div className="mode-emoji">🔍</div>
+                <div className="mode-icon">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="11" cy="11" r="7"></circle>
+                    <path d="M21 21l-4.35-4.35"></path>
+                    <path d="M8 11h6M11 8v6"></path>
+                  </svg>
+                </div>
                 <h3>Browse Rooms</h3>
-                <p>Explore open games and join the action</p>
+                <p>Find and join open games from available lobbies</p>
                 <div className="card-badge">Casual</div>
               </button>
 
@@ -567,10 +585,18 @@ function Home() {
                 onClick={() => handleGameModeSelect('bots')}
               >
                 <div className="card-glow"></div>
-                <div className="mode-emoji">🤖</div>
+                <div className="mode-icon">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="4" y="8" width="16" height="12" rx="2"></rect>
+                    <path d="M9 8V6a3 3 0 0 1 6 0v2"></path>
+                    <circle cx="9" cy="14" r="1.5" fill="currentColor"></circle>
+                    <circle cx="15" cy="14" r="1.5" fill="currentColor"></circle>
+                    <path d="M10 17h4"></path>
+                  </svg>
+                </div>
                 <h3>Practice Mode</h3>
-                <p>Play against AI and sharpen your skills</p>
-                <div className="card-badge">Solo</div>
+                <p>Train against computer opponents to improve your strategy</p>
+                <div className="card-badge">Single Player</div>
               </button>
 
               <button 
@@ -578,10 +604,14 @@ function Home() {
                 onClick={() => handleGameModeSelect('quick')}
               >
                 <div className="card-glow"></div>
-                <div className="mode-emoji">⚡</div>
+                <div className="mode-icon">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                  </svg>
+                </div>
                 <h3>Quick Match</h3>
-                <p>Jump into a game instantly and play now!</p>
-                <div className="card-badge">Fast</div>
+                <p>Get matched with players instantly and start playing</p>
+                <div className="card-badge">Ranked</div>
               </button>
             </div>
           </div>

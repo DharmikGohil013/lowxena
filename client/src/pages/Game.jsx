@@ -351,6 +351,8 @@ function Game() {
   }
 
   const orderedPlayers = getOrderedPlayers()
+  const myCards = gameState.playerHands[orderedPlayers[0]?.id]
+  const otherPlayers = orderedPlayers.slice(1)
 
   return (
     <div className="game-container">
@@ -360,134 +362,62 @@ function Game() {
         <div className="game-gradient"></div>
       </div>
 
-      {/* Top Controls */}
-      <div className="game-controls">
-        {/* Scoreboard Button */}
+      {/* Top Bar: controls + turn info */}
+      <div className="game-top-bar">
         <button 
-          className="control-btn scoreboard-btn"
+          className="control-btn"
           onClick={() => setShowScoreboard(!showScoreboard)}
           title="Scoreboard"
         >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
             <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
           </svg>
         </button>
 
-        {/* Settings Button */}
+        {gameState.gameStarted && (
+          <div className="turn-indicator">
+            <span className="turn-label">
+              {isMyTurn() ? '🎯 Your Turn' : `⏳ ${getCurrentTurnPlayer()?.name}'s Turn`}
+            </span>
+            <span className="turn-timer">{countdown}s</span>
+          </div>
+        )}
+
         <button 
-          className="control-btn settings-btn"
+          className="control-btn"
           onClick={() => setShowSettings(!showSettings)}
           title="Settings"
         >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <circle cx="12" cy="12" r="3"></circle>
-            <path d="M12 1v6m0 6v6m0-18a9 9 0 1 0 0 18 9 9 0 0 0 0-18z"></path>
-            <path d="M16.24 7.76l-2.12 2.12m-4.24 4.24l-2.12 2.12m8.48 0l-2.12-2.12m-4.24-4.24L7.76 7.76"></path>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
           </svg>
         </button>
       </div>
 
-      {/* Players positioned around the table */}
-      <div className="players-area">
-        {orderedPlayers.map((player, index) => {
-          const isCurrentPlayer = index === 0
-          const position = isCurrentPlayer 
-            ? null // Current player handled separately below
-            : getPlayerPosition(index - 1, orderedPlayers.length - 1)
-          
-          // Don't render current player here - they'll be at bottom
-          if (isCurrentPlayer) return null
-          
-          return (
-            <div 
-              key={player.id} 
-              className="player-seat other-player"
-              style={position}
-            >
-              <div className="player-badge">
-                <div className="player-avatar-small">
-                  {player.avatarUrl ? (
-                    <img src={player.avatarUrl} alt={player.name} />
-                  ) : (
-                    <div className="avatar-letter-small">
-                      {player.name?.charAt(0).toUpperCase()}
-                    </div>
-                  )}
-                  {player.isHost && <div className="host-crown-small">👑</div>}
-                </div>
-                <div className="player-badge-info">
-                  <div className="player-name-badge">{player.name}</div>
-                  <div className="player-score-badge">0/3</div>
-                </div>
-              </div>
-            </div>
-          )
-        })}
-      </div>
-      
-      {/* Current Player at Bottom Center with Cards */}
-      {orderedPlayers[0] && (
-        <div className="current-player-section">
-          <div className="current-player-info">
-            <div className="current-player-avatar">
-              {orderedPlayers[0].avatarUrl ? (
-                <img src={orderedPlayers[0].avatarUrl} alt={orderedPlayers[0].name} />
+      {/* Other Players Row */}
+      <div className="opponents-row">
+        {otherPlayers.map((player) => (
+          <div key={player.id} className={`opponent-card ${gameState.currentTurn === player.id ? 'active-turn' : ''}`}>
+            <div className="opponent-avatar">
+              {player.avatarUrl ? (
+                <img src={player.avatarUrl} alt={player.name} />
               ) : (
-                <div className="current-avatar-letter">
-                  {orderedPlayers[0].name?.charAt(0).toUpperCase()}
-                </div>
+                <span className="opponent-letter">{player.name?.charAt(0).toUpperCase()}</span>
               )}
-              {orderedPlayers[0].isHost && <div className="current-host-crown">👑</div>}
+              {player.isHost && <span className="crown-badge">👑</span>}
             </div>
-            <div className="current-player-details">
-              <div className="current-player-name">{orderedPlayers[0].name}</div>
-              <div className="current-player-score">0/3</div>
-              <div className="current-player-card-count">
-                Cards: {gameState.playerHands[orderedPlayers[0].id]?.length || 0} | Total Points: {calculateHandPoints(gameState.playerHands[orderedPlayers[0].id])}
-              </div>
+            <div className="opponent-info">
+              <span className="opponent-name">{player.name}</span>
+              <span className="opponent-score">0 pts</span>
+              <span className="opponent-cards">{gameState.playerHands[player.id]?.length || 0} cards</span>
             </div>
           </div>
-          
-          {/* Current Player's Cards */}
-          <div className="current-player-cards">
-            {gameState.playerHands[orderedPlayers[0].id]?.map((card, i) => (
-              <div 
-                key={card.id} 
-                className="card-in-hand"
-              >
-                <div className="playing-card" data-suit={card.suit} data-color={card.color}>
-                  <div className="card-corner top-left">
-                    <div className="card-value">{card.value}</div>
-                    <div className="card-suit">{SUIT_SYMBOLS[card.suit]}</div>
-                  </div>
-                  <div className="card-center">
-                    <div className="card-suit-large">{SUIT_SYMBOLS[card.suit]}</div>
-                  </div>
-                  <div className="card-corner bottom-right">
-                    <div className="card-value">{card.value}</div>
-                    <div className="card-suit">{SUIT_SYMBOLS[card.suit]}</div>
-                  </div>
-                </div>
-              </div>
-            )) || (
-              // Show card backs before dealing
-              [...Array(7)].map((_, i) => (
-                <div 
-                  key={i} 
-                  className="card-in-hand"
-                >
-                  <div className="card-back">
-                    <div className="card-pattern"></div>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-      )}
+        ))}
+      </div>
 
-      {/* Central Game Table/Desk */}
+      {/* Central Game Table */}
       <div className="game-table">
         <div className="table-surface">
           <div className="table-felt"></div>
@@ -496,7 +426,7 @@ function Game() {
           <div className="deck-area">
             <div className="deck-stack">
               {gameState.deck.length > 0 ? (
-                [...Array(Math.min(5, gameState.deck.length))].map((_, i) => (
+                [...Array(Math.min(4, gameState.deck.length))].map((_, i) => (
                   <div 
                     key={i} 
                     className="card-back deck-card" 
@@ -509,115 +439,120 @@ function Game() {
                 <div className="empty-deck">Empty</div>
               )}
             </div>
-            <div className="deck-label">{gameState.deck.length} Cards</div>
+            <span className="deck-label">{gameState.deck.length}</span>
           </div>
 
-          {/* Played Cards Area */}
-          <div className="played-cards-area">
+          {/* Played Cards */}
+          <div className="played-area">
             {gameState.playedCards.length === 0 ? (
-              <div className="play-area-placeholder">
-                Play cards here
-              </div>
+              <div className="play-placeholder">Play here</div>
             ) : (
               gameState.playedCards.map((card, index) => (
                 <div key={card.id} className="played-card" style={{ 
                   transform: `rotate(${Math.random() * 20 - 10}deg)`,
                   zIndex: index 
-                }}>
-                  {/* Card content */}
-                </div>
+                }}></div>
               ))
             )}
           </div>
         </div>
       </div>
 
-      {/* Game Action Buttons */}
-      <div className="game-action-controls">
-        {gameState.gameStarted && (
-          <>
-            <div className="turn-info">
-              <div className="turn-player">
-                {isMyTurn() ? 'Your Turn!' : `${getCurrentTurnPlayer()?.name}'s Turn`}
-              </div>
-              <div className="turn-countdown">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <polyline points="12 6 12 12 16 14"></polyline>
-                </svg>
-                {countdown}s
-              </div>
-            </div>
-            <div className="action-buttons-row">
-              <button 
-                className={`game-action-btn move-btn ${!isMyTurn() ? 'disabled' : ''}`}
-                onClick={handleMove}
-                disabled={!isMyTurn()}
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M5 12h14"></path>
-                  <path d="M12 5l7 7-7 7"></path>
-                </svg>
-                Move
-              </button>
-              <button 
-                className={`game-action-btn lowxena-btn ${!isMyTurn() ? 'disabled' : ''}`}
-                onClick={handleLowXena}
-                disabled={!isMyTurn()}
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                </svg>
-                LowXena
-              </button>
-            </div>
-          </>
-        )}
-      </div>
+      {/* Action Buttons */}
+      {gameState.gameStarted && (
+        <div className="game-actions">
+          <button 
+            className={`action-btn btn-move ${!isMyTurn() ? 'disabled' : ''}`}
+            onClick={handleMove}
+            disabled={!isMyTurn()}
+          >
+            Move
+          </button>
+          <button 
+            className={`action-btn btn-lowxena ${!isMyTurn() ? 'disabled' : ''}`}
+            onClick={handleLowXena}
+            disabled={!isMyTurn()}
+          >
+            LowXena!
+          </button>
+        </div>
+      )}
 
-      {/* Shuffle Animation Overlay */}
-      {gameState.isShuffling && (
-        <div className="shuffle-overlay">
-          <div className="shuffle-animation">
-            <div className="shuffle-cards">
-              {[...Array(8)].map((_, i) => (
-                <div 
-                  key={i} 
-                  className="shuffle-card"
-                  style={{ 
-                    animationDelay: `${i * 0.1}s`,
-                    transform: `rotate(${i * 45}deg)` 
-                  }}
-                >
-                  <div className="card-back">
-                    <div className="card-pattern"></div>
+      {/* Current Player Hand */}
+      {orderedPlayers[0] && (
+        <div className="my-hand-section">
+          <div className="my-info-bar">
+            <div className="my-avatar">
+              {orderedPlayers[0].avatarUrl ? (
+                <img src={orderedPlayers[0].avatarUrl} alt={orderedPlayers[0].name} />
+              ) : (
+                <span className="my-avatar-letter">{orderedPlayers[0].name?.charAt(0).toUpperCase()}</span>
+              )}
+              {orderedPlayers[0].isHost && <span className="crown-badge">👑</span>}
+            </div>
+            <div className="my-details">
+              <span className="my-name">{orderedPlayers[0].name}</span>
+              <span className="my-stats">{myCards?.length || 0} cards · {calculateHandPoints(myCards)} pts</span>
+            </div>
+          </div>
+          <div className="my-cards-fan">
+            {myCards?.map((card, i) => (
+              <div 
+                key={card.id} 
+                className="hand-card"
+                style={{ '--i': i, '--total': myCards.length }}
+              >
+                <div className="playing-card" data-color={card.color}>
+                  <div className="card-corner top-left">
+                    <span className="card-value">{card.value}</span>
+                    <span className="card-suit">{SUIT_SYMBOLS[card.suit]}</span>
+                  </div>
+                  <div className="card-center">
+                    <span className="card-suit-large">{SUIT_SYMBOLS[card.suit]}</span>
+                  </div>
+                  <div className="card-corner bottom-right">
+                    <span className="card-value">{card.value}</span>
+                    <span className="card-suit">{SUIT_SYMBOLS[card.suit]}</span>
                   </div>
                 </div>
-              ))}
-            </div>
-            <h2 className="shuffle-text">Shuffling Deck...</h2>
+              </div>
+            )) || (
+              [...Array(7)].map((_, i) => (
+                <div key={i} className="hand-card" style={{ '--i': i, '--total': 7 }}>
+                  <div className="card-back"><div className="card-pattern"></div></div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       )}
 
-      {/* Dealing Animation Overlay */}
-      {gameState.isDealing && (
-        <div className="dealing-overlay">
-          <div className="dealing-animation">
-            {[...Array(3)].map((_, i) => (
-              <div 
-                key={i}
-                className="flying-card"
-                style={{ animationDelay: `${i * 0.3}s` }}
-              >
-                <div className="card-back">
-                  <div className="card-pattern"></div>
+      {/* Shuffle Overlay */}
+      {gameState.isShuffling && (
+        <div className="overlay-screen">
+          <div className="overlay-content">
+            <div className="shuffle-cards">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="shuffle-card" style={{ animationDelay: `${i * 0.12}s` }}>
+                  <div className="card-back"><div className="card-pattern"></div></div>
                 </div>
+              ))}
+            </div>
+            <h2 className="overlay-title">Shuffling Deck...</h2>
+          </div>
+        </div>
+      )}
+
+      {/* Dealing Overlay */}
+      {gameState.isDealing && (
+        <div className="overlay-screen">
+          <div className="overlay-content">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="flying-card" style={{ animationDelay: `${i * 0.3}s` }}>
+                <div className="card-back"><div className="card-pattern"></div></div>
               </div>
             ))}
-            <h2 className="dealing-text">
-              Dealing Cards... {gameState.dealingCardIndex}/{(roomDetails?.players?.length || 0) * 7}
-            </h2>
+            <h2 className="overlay-title">Dealing Cards...</h2>
           </div>
         </div>
       )}
@@ -625,15 +560,15 @@ function Game() {
       {/* Scoreboard Modal */}
       {showScoreboard && (
         <div className="modal-overlay" onClick={() => setShowScoreboard(false)}>
-          <div className="scoreboard-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-close" onClick={() => setShowScoreboard(false)}>✕</div>
-            <h2>📊 Scoreboard</h2>
+          <div className="game-modal" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={() => setShowScoreboard(false)}>✕</button>
+            <h2 className="modal-heading">📊 Scoreboard</h2>
             <div className="scoreboard-list">
               {roomDetails?.players?.map((player, index) => (
-                <div key={player.id} className="score-item">
+                <div key={player.id} className="score-row">
                   <span className="score-rank">#{index + 1}</span>
                   <span className="score-name">{player.name}</span>
-                  <span className="score-points">0 pts</span>
+                  <span className="score-pts">0 pts</span>
                 </div>
               ))}
             </div>
@@ -644,19 +579,14 @@ function Game() {
       {/* Settings Modal */}
       {showSettings && (
         <div className="modal-overlay" onClick={() => setShowSettings(false)}>
-          <div className="settings-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-close" onClick={() => setShowSettings(false)}>✕</div>
-            <h2>⚙️ Settings</h2>
-            <div className="settings-options">
-              <button className="setting-option" onClick={() => navigate('/')}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                  <polyline points="16 17 21 12 16 7"></polyline>
-                  <line x1="21" y1="12" x2="9" y2="12"></line>
-                </svg>
-                Leave Game
+          <div className="game-modal" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={() => setShowSettings(false)}>✕</button>
+            <h2 className="modal-heading">⚙️ Settings</h2>
+            <div className="settings-list">
+              <button className="settings-item" onClick={() => navigate('/')}>
+                🚪 Leave Game
               </button>
-              <button className="setting-option" onClick={() => navigate(`/room/${roomId}`)}>
+              <button className="settings-item" onClick={() => navigate(`/room/${roomId}`)}>
                 ← Back to Lobby
               </button>
             </div>
