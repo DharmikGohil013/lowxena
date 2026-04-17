@@ -1339,6 +1339,17 @@
   margin: 16px 0;
 }
 
+.round-called-by {
+  text-align: center;
+  font-size: 13px;
+  color: rgba(255,255,255,.5);
+  margin-bottom: 6px;
+}
+
+.round-called-by strong {
+  color: #a78bfa;
+}
+
 .trophy-icon {
   font-size: 32px;
 }
@@ -1358,6 +1369,12 @@
   border-radius: 10px;
   padding: 10px 14px;
   font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.round-score-item.round-winner-row {
+  background: rgba(251, 191, 36, 0.12);
+  border: 1px solid rgba(251, 191, 36, 0.25);
 }
 
 .round-score-name {

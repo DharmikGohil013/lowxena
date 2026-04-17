@@ -64,6 +64,8 @@ function Game() {
     hasPlayedCard: false,  // current player played a card this turn
     gameOver: false,
     gameWinner: null,      // player object who won the whole game
+    // Synced round result - visible to ALL players
+    roundResult: null,     // { winner, playerScores, newCumulativeScores, newlyEliminated, roundNumber, timestamp }
   })
   const [countdown, setCountdown] = useState(30)
   const [showScoreboard, setShowScoreboard] = useState(false)
@@ -71,10 +73,10 @@ function Game() {
   const [selectedCard, setSelectedCard] = useState(null)
   const [draggingCard, setDraggingCard] = useState(null)
   const [dropHover, setDropHover] = useState(false)
-  const [showRoundResult, setShowRoundResult] = useState(null) // { winner, loser, roundScores }
-  const [showEliminated, setShowEliminated] = useState(null)   // { playerName }
+  const [showRoundResult, setShowRoundResult] = useState(false)
   const [showGameWin, setShowGameWin] = useState(null)         // { winnerName }
   const [showGameLoss, setShowGameLoss] = useState(false)      // current user got eliminated
+  const [lastSeenRoundTimestamp, setLastSeenRoundTimestamp] = useState(null) // prevent re-showing same round result
   const navigate = useNavigate()
   const roomId = searchParams.get('roomId')
 
@@ -126,10 +128,24 @@ function Game() {
           hasPlayedCard: data.gameState.hasPlayedCard ?? prev.hasPlayedCard,
           gameOver: data.gameState.gameOver ?? prev.gameOver,
           gameWinner: data.gameState.gameWinner || prev.gameWinner,
+          roundResult: data.gameState.roundResult || null,
           gameStarted: true,
-          isShuffling: false,
-          isDealing: false
+          isShuffling: data.gameState.isShuffling ?? false,
+          isDealing: data.gameState.isDealing ?? false
         }))
+        
+        // Show round result overlay if we haven't seen this one yet
+        if (data.gameState.roundResult && data.gameState.roundResult.timestamp) {
+          setLastSeenRoundTimestamp(prev => {
+            if (prev !== data.gameState.roundResult.timestamp) {
+              setShowRoundResult(true)
+              // Auto-dismiss after 3.5s
+              setTimeout(() => setShowRoundResult(false), 3500)
+              return data.gameState.roundResult.timestamp
+            }
+            return prev
+          })
+        }
         
         // Check if current user got eliminated
         if (data.gameState.eliminatedPlayers && currentUser) {
@@ -220,6 +236,7 @@ function Game() {
           hasPlayedCard: false,
           gameOver: false,
           gameWinner: null,
+          roundResult: null,
         }
         
         setGameState(prev => ({ ...prev, ...newState }))
@@ -387,7 +404,6 @@ function Game() {
     const myPoints = calculateHandPoints(myHand)
 
     if (myPoints > 10) {
-      // Can't call LowXena if hand > 10 points
       return
     }
 
@@ -415,7 +431,7 @@ function Game() {
       newScores[roundWinner.id] = 0
     }
 
-    // Check for eliminations - use maxPoints from room settings
+    // Check for eliminations
     const maxPoints = roomDetails.maxPoints || 40
     const newEliminated = [...gameState.eliminatedPlayers]
     const newlyEliminated = []
@@ -438,50 +454,55 @@ function Game() {
       gameWinner = remainingPlayers[0] || null
     }
 
-    // Show round result
-    setShowRoundResult({
+    // Build the round result object (synced to all players)
+    const roundResultData = {
       winner: roundWinner,
       playerScores: playerScoresThisRound,
       newCumulativeScores: newScores,
       newlyEliminated,
       roundNumber: gameState.roundNumber,
-    })
+      calledBy: { id: myId, name: currentUser.name },
+      timestamp: Date.now(), // unique key so all clients detect it
+    }
 
-    // After 3 seconds, start new round or end game
-    setTimeout(async () => {
-      setShowRoundResult(null)
+    // Save round result + updated scores into game state so ALL players see it
+    const roundResultState = {
+      ...gameState,
+      scores: newScores,
+      eliminatedPlayers: newEliminated,
+      roundResult: roundResultData,
+      gameOver,
+      gameWinner,
+    }
+
+    setGameState(roundResultState)
+    setShowRoundResult(true)
+    setLastSeenRoundTimestamp(roundResultData.timestamp)
+
+    try {
+      await gameAPI.updateGameState(roomId, roundResultState)
+    } catch (err) {
+      console.error('Error saving round result:', err)
+    }
+
+    // After 3.5s, dismiss overlay and proceed
+    setTimeout(() => {
+      setShowRoundResult(false)
 
       if (gameOver) {
-        const finalState = {
-          ...gameState,
-          scores: newScores,
-          eliminatedPlayers: newEliminated,
-          gameOver: true,
-          gameWinner: gameWinner,
-        }
-        setGameState(finalState)
         if (gameWinner) setShowGameWin({ winnerName: gameWinner.name })
         if (currentUser && newEliminated.includes(currentUser.id)) setShowGameLoss(true)
-        try {
-          await gameAPI.updateGameState(roomId, finalState)
-        } catch (err) {
-          console.error('Error saving final state:', err)
-        }
         return
       }
 
-      // Show eliminated players briefly
+      // Show eliminated notification
       if (newlyEliminated.length > 0) {
-        newlyEliminated.forEach(p => {
-          if (p.id === currentUser?.id) {
-            setShowGameLoss(true)
-          }
-        })
-        setShowEliminated({ playerNames: newlyEliminated.map(p => p.name) })
-        setTimeout(() => setShowEliminated(null), 2500)
+        if (newlyEliminated.some(p => p.id === currentUser?.id)) {
+          setShowGameLoss(true)
+        }
       }
 
-      // Start new round: reshuffle and redeal for remaining players
+      // Only the player who called LowXena triggers the new round (acts as coordinator)
       startNewRound(newScores, newEliminated, gameState.roundNumber + 1)
     }, 3500)
   }
@@ -539,6 +560,7 @@ function Game() {
           hasPlayedCard: false,
           gameOver: false,
           gameWinner: null,
+          roundResult: null,  // Clear round result for all players
         }
 
         setGameState(newState)
@@ -1038,43 +1060,37 @@ function Game() {
         </div>
       )}
 
-      {/* Round Result Overlay */}
-      {showRoundResult && (
+      {/* Round Result Overlay — synced to ALL players */}
+      {showRoundResult && gameState.roundResult && (
         <div className="overlay-screen round-result-overlay">
           <div className="overlay-content round-result-content">
-            <h2 className="overlay-title">Round {showRoundResult.roundNumber} Complete!</h2>
+            <h2 className="overlay-title">Round {gameState.roundResult.roundNumber} Complete!</h2>
+            <div className="round-called-by">
+              Called by <strong>{gameState.roundResult.calledBy?.name}</strong>
+            </div>
             <div className="round-result-winner">
               <span className="trophy-icon">🏆</span>
-              <span>{showRoundResult.winner?.name} wins the round!</span>
+              <span>{gameState.roundResult.winner?.name} wins the round!</span>
             </div>
             <div className="round-scores-list">
-              {showRoundResult.playerScores?.map(p => (
-                <div key={p.id} className="round-score-item">
-                  <span className="round-score-name">{p.name}</span>
+              {gameState.roundResult.playerScores?.map(p => (
+                <div key={p.id} className={`round-score-item ${p.id === gameState.roundResult.winner?.id ? 'round-winner-row' : ''}`}>
+                  <span className="round-score-name">
+                    {p.name}
+                    {p.id === gameState.roundResult.winner?.id && ' 🏆'}
+                  </span>
                   <span className="round-score-hand">Hand: {p.handPoints} pts</span>
-                  <span className="round-score-total">Total: {showRoundResult.newCumulativeScores?.[p.id] || 0} pts</span>
+                  <span className="round-score-total">Total: {gameState.roundResult.newCumulativeScores?.[p.id] || 0} pts</span>
                 </div>
               ))}
             </div>
-            {showRoundResult.newlyEliminated?.length > 0 && (
+            {gameState.roundResult.newlyEliminated?.length > 0 && (
               <div className="round-eliminated">
-                {showRoundResult.newlyEliminated.map(p => (
+                {gameState.roundResult.newlyEliminated.map(p => (
                   <span key={p.id} className="eliminated-name">💀 {p.name} eliminated!</span>
                 ))}
               </div>
             )}
-          </div>
-        </div>
-      )}
-
-      {/* Eliminated Player Notification */}
-      {showEliminated && (
-        <div className="overlay-screen eliminated-overlay">
-          <div className="overlay-content">
-            <h2 className="overlay-title">Player Eliminated!</h2>
-            {showEliminated.playerNames?.map((name, i) => (
-              <p key={i} className="eliminated-text">💀 {name} has been eliminated</p>
-            ))}
           </div>
         </div>
       )}
