@@ -147,9 +147,9 @@ export const getRoomDetails = async (req, res) => {
 
     // Format players data
     const players = members.map(member => ({
-      id: member.user.id,
-      name: member.user.name,
-      avatarUrl: member.user.avatar_url,
+      id: member.user?.id || member.user_id || 'unknown',
+      name: member.user?.name || 'Guest',
+      avatarUrl: member.user?.avatar_url || '',
       isHost: member.is_host,
       isReady: member.is_ready || false
     }));

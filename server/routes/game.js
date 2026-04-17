@@ -117,11 +117,11 @@ router.get('/check-room', checkUserRoom);
 router.post('/toggle-ready/:roomId', toggleReady);
 
 /**
- * @route   POST /api/game/update-state/:roomId
+ * @route   PUT /api/game/state/:roomId
  * @desc    Update game state for synchronization
  * @access  Private
  */
-router.post('/update-state/:roomId', updateGameState);
+router.put('/state/:roomId', updateGameState);
 
 /**
  * @route   GET /api/game/state/:roomId

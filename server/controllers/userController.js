@@ -1,4 +1,4 @@
-import { supabase } from '../config/supabase.js';
+import { supabaseAdmin } from '../config/supabase.js';
 
 /**
  * Get user profile
@@ -7,7 +7,7 @@ export const getProfile = async (req, res) => {
   try {
     const userId = req.user.id;
 
-    const { data: user, error } = await supabase
+    const { data: user, error } = await supabaseAdmin
       .from('users')
       .select('*')
       .eq('id', userId)
@@ -54,7 +54,7 @@ export const updateProfile = async (req, res) => {
     if (birthdate) updateData.birthdate = birthdate;
     if (username) updateData.username = username;
 
-    const { data: user, error } = await supabase
+    const { data: user, error } = await supabaseAdmin
       .from('users')
       .update(updateData)
       .eq('id', userId)
@@ -86,7 +86,7 @@ export const getUserStats = async (req, res) => {
   try {
     const userId = req.user.id;
 
-    const { data: stats, error } = await supabase
+    const { data: stats, error } = await supabaseAdmin
       .from('user_stats')
       .select('*')
       .eq('user_id', userId)
@@ -96,7 +96,7 @@ export const getUserStats = async (req, res) => {
 
     if (!stats) {
       // Create default stats
-      const { data: newStats, error: insertError } = await supabase
+      const { data: newStats, error: insertError } = await supabaseAdmin
         .from('user_stats')
         .insert([{
           user_id: userId,
@@ -140,7 +140,7 @@ export const updateUserStats = async (req, res) => {
     const userId = req.user.id;
     const { total_games, wins, losses, highest_score, total_playtime } = req.body;
 
-    const { data: stats, error } = await supabase
+    const { data: stats, error } = await supabaseAdmin
       .from('user_stats')
       .upsert({
         user_id: userId,

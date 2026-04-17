@@ -1,4 +1,4 @@
-import { supabase } from '../config/supabase.js';
+import { supabaseAdmin } from '../config/supabase.js';
 
 /**
  * Get leaderboard
@@ -7,7 +7,7 @@ export const getLeaderboard = async (req, res) => {
   try {
     const { limit = 10, offset = 0 } = req.query;
 
-    const { data: leaderboard, error } = await supabase
+    const { data: leaderboard, error } = await supabaseAdmin
       .from('leaderboard')
       .select(`
         *,
@@ -57,7 +57,7 @@ export const saveGameScore = async (req, res) => {
     }
 
     // Save to game history
-    const { data: gameHistory, error: historyError } = await supabase
+    const { data: gameHistory, error: historyError } = await supabaseAdmin
       .from('game_history')
       .insert([{
         user_id: userId,
@@ -71,7 +71,7 @@ export const saveGameScore = async (req, res) => {
     if (historyError) throw historyError;
 
     // Update or insert leaderboard
-    const { data: existingEntry, error: fetchError } = await supabase
+    const { data: existingEntry, error: fetchError } = await supabaseAdmin
       .from('leaderboard')
       .select('*')
       .eq('user_id', userId)
@@ -80,7 +80,7 @@ export const saveGameScore = async (req, res) => {
     if (fetchError && fetchError.code !== 'PGRST116') throw fetchError;
 
     if (!existingEntry || score > existingEntry.score) {
-      const { error: leaderboardError } = await supabase
+      const { error: leaderboardError } = await supabaseAdmin
         .from('leaderboard')
         .upsert({
           user_id: userId,
@@ -92,14 +92,14 @@ export const saveGameScore = async (req, res) => {
     }
 
     // Update user stats
-    const { data: stats } = await supabase
+    const { data: stats } = await supabaseAdmin
       .from('user_stats')
       .select('*')
       .eq('user_id', userId)
       .single();
 
     if (stats) {
-      await supabase
+      await supabaseAdmin
         .from('user_stats')
         .update({
           total_games: stats.total_games + 1,
@@ -133,7 +133,7 @@ export const getGameHistory = async (req, res) => {
     const userId = req.user.id;
     const { limit = 20, offset = 0 } = req.query;
 
-    const { data: history, error } = await supabase
+    const { data: history, error } = await supabaseAdmin
       .from('game_history')
       .select('*')
       .eq('user_id', userId)
@@ -162,7 +162,7 @@ export const getGameHistory = async (req, res) => {
  */
 export const getGameSettings = async (req, res) => {
   try {
-    const { data: settings, error } = await supabase
+    const { data: settings, error } = await supabaseAdmin
       .from('game_settings')
       .select('*')
       .single();
@@ -201,7 +201,7 @@ export const updateGameState = async (req, res) => {
     const gameState = req.body;
 
     // Store game state in rooms table metadata
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
       .from('rooms')
       .update({
         game_state: gameState,
@@ -233,7 +233,7 @@ export const getGameState = async (req, res) => {
   try {
     const { roomId } = req.params;
 
-    const { data: room, error } = await supabase
+    const { data: room, error } = await supabaseAdmin
       .from('rooms')
       .select('game_state')
       .eq('id', roomId)

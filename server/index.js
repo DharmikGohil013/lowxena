@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import morgan from 'morgan';
+import { testConnection } from './config/supabase.js';
 import authRoutes from './routes/auth.js';
 import userRoutes from './routes/user.js';
 import gameRoutes from './routes/game.js';
@@ -15,7 +16,7 @@ const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5174',
+  origin: process.env.CLIENT_URL || 'http://localhost:5173',
   credentials: true
 }));
 app.use(express.json());
@@ -49,8 +50,11 @@ app.use((req, res) => {
 app.use(errorHandler);
 
 // Start server
-app.listen(PORT, () => {
-  console.log(`
+async function start() {
+  await testConnection();
+
+  app.listen(PORT, () => {
+    console.log(`
 ╔═══════════════════════════════════════╗
 ║   🎮 LowXena Server Running! 🎮      ║
 ╠═══════════════════════════════════════╣
@@ -58,7 +62,10 @@ app.listen(PORT, () => {
 ║  Environment: ${process.env.NODE_ENV || 'development'}           ║
 ║  API: http://localhost:${PORT}         ║
 ╚═══════════════════════════════════════╝
-  `);
-});
+    `);
+  });
+}
+
+start();
 
 export default app;

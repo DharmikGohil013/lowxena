@@ -2,6 +2,7 @@ import express from 'express';
 import { body } from 'express-validator';
 import { 
   googleLogin, 
+  guestLogin,
   refreshToken, 
   logout,
   verifyToken 
@@ -22,14 +23,18 @@ router.post('/google',
 );
 
 /**
+ * @route   POST /api/auth/guest
+ * @desc    Login as guest
+ * @access  Public
+ */
+router.post('/guest', guestLogin);
+
+/**
  * @route   POST /api/auth/refresh
  * @desc    Refresh access token
  * @access  Public
  */
-router.post('/refresh',
-  body('refreshToken').notEmpty().withMessage('Refresh token is required'),
-  refreshToken
-);
+router.post('/refresh', refreshToken);
 
 /**
  * @route   POST /api/auth/logout
@@ -39,13 +44,10 @@ router.post('/refresh',
 router.post('/logout', logout);
 
 /**
- * @route   POST /api/auth/verify
+ * @route   GET /api/auth/verify
  * @desc    Verify token
  * @access  Public
  */
-router.post('/verify',
-  body('token').notEmpty().withMessage('Token is required'),
-  verifyToken
-);
+router.get('/verify', verifyToken);
 
 export default router;

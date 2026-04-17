@@ -31,6 +31,8 @@ function Home() {
   const navigate = useNavigate()
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [showLoginModal, setShowLoginModal] = useState(false)
+  const [guestName, setGuestName] = useState('')
+  const [loginError, setLoginError] = useState('')
   const [playerName, setPlayerName] = useState('')
   const [playerEmail, setPlayerEmail] = useState('')
   const [playerPicture, setPlayerPicture] = useState('')
@@ -105,19 +107,12 @@ function Home() {
         if (response.success && response.leaderboard) {
           setLeaderboard(response.leaderboard);
           
-          // If user is logged in, find their rank
+          // Check if logged-in user is in top 5
           if (userId) {
-            const fullLeaderboard = await gameAPI.getLeaderboard(1000);
-            if (fullLeaderboard.success && fullLeaderboard.leaderboard) {
-              const userIndex = fullLeaderboard.leaderboard.findIndex(
-                player => player.id === userId
-              );
-              if (userIndex !== -1) {
-                setUserRank({
-                  rank: userIndex + 1,
-                  ...fullLeaderboard.leaderboard[userIndex]
-                });
-              }
+            const userInTop = response.leaderboard.find(p => p.id === userId || p.user_id === userId);
+            if (!userInTop) {
+              // User not in top 5, show a separate entry
+              setUserRank(null);
             }
           }
         }
@@ -132,6 +127,10 @@ function Home() {
   }, [userId]);
 
   const handlePlay = () => {
+    if (!isLoggedIn) {
+      setShowLoginModal(true)
+      return
+    }
     setShowGameModeModal(true)
   }
 
@@ -222,7 +221,35 @@ function Home() {
       }
     } catch (error) {
       console.error('Login error:', error);
-      alert('Login failed. Please try again.');
+      setLoginError(error?.message || 'Login failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGuestLogin = async () => {
+    setLoading(true);
+    setLoginError('');
+    try {
+      const response = await authAPI.guestLogin(guestName);
+      
+      if (response.token) {
+        localStorage.setItem('authToken', response.token);
+      }
+      
+      if (response.user) {
+        localStorage.setItem('userData', JSON.stringify(response.user));
+        setPlayerName(response.user.name || '');
+        setPlayerEmail(response.user.email || '');
+        setPlayerPicture(response.user.avatar_url || '');
+        setUserId(response.user.id || '');
+        setIsLoggedIn(true);
+        setShowLoginModal(false);
+        setLoginError('');
+      }
+    } catch (error) {
+      console.error('Guest login error:', error);
+      setLoginError(error?.message || 'Guest login failed. Is the server running?');
     } finally {
       setLoading(false);
     }
@@ -230,7 +257,7 @@ function Home() {
 
   const handleGoogleError = () => {
     console.log('Login Failed');
-    alert('Google login failed. Please try again.');
+    setLoginError('Google login failed. Try guest login instead.');
   };
 
   const handleLogout = () => {
@@ -285,7 +312,7 @@ function Home() {
   const handleSaveProfile = async () => {
     setSaving(true);
     try {
-      const response = await userAPI.updateProfile(userId, profileData);
+      const response = await userAPI.updateProfile(profileData);
       
       if (response.success) {
         // Update local state
@@ -376,8 +403,8 @@ function Home() {
                 </>
               )}
               
-              <button className="see-more-btn" onClick={() => navigate('/leaderboard')}>
-                See More
+              <button className="see-more-btn" onClick={() => navigate('/rooms')}>
+                Find Rooms
               </button>
             </>
           )}
@@ -700,16 +727,22 @@ function Home() {
 
       {/* Login Modal */}
       {showLoginModal && (
-        <div className="modal-overlay" onClick={() => setShowLoginModal(false)}>
+        <div className="modal-overlay" onClick={() => { setShowLoginModal(false); setLoginError(''); }}>
           <div className="login-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-close" onClick={() => setShowLoginModal(false)}>
+            <div className="modal-close" onClick={() => { setShowLoginModal(false); setLoginError(''); }}>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
               </svg>
             </div>
             <h2>Welcome to LowXena</h2>
-            <p>Sign in with your Google account to start your gaming journey</p>
+            <p>Sign in to start your gaming journey</p>
+            
+            {loginError && (
+              <div className="login-error">
+                <span>⚠️</span> {loginError}
+              </div>
+            )}
             
             <div className="google-login-container">
               {loading ? (
@@ -717,17 +750,38 @@ function Home() {
                   <Loader message="Signing you in..." />
                 </div>
               ) : (
-                <GoogleLogin
-                  onSuccess={handleGoogleSuccess}
-                  onError={handleGoogleError}
-                  useOneTap
-                  theme="filled_black"
-                  size="large"
-                  text="signin_with"
-                  shape="rectangular"
-                  logo_alignment="left"
-                  width="340"
-                />
+                <>
+                  <GoogleLogin
+                    onSuccess={handleGoogleSuccess}
+                    onError={handleGoogleError}
+                    useOneTap
+                    theme="filled_black"
+                    size="large"
+                    text="signin_with"
+                    shape="rectangular"
+                    logo_alignment="left"
+                    width="340"
+                  />
+                  
+                  <div className="login-divider">
+                    <span>or</span>
+                  </div>
+                  
+                  <div className="guest-login-section">
+                    <input
+                      type="text"
+                      className="guest-name-input"
+                      placeholder="Enter your name (optional)"
+                      value={guestName}
+                      onChange={(e) => setGuestName(e.target.value)}
+                      maxLength={30}
+                      onKeyDown={(e) => e.key === 'Enter' && handleGuestLogin()}
+                    />
+                    <button className="guest-login-btn" onClick={handleGuestLogin}>
+                      🎮 Play as Guest
+                    </button>
+                  </div>
+                </>
               )}
             </div>
           </div>

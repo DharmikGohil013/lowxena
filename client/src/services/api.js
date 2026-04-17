@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:3000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
 // Create axios instance with default config
 const apiClient = axios.create({
@@ -36,6 +36,16 @@ export const authAPI = {
     }
   },
 
+  // Guest login
+  guestLogin: async (name) => {
+    try {
+      const response = await apiClient.post('/auth/guest', { name });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
   // Logout
   logout: () => {
     localStorage.removeItem('authToken');
@@ -62,9 +72,9 @@ export const authAPI = {
 // User API
 export const userAPI = {
   // Get user profile
-  getProfile: async (userId) => {
+  getProfile: async () => {
     try {
-      const response = await apiClient.get(`/user/profile/${userId}`);
+      const response = await apiClient.get('/user/profile');
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -72,7 +82,7 @@ export const userAPI = {
   },
 
   // Update user profile
-  updateProfile: async (userId, updates) => {
+  updateProfile: async (updates) => {
     try {
       const response = await apiClient.put(`/user/profile`, updates);
       return response.data;
@@ -82,9 +92,9 @@ export const userAPI = {
   },
 
   // Get user stats
-  getStats: async (userId) => {
+  getStats: async () => {
     try {
-      const response = await apiClient.get(`/user/stats/${userId}`);
+      const response = await apiClient.get('/user/stats');
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -115,9 +125,9 @@ export const gameAPI = {
   },
 
   // Get game history
-  getHistory: async (userId, limit = 10) => {
+  getHistory: async (limit = 10) => {
     try {
-      const response = await apiClient.get(`/game/history/${userId}?limit=${limit}`);
+      const response = await apiClient.get(`/game/history?limit=${limit}`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -217,7 +227,7 @@ export const gameAPI = {
   // Update game state
   updateGameState: async (roomId, gameState) => {
     try {
-      const response = await apiClient.post(`/game/update-state/${roomId}`, gameState);
+      const response = await apiClient.put(`/game/state/${roomId}`, gameState);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;

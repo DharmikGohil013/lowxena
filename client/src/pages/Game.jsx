@@ -67,22 +67,27 @@ function Game() {
     fetchCurrentUser()
     if (roomId) {
       fetchRoomDetails()
-      fetchGameState() // Load initial game state from backend
-      initializeGame()
     } else {
       setLoading(false)
     }
     
-    // Poll for game updates - fetch from backend for sync across all players
+    // Poll for game updates
     const interval = setInterval(() => {
       if (roomId) {
         fetchRoomDetails()
         fetchGameState()
       }
-    }, 1000) // Poll every 1 second for real-time sync
+    }, 1500)
     
     return () => clearInterval(interval)
   }, [roomId])
+
+  // Once we have room details and current user, check if we need to initialize
+  useEffect(() => {
+    if (roomDetails && currentUser && roomId) {
+      fetchGameState()
+    }
+  }, [roomDetails?.id, currentUser?.id])
 
   // Sync game state across all players
   const fetchGameState = async () => {
@@ -91,13 +96,17 @@ function Game() {
     try {
       const data = await gameAPI.getGameState(roomId)
       
-      if (data && data.gameState) {
-        // Update game state with synced values from backend
+      if (data && data.gameState && data.gameState.gameStarted) {
         setGameState(prev => ({
           ...prev,
+          deck: data.gameState.deck || prev.deck,
+          playerHands: data.gameState.playerHands || prev.playerHands,
+          playedCards: data.gameState.playedCards || prev.playedCards,
           currentTurn: data.gameState.currentTurn || prev.currentTurn,
           currentTurnIndex: data.gameState.currentTurnIndex ?? prev.currentTurnIndex,
-          gameStarted: data.gameState.gameStarted ?? prev.gameStarted
+          gameStarted: true,
+          isShuffling: false,
+          isDealing: false
         }))
         
         // Sync countdown from server timestamp
@@ -112,16 +121,71 @@ function Game() {
     }
   }
 
-  // Auto-deal cards when game initializes and players are loaded
+  // Host initializes the game: shuffle, deal, save to server
   useEffect(() => {
-    if (roomDetails?.players && gameState.deck.length === 52 && !gameState.gameStarted && !gameState.isShuffling && !gameState.isDealing) {
-      // Delay after shuffle completes
-      const timer = setTimeout(() => {
-        dealCards()
-      }, 500)
-      return () => clearTimeout(timer)
-    }
-  }, [roomDetails?.players, gameState.deck.length, gameState.gameStarted, gameState.isShuffling, gameState.isDealing])
+    if (!roomDetails?.players || !currentUser) return
+    if (gameState.gameStarted || gameState.isShuffling || gameState.isDealing) return
+    
+    // Only the host creates the deck
+    const isHostPlayer = currentUser.id === roomDetails.hostId
+    if (!isHostPlayer) return
+    
+    // Start shuffle animation
+    setGameState(prev => ({ ...prev, isShuffling: true }))
+    
+    setTimeout(() => {
+      // Create and shuffle deck
+      const fullDeck = []
+      SUITS.forEach(suit => {
+        VALUES.forEach(value => {
+          fullDeck.push({ 
+            suit, value, 
+            id: `${value}-${suit}`,
+            color: (suit === 'hearts' || suit === 'diamonds') ? 'red' : 'black'
+          })
+        })
+      })
+      const shuffledDeck = shuffleArray(fullDeck)
+      
+      setGameState(prev => ({ ...prev, deck: shuffledDeck, isShuffling: false }))
+      
+      // Deal cards
+      const numPlayers = roomDetails.players.length
+      const cardsPerPlayer = 7
+      const totalCards = numPlayers * cardsPerPlayer
+      const newPlayerHands = {}
+      
+      roomDetails.players.forEach((player, index) => {
+        newPlayerHands[player.id] = shuffledDeck.slice(index * cardsPerPlayer, (index + 1) * cardsPerPlayer)
+      })
+      
+      const remainingDeck = shuffledDeck.slice(totalCards)
+      
+      // Show dealing animation briefly
+      setGameState(prev => ({ ...prev, isDealing: true }))
+      
+      setTimeout(() => {
+        const newState = {
+          deck: remainingDeck,
+          playerHands: newPlayerHands,
+          playedCards: [],
+          currentTurn: roomDetails.players[0]?.id,
+          currentTurnIndex: 0,
+          gameStarted: true,
+          isShuffling: false,
+          isDealing: false,
+          countdownTimestamp: Date.now()
+        }
+        
+        setGameState(prev => ({ ...prev, ...newState }))
+        setCountdown(30)
+        
+        // Save full game state to server for all players to sync
+        gameAPI.updateGameState(roomId, newState)
+          .catch(err => console.error('Error saving game state:', err))
+      }, 1500)
+    }, 2000)
+  }, [roomDetails?.players?.length, currentUser?.id, gameState.gameStarted])
 
   // Countdown timer effect
   useEffect(() => {
@@ -160,127 +224,31 @@ function Game() {
     }
   }
 
-  const initializeGame = () => {
-    // Create full 52 card deck
-    const fullDeck = []
-    SUITS.forEach(suit => {
-      VALUES.forEach(value => {
-        fullDeck.push({ 
-          suit, 
-          value, 
-          id: `${value}-${suit}`,
-          color: (suit === 'hearts' || suit === 'diamonds') ? 'red' : 'black'
-        })
-      })
-    })
-    
-    // Show shuffle animation
-    setGameState(prev => ({ 
-      ...prev, 
-      deck: fullDeck,
-      isShuffling: true,
-      gameStarted: false 
-    }))
-    
-    // Shuffle after animation
-    setTimeout(() => {
-      const shuffledDeck = shuffleArray(fullDeck)
-      setGameState(prev => ({ 
-        ...prev, 
-        deck: shuffledDeck,
-        isShuffling: false
-      }))
-    }, 2000) // 2 second shuffle animation
-  }
-
-  const dealCards = () => {
-    if (!roomDetails?.players || gameState.deck.length === 0) return
-    
-    const numPlayers = roomDetails.players.length
-    const cardsPerPlayer = 7
-    const totalCards = numPlayers * cardsPerPlayer
-    
-    // Start dealing animation
-    setGameState(prev => ({
-      ...prev,
-      isDealing: true,
-      dealingCardIndex: 0
-    }))
-    
-    // Animate dealing cards one by one
-    let cardIndex = 0
-    const dealInterval = setInterval(() => {
-      if (cardIndex >= totalCards) {
-        clearInterval(dealInterval)
-        
-        // Finalize the deal
-        const newPlayerHands = {}
-        let deckCopy = [...gameState.deck]
-        
-        roomDetails.players.forEach((player, index) => {
-          newPlayerHands[player.id] = deckCopy.slice(index * cardsPerPlayer, (index + 1) * cardsPerPlayer)
-        })
-        
-        const remainingDeck = deckCopy.slice(totalCards)
-        
-        setGameState(prev => ({
-          ...prev,
-          playerHands: newPlayerHands,
-          deck: remainingDeck,
-          gameStarted: true,
-          isDealing: false,
-          dealingCardIndex: 0,
-          currentTurn: roomDetails.players[0]?.id,
-          currentTurnIndex: 0
-        }))
-        
-        // Save initial game state to backend for sync
-        gameAPI.updateGameState(roomId, {
-          currentTurn: roomDetails.players[0]?.id,
-          currentTurnIndex: 0,
-          gameStarted: true,
-          countdownTimestamp: Date.now()
-        }).catch(err => console.error('Error saving game state:', err))
-        
-        // Reset countdown for first turn
-        setCountdown(30)
-        
-        console.log('Cards dealt! Remaining in deck:', remainingDeck.length)
-      } else {
-        setGameState(prev => ({
-          ...prev,
-          dealingCardIndex: cardIndex + 1
-        }))
-        cardIndex++
-      }
-    }, 150) // Deal one card every 150ms
-  }
-
   const handleNextTurn = async () => {
     if (!roomDetails?.players) return
     
     const nextIndex = (gameState.currentTurnIndex + 1) % roomDetails.players.length
     const nextPlayer = roomDetails.players[nextIndex]
     
-    setGameState(prev => ({
-      ...prev,
+    const updatedState = {
+      ...gameState,
       currentTurn: nextPlayer.id,
-      currentTurnIndex: nextIndex
-    }))
+      currentTurnIndex: nextIndex,
+      gameStarted: true,
+      countdownTimestamp: Date.now(),
+      isShuffling: false,
+      isDealing: false
+    }
     
-    // Save turn state to backend for sync across all players
+    setGameState(updatedState)
+    setCountdown(30)
+    
+    // Sync to server
     try {
-      await gameAPI.updateGameState(roomId, {
-        currentTurn: nextPlayer.id,
-        currentTurnIndex: nextIndex,
-        gameStarted: true,
-        countdownTimestamp: Date.now()
-      })
+      await gameAPI.updateGameState(roomId, updatedState)
     } catch (error) {
       console.error('Error updating game state:', error)
     }
-    
-    setCountdown(30)
   }
 
   const handleMove = () => {

@@ -1,5 +1,4 @@
 import jwt from 'jsonwebtoken';
-import { supabase } from '../config/supabase.js';
 
 /**
  * Middleware to verify JWT token from Google OAuth or Supabase

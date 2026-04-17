@@ -1,6 +1,7 @@
-import { supabase, supabaseAdmin } from '../config/supabase.js';
+import { supabaseAdmin } from '../config/supabase.js';
 import { validationResult } from 'express-validator';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 
 /**
  * Login with Google OAuth
@@ -107,17 +108,33 @@ export const googleLogin = async (req, res) => {
  */
 export const refreshToken = async (req, res) => {
   try {
-    const { refreshToken } = req.body;
+    const authHeader = req.headers['authorization'];
+    const oldToken = authHeader && authHeader.split(' ')[1];
 
-    const { data, error } = await supabase.auth.refreshSession({
-      refresh_token: refreshToken
-    });
+    if (!oldToken) {
+      return res.status(401).json({
+        success: false,
+        message: 'Token is required'
+      });
+    }
 
-    if (error) throw error;
+    // Verify the old token (allow expired)
+    const decoded = jwt.verify(oldToken, process.env.JWT_SECRET, { ignoreExpiration: true });
+
+    // Issue a new token
+    const newToken = jwt.sign(
+      {
+        userId: decoded.userId,
+        email: decoded.email,
+        name: decoded.name
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
 
     res.json({
       success: true,
-      session: data.session
+      token: newToken
     });
 
   } catch (error) {
@@ -135,10 +152,7 @@ export const refreshToken = async (req, res) => {
  */
 export const logout = async (req, res) => {
   try {
-    const { error } = await supabase.auth.signOut();
-
-    if (error) throw error;
-
+    // Client-side token removal handles logout
     res.json({
       success: true,
       message: 'Logout successful'
@@ -159,16 +173,58 @@ export const logout = async (req, res) => {
  */
 export const verifyToken = async (req, res) => {
   try {
-    const { token } = req.body;
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
 
-    const { data: { user }, error } = await supabase.auth.getUser(token);
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        valid: false,
+        message: 'Token is required'
+      });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // Guest users aren't in the DB
+    if (decoded.isGuest) {
+      return res.json({
+        success: true,
+        valid: true,
+        user: {
+          id: decoded.userId,
+          email: decoded.email,
+          name: decoded.name,
+          avatar_url: '',
+          level: 1,
+          experience: 0,
+          coins: 0,
+          isGuest: true
+        }
+      });
+    }
+
+    // Fetch current user data
+    const { data: user, error } = await supabaseAdmin
+      .from('users')
+      .select('*')
+      .eq('id', decoded.userId)
+      .single();
 
     if (error) throw error;
 
     res.json({
       success: true,
-      valid: !!user,
-      user: user
+      valid: true,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        avatar_url: user.avatar_url,
+        level: user.level,
+        experience: user.experience,
+        coins: user.coins
+      }
     });
 
   } catch (error) {
@@ -180,4 +236,65 @@ export const verifyToken = async (req, res) => {
   }
 };
 
-export default { googleLogin, refreshToken, logout, verifyToken };
+/**
+ * Guest login - no database required
+ */
+export const guestLogin = async (req, res) => {
+  try {
+    const { name } = req.body;
+    const guestId = `guest_${crypto.randomUUID()}`;
+    const guestName = name && name.trim() ? name.trim().slice(0, 30) : `Guest_${Math.floor(1000 + Math.random() * 9000)}`;
+    const guestEmail = `${guestId}@guest.lowxena`;
+
+    // Insert guest into users table so room joins/lookups work
+    await supabaseAdmin
+      .from('users')
+      .insert([{
+        id: guestId,
+        email: guestEmail,
+        name: guestName,
+        avatar_url: '',
+        level: 1,
+        experience: 0,
+        coins: 0,
+        is_guest: true,
+        last_login: new Date().toISOString()
+      }]);
+
+    const token = jwt.sign(
+      {
+        userId: guestId,
+        email: guestEmail,
+        name: guestName,
+        isGuest: true
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+
+    res.json({
+      success: true,
+      message: 'Guest login successful',
+      user: {
+        id: guestId,
+        email: guestEmail,
+        name: guestName,
+        avatar_url: '',
+        level: 1,
+        experience: 0,
+        coins: 0,
+        isGuest: true
+      },
+      token
+    });
+  } catch (error) {
+    console.error('Guest login error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Guest login failed',
+      error: error.message
+    });
+  }
+};
+
+export default { googleLogin, guestLogin, refreshToken, logout, verifyToken };
