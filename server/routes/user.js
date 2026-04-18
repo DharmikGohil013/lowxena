@@ -2,6 +2,7 @@ import express from 'express';
 import { 
   getProfile, 
   updateProfile, 
+  getAvatars,
   getUserStats,
   updateUserStats
 } from '../controllers/userController.js';
@@ -9,12 +10,19 @@ import { authenticateToken } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// All user routes require authentication
+/**
+ * @route   GET /api/user/avatars
+ * @desc    Get available avatar options
+ * @access  Public
+ */
+router.get('/avatars', getAvatars);
+
+// All other user routes require authentication
 router.use(authenticateToken);
 
 /**
  * @route   GET /api/user/profile
- * @desc    Get user profile
+ * @desc    Get user profile with stats
  * @access  Private
  */
 router.get('/profile', getProfile);

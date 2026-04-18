@@ -5,6 +5,8 @@ import Game from './pages/Game'
 import Rules from './pages/Rules'
 import RoomList from './pages/RoomList'
 import RoomLobby from './pages/RoomLobby'
+import PracticeGame from './pages/PracticeGame'
+import QuickMatch from './pages/QuickMatch'
 import Loader from './components/Loader'
 import './App.css'
 
@@ -29,6 +31,8 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/game" element={<Game />} />
+        <Route path="/practice" element={<PracticeGame />} />
+        <Route path="/quickmatch" element={<QuickMatch />} />
         <Route path="/rules" element={<Rules />} />
         <Route path="/rooms" element={<RoomList />} />
         <Route path="/room/:roomId" element={<RoomLobby />} />

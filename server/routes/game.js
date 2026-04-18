@@ -2,6 +2,7 @@ import express from 'express';
 import { 
   getLeaderboard,
   saveGameScore,
+  saveMultiplayerResults,
   getGameHistory,
   getGameSettings,
   updateGameState,
@@ -16,7 +17,8 @@ import {
   startGame,
   kickPlayer,
   checkUserRoom,
-  toggleReady
+  toggleReady,
+  endGame
 } from '../controllers/roomController.js';
 import { authenticateToken } from '../middleware/auth.js';
 
@@ -52,6 +54,13 @@ router.use(authenticateToken);
  * @access  Private
  */
 router.post('/score', saveGameScore);
+
+/**
+ * @route   POST /api/game/multiplayer-results
+ * @desc    Save multiplayer game results for all players
+ * @access  Private
+ */
+router.post('/multiplayer-results', saveMultiplayerResults);
 
 /**
  * @route   GET /api/game/history
@@ -94,6 +103,13 @@ router.post('/leave-room/:roomId', leaveRoom);
  * @access  Private
  */
 router.post('/start-game/:roomId', startGame);
+
+/**
+ * @route   POST /api/game/end-game/:roomId
+ * @desc    End game and reset room to lobby (host only)
+ * @access  Private
+ */
+router.post('/end-game/:roomId', endGame);
 
 /**
  * @route   POST /api/game/kick-player/:roomId

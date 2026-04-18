@@ -71,7 +71,7 @@ export const authAPI = {
 
 // User API
 export const userAPI = {
-  // Get user profile
+  // Get user profile with stats and rank
   getProfile: async () => {
     try {
       const response = await apiClient.get('/user/profile');
@@ -100,12 +100,32 @@ export const userAPI = {
       throw error.response?.data || error.message;
     }
   },
+
+  // Update user stats after a game
+  updateStats: async (gameResult) => {
+    try {
+      const response = await apiClient.post('/user/stats', gameResult);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  // Get available avatars
+  getAvatars: async () => {
+    try {
+      const response = await apiClient.get('/user/avatars');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
 };
 
 // Game API
 export const gameAPI = {
-  // Get leaderboard
-  getLeaderboard: async (limit = 10) => {
+  // Get leaderboard with user position
+  getLeaderboard: async (limit = 20) => {
     try {
       const response = await apiClient.get(`/game/leaderboard?limit=${limit}`);
       return response.data;
@@ -118,6 +138,16 @@ export const gameAPI = {
   saveScore: async (scoreData) => {
     try {
       const response = await apiClient.post('/game/score', scoreData);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  // Save multiplayer results for all players
+  saveMultiplayerResults: async (data) => {
+    try {
+      const response = await apiClient.post('/game/multiplayer-results', data);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -160,7 +190,9 @@ export const gameAPI = {
       const response = await apiClient.get(`/game/room/${roomId}`);
       return response.data;
     } catch (error) {
-      throw error.response?.data || error.message;
+      const err = error.response?.data || { message: error.message };
+      err.status = error.response?.status;
+      throw err;
     }
   },
 
@@ -188,6 +220,16 @@ export const gameAPI = {
   startGame: async (roomId) => {
     try {
       const response = await apiClient.post(`/game/start-game/${roomId}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  // End game and reset room to lobby
+  endGame: async (roomId) => {
+    try {
+      const response = await apiClient.post(`/game/end-game/${roomId}`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -240,7 +282,9 @@ export const gameAPI = {
       const response = await apiClient.get(`/game/state/${roomId}`);
       return response.data;
     } catch (error) {
-      throw error.response?.data || error.message;
+      const err = error.response?.data || { message: error.message };
+      err.status = error.response?.status;
+      throw err;
     }
   },
 };

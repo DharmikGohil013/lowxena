@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { gameAPI } from '../services/api'
+import { 
+  Package, Target, Crown, BarChart3, Settings, DoorOpen, Trophy, Skull, Hourglass, StopCircle
+} from 'lucide-react'
 import Loader from '../components/Loader'
 import './Game.css'
 
@@ -66,10 +69,14 @@ function Game() {
     gameWinner: null,      // player object who won the whole game
     // Synced round result - visible to ALL players
     roundResult: null,     // { winner, playerScores, newCumulativeScores, newlyEliminated, roundNumber, timestamp }
+    roundHistory: [],      // array of round results for Game End summary
+    gameEndedByHost: false, // flag when host manually ends the game
+    gameEndSummary: null,   // { roundWinners, overallWinner, finalScores }
   })
   const [countdown, setCountdown] = useState(30)
   const [showScoreboard, setShowScoreboard] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
+  const [showGameEndSummary, setShowGameEndSummary] = useState(false)
   const [selectedCard, setSelectedCard] = useState(null)
   const [draggingCard, setDraggingCard] = useState(null)
   const [dropHover, setDropHover] = useState(false)
@@ -111,6 +118,7 @@ function Game() {
     if (!roomId) return
     
     try {
+
       const data = await gameAPI.getGameState(roomId)
       
       if (data && data.gameState && data.gameState.gameStarted) {
@@ -129,6 +137,9 @@ function Game() {
           gameOver: data.gameState.gameOver ?? prev.gameOver,
           gameWinner: data.gameState.gameWinner || prev.gameWinner,
           roundResult: data.gameState.roundResult || null,
+          roundHistory: data.gameState.roundHistory || prev.roundHistory || [],
+          gameEndedByHost: data.gameState.gameEndedByHost ?? prev.gameEndedByHost,
+          gameEndSummary: data.gameState.gameEndSummary || prev.gameEndSummary,
           gameStarted: true,
           isShuffling: data.gameState.isShuffling ?? false,
           isDealing: data.gameState.isDealing ?? false
@@ -158,6 +169,11 @@ function Game() {
         if (data.gameState.gameOver && data.gameState.gameWinner) {
           setShowGameWin({ winnerName: data.gameState.gameWinner.name })
         }
+
+        // Check if host ended the game
+        if (data.gameState.gameEndedByHost && data.gameState.gameEndSummary) {
+          setShowGameEndSummary(true)
+        }
         
         // Sync countdown from server timestamp
         if (data.gameState.countdownTimestamp) {
@@ -168,6 +184,10 @@ function Game() {
       }
     } catch (error) {
       console.error('Error fetching game state:', error)
+      if (error?.response?.status === 500 || error?.status === 500) {
+        // Room likely doesn't exist anymore
+        navigate('/')
+      }
     }
   }
 
@@ -288,6 +308,9 @@ function Game() {
     } catch (err) {
       console.error('Error fetching room details:', err)
       setLoading(false)
+      if (err?.response?.status === 404 || err?.status === 404) {
+        navigate('/')
+      }
     }
   }
 
@@ -471,6 +494,7 @@ function Game() {
       scores: newScores,
       eliminatedPlayers: newEliminated,
       roundResult: roundResultData,
+      roundHistory: [...(gameState.roundHistory || []), roundResultData],
       gameOver,
       gameWinner,
     }
@@ -588,17 +612,9 @@ function Game() {
     const cardIndex = myHand.findIndex(c => c.id === card.id)
     if (cardIndex === -1) return
 
-    const newHand = [...myHand]
-    const cardsToPlay = [card]
-    newHand.splice(cardIndex, 1)
-
-    // Check for a matching card with the same value (double play)
-    const matchingIndex = newHand.findIndex(c => c.value === card.value)
-    if (matchingIndex !== -1) {
-      const matchingCard = newHand[matchingIndex]
-      cardsToPlay.push(matchingCard)
-      newHand.splice(matchingIndex, 1)
-    }
+    // Find ALL cards with the same value (play 2, 3, or 4 at once)
+    const cardsToPlay = myHand.filter(c => c.value === card.value)
+    const newHand = myHand.filter(c => c.value !== card.value)
 
     const updatedHands = {
       ...gameState.playerHands,
@@ -695,13 +711,77 @@ function Game() {
 
   const handleEndGame = async () => {
     if (!isHost()) return
-    if (window.confirm('Are you sure you want to end this game?')) {
-      try {
-        // This will be implemented with backend
-        navigate(`/room/${roomId}`)
-      } catch (err) {
-        console.error('Error ending game:', err)
+    if (!window.confirm('Are you sure you want to end this game? Round-wise results will be saved.')) return
+
+    try {
+      const history = gameState.roundHistory || []
+      
+      // Count round wins per player
+      const roundWins = {}
+      history.forEach(r => {
+        if (r.winner) {
+          if (!roundWins[r.winner.id]) roundWins[r.winner.id] = { ...r.winner, wins: 0 }
+          roundWins[r.winner.id].wins++
+        }
+      })
+
+      // Determine overall winner (most round wins)
+      const sortedWinners = Object.values(roundWins).sort((a, b) => b.wins - a.wins)
+      const overallWinner = sortedWinners[0] || null
+
+      // Final scores from current game state
+      const finalScores = gameState.scores || {}
+
+      const summary = {
+        roundWinners: history.map(r => ({
+          round: r.roundNumber,
+          winnerName: r.winner?.name || 'N/A',
+          winnerId: r.winner?.id,
+          calledBy: r.calledBy?.name,
+        })),
+        overallWinner: overallWinner ? { name: overallWinner.name, id: overallWinner.id, roundWins: overallWinner.wins } : null,
+        finalScores,
+        totalRounds: history.length,
       }
+
+      // Update game state to signal game ended by host
+      const endedState = {
+        ...gameState,
+        gameOver: true,
+        gameEndedByHost: true,
+        gameEndSummary: summary,
+      }
+
+      setGameState(endedState)
+      setShowSettings(false)
+      setShowGameEndSummary(true)
+
+      await gameAPI.updateGameState(roomId, endedState)
+
+      // Reset room status to waiting so players can go back to lobby
+      try {
+        await gameAPI.endGame(roomId)
+      } catch (e) {
+        console.error('Error resetting room:', e)
+      }
+
+      // Save multiplayer results for all players
+      if (roomDetails?.players) {
+        try {
+          await gameAPI.saveMultiplayerResults({
+            players: roomDetails.players.map(player => ({
+              id: player.id,
+              score: finalScores[player.id] || 0,
+              isWinner: overallWinner?.id === player.id,
+            })),
+            totalRounds: history.length,
+          })
+        } catch (e) {
+          console.error('Error saving multiplayer results:', e)
+        }
+      }
+    } catch (err) {
+      console.error('Error ending game:', err)
     }
   }
 
@@ -789,11 +869,21 @@ function Game() {
             <span className="round-badge">R{gameState.roundNumber}</span>
             <span className="turn-label">
               {isMyTurn() 
-                ? (gameState.mustPickup ? '📦 Pick Up a Card!' : '🎯 Your Turn') 
-                : `⏳ ${getCurrentTurnPlayer()?.name}'s Turn`}
+                ? (gameState.mustPickup ? <><Package size={14} /> Pick Up a Card!</> : <><Target size={14} /> Your Turn</>) 
+                : <><Hourglass size={14} /> {getCurrentTurnPlayer()?.name}'s Turn</>}
             </span>
             <span className="turn-timer">{countdown}s</span>
           </div>
+        )}
+
+        {isHost() && gameState.gameStarted && !gameState.gameOver && (
+          <button 
+            className="control-btn end-game-btn"
+            onClick={handleEndGame}
+            title="End Game"
+          >
+            <StopCircle size={20} />
+          </button>
         )}
 
         <button 
@@ -808,32 +898,35 @@ function Game() {
         </button>
       </div>
 
-      {/* Other Players Row */}
-      <div className="opponents-row">
-        {otherPlayers.map((player) => (
-          <div key={player.id} className={`opponent-card ${gameState.currentTurn === player.id ? 'active-turn' : ''} ${gameState.eliminatedPlayers.includes(player.id) ? 'eliminated' : ''}`}>
-            <div className="opponent-avatar">
+      {/* Casino Table Area with Players Around It */}
+      <div className="casino-area">
+        {/* Opponent seats positioned around the table */}
+        {otherPlayers.map((player, index) => (
+          <div 
+            key={player.id} 
+            className={`seat seat-${index} seat-of-${otherPlayers.length} ${gameState.currentTurn === player.id ? 'active-turn' : ''} ${gameState.eliminatedPlayers.includes(player.id) ? 'eliminated' : ''}`}
+          >
+            <div className="seat-avatar">
               {player.avatarUrl ? (
-                <img src={player.avatarUrl} alt={player.name} />
+                <img src={player.avatarUrl} alt={player.name} referrerPolicy="no-referrer" />
               ) : (
-                <span className="opponent-letter">{player.name?.charAt(0).toUpperCase()}</span>
+                <span className="seat-letter">{player.name?.charAt(0).toUpperCase()}</span>
               )}
-              {player.isHost && <span className="crown-badge">👑</span>}
+              {player.isHost && <span className="crown-badge"><Crown size={12} /></span>}
               {gameState.eliminatedPlayers.includes(player.id) && <span className="eliminated-badge">✕</span>}
             </div>
-            <div className="opponent-info">
-              <span className="opponent-name">{player.name}</span>
-              <span className="opponent-score">{gameState.scores?.[player.id] || 0} pts</span>
-              <span className="opponent-cards">{gameState.playerHands[player.id]?.length || 0} cards</span>
+            <div className="seat-info">
+              <span className="seat-name">{player.name}</span>
+              <span className="seat-score">{gameState.scores?.[player.id] || 0} pts</span>
+              <span className="seat-cards">{gameState.playerHands[player.id]?.length || 0} cards</span>
             </div>
           </div>
         ))}
-      </div>
 
-      {/* Central Game Table */}
-      <div className="game-table">
-        <div className="table-surface">
-          <div className="table-felt"></div>
+        {/* Central Game Table */}
+        <div className="game-table">
+          <div className="table-surface">
+            <div className="table-felt"></div>
           
           {/* Deck - click to pick up */}
           <div className={`deck-area ${gameState.mustPickup && isMyTurn() ? 'deck-pickup-ready' : ''}`}
@@ -901,6 +994,7 @@ function Game() {
           </div>
         </div>
       </div>
+      </div>
 
       {/* Action Buttons */}
       {gameState.gameStarted && !gameState.gameOver && (
@@ -940,11 +1034,11 @@ function Game() {
           <div className="my-info-bar">
             <div className="my-avatar">
               {orderedPlayers[0].avatarUrl ? (
-                <img src={orderedPlayers[0].avatarUrl} alt={orderedPlayers[0].name} />
+                <img src={orderedPlayers[0].avatarUrl} alt={orderedPlayers[0].name} referrerPolicy="no-referrer" />
               ) : (
                 <span className="my-avatar-letter">{orderedPlayers[0].name?.charAt(0).toUpperCase()}</span>
               )}
-              {orderedPlayers[0].isHost && <span className="crown-badge">👑</span>}
+              {orderedPlayers[0].isHost && <span className="crown-badge"><Crown size={14} /></span>}
             </div>
             <div className="my-details">
               <span className="my-name">{orderedPlayers[0].name}</span>
@@ -1022,7 +1116,7 @@ function Game() {
         <div className="modal-overlay" onClick={() => setShowScoreboard(false)}>
           <div className="game-modal" onClick={(e) => e.stopPropagation()}>
             <button className="modal-close" onClick={() => setShowScoreboard(false)}>✕</button>
-            <h2 className="modal-heading">📊 Scoreboard</h2>
+            <h2 className="modal-heading"><BarChart3 size={20} style={{display:'inline', verticalAlign:'-3px', marginRight:'6px'}} /> Scoreboard</h2>
             <div className="round-info">Round {gameState.roundNumber} · Max {roomDetails?.maxPoints || 40} pts</div>
             <div className="scoreboard-list">
               {roomDetails?.players
@@ -1047,12 +1141,23 @@ function Game() {
         <div className="modal-overlay" onClick={() => setShowSettings(false)}>
           <div className="game-modal" onClick={(e) => e.stopPropagation()}>
             <button className="modal-close" onClick={() => setShowSettings(false)}>✕</button>
-            <h2 className="modal-heading">⚙️ Settings</h2>
+            <h2 className="modal-heading"><Settings size={20} style={{display:'inline', verticalAlign:'-3px', marginRight:'6px'}} /> Settings</h2>
             <div className="settings-list">
-              <button className="settings-item" onClick={() => navigate('/')}>
-                🚪 Leave Game
+              {isHost() && gameState.gameStarted && !gameState.gameOver && (
+                <button className="settings-item end-game-settings-btn" onClick={handleEndGame}>
+                  <StopCircle size={16} /> End Game
+                </button>
+              )}
+              <button className="settings-item" onClick={async () => {
+                try { await gameAPI.leaveRoom(roomId) } catch(e) {}
+                navigate('/')
+              }}>
+                <DoorOpen size={16} /> Leave Game
               </button>
-              <button className="settings-item" onClick={() => navigate(`/room/${roomId}`)}>
+              <button className="settings-item" onClick={() => {
+                setShowSettings(false)
+                navigate(`/room/${roomId}`)
+              }}>
                 ← Back to Lobby
               </button>
             </div>
@@ -1069,7 +1174,7 @@ function Game() {
               Called by <strong>{gameState.roundResult.calledBy?.name}</strong>
             </div>
             <div className="round-result-winner">
-              <span className="trophy-icon">🏆</span>
+              <span className="trophy-icon"><Trophy size={28} /></span>
               <span>{gameState.roundResult.winner?.name} wins the round!</span>
             </div>
             <div className="round-scores-list">
@@ -1077,7 +1182,7 @@ function Game() {
                 <div key={p.id} className={`round-score-item ${p.id === gameState.roundResult.winner?.id ? 'round-winner-row' : ''}`}>
                   <span className="round-score-name">
                     {p.name}
-                    {p.id === gameState.roundResult.winner?.id && ' 🏆'}
+                    {p.id === gameState.roundResult.winner?.id && <> <Trophy size={14} /></>}
                   </span>
                   <span className="round-score-hand">Hand: {p.handPoints} pts</span>
                   <span className="round-score-total">Total: {gameState.roundResult.newCumulativeScores?.[p.id] || 0} pts</span>
@@ -1087,7 +1192,7 @@ function Game() {
             {gameState.roundResult.newlyEliminated?.length > 0 && (
               <div className="round-eliminated">
                 {gameState.roundResult.newlyEliminated.map(p => (
-                  <span key={p.id} className="eliminated-name">💀 {p.name} eliminated!</span>
+                  <span key={p.id} className="eliminated-name"><Skull size={16} /> {p.name} eliminated!</span>
                 ))}
               </div>
             )}
@@ -1099,12 +1204,15 @@ function Game() {
       {showGameWin && (
         <div className="overlay-screen game-win-overlay">
           <div className="overlay-content game-win-content">
-            <div className="win-trophy">🏆</div>
+            <div className="win-trophy"><Trophy size={48} /></div>
             <h2 className="overlay-title game-win-title">
               {showGameWin.winnerName === currentUser?.name ? 'You Win!' : `${showGameWin.winnerName} Wins!`}
             </h2>
             <p className="win-subtitle">Game Over</p>
-            <button className="win-btn" onClick={() => navigate(`/room/${roomId}`)}>
+            <button className="win-btn" onClick={() => {
+              setShowGameWin(false)
+              navigate(`/room/${roomId}`)
+            }}>
               Back to Lobby
             </button>
           </div>
@@ -1112,20 +1220,78 @@ function Game() {
       )}
 
       {/* Game Loss Screen */}
-      {showGameLoss && !showGameWin && (
+      {showGameLoss && !showGameWin && !showGameEndSummary && (
         <div className="overlay-screen game-loss-overlay">
           <div className="overlay-content game-loss-content">
-            <div className="loss-icon">💀</div>
+            <div className="loss-icon"><Skull size={48} /></div>
             <h2 className="overlay-title game-loss-title">You've Been Eliminated!</h2>
             <p className="loss-subtitle">Your score exceeded {roomDetails?.maxPoints || 40} points</p>
             <div className="loss-actions">
               <button className="loss-btn" onClick={() => setShowGameLoss(false)}>
                 Watch Game
               </button>
-              <button className="loss-btn loss-btn-leave" onClick={() => navigate(`/room/${roomId}`)}>
+              <button className="loss-btn loss-btn-leave" onClick={() => {
+                setShowGameLoss(false)
+                navigate(`/room/${roomId}`)
+              }}>
                 Leave
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Game End Summary — shown when host ends the game */}
+      {showGameEndSummary && gameState.gameEndSummary && (
+        <div className="overlay-screen game-end-overlay">
+          <div className="overlay-content game-end-content">
+            <div className="game-end-trophy"><Trophy size={40} /></div>
+            <h2 className="overlay-title game-end-title">Game Over</h2>
+            {gameState.gameEndSummary.overallWinner && (
+              <div className="game-end-winner">
+                <Crown size={20} />
+                <span><strong>{gameState.gameEndSummary.overallWinner.name}</strong> wins with {gameState.gameEndSummary.overallWinner.roundWins} round{gameState.gameEndSummary.overallWinner.roundWins !== 1 ? 's' : ''} won!</span>
+              </div>
+            )}
+            {gameState.gameEndSummary.totalRounds === 0 && (
+              <p className="game-end-no-rounds">No rounds were completed.</p>
+            )}
+            {gameState.gameEndSummary.totalRounds > 0 && (
+              <div className="game-end-rounds">
+                <h3 className="game-end-rounds-title">Round History</h3>
+                <div className="game-end-rounds-list">
+                  {gameState.gameEndSummary.roundWinners.map((r) => (
+                    <div key={r.round} className="game-end-round-row">
+                      <span className="game-end-round-num">R{r.round}</span>
+                      <span className="game-end-round-winner"><Trophy size={14} /> {r.winnerName}</span>
+                      <span className="game-end-round-caller">Called by {r.calledBy}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {roomDetails?.players && (
+              <div className="game-end-final-scores">
+                <h3 className="game-end-scores-title">Final Scores</h3>
+                {roomDetails.players
+                  .sort((a, b) => (gameState.gameEndSummary.finalScores[a.id] || 0) - (gameState.gameEndSummary.finalScores[b.id] || 0))
+                  .map(p => (
+                    <div key={p.id} className={`game-end-score-row ${p.id === gameState.gameEndSummary.overallWinner?.id ? 'game-end-score-winner' : ''}`}>
+                      <span className="game-end-score-name">
+                        {p.name}
+                        {p.id === gameState.gameEndSummary.overallWinner?.id && <Crown size={14} />}
+                      </span>
+                      <span className="game-end-score-pts">{gameState.gameEndSummary.finalScores[p.id] || 0} pts</span>
+                    </div>
+                  ))}
+              </div>
+            )}
+            <button className="win-btn" onClick={() => {
+              setShowGameEndSummary(false)
+              navigate(`/room/${roomId}`)
+            }}>
+              Back to Lobby
+            </button>
           </div>
         </div>
       )}

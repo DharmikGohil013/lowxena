@@ -1,31 +1,15 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google'
+import { 
+  Trophy, Medal, AlertTriangle, Gamepad2, DoorOpen
+} from 'lucide-react'
 import Loader from '../components/Loader'
 import { authAPI, gameAPI, userAPI } from '../services/api'
+import { AvatarSVG, AVATAR_LIST, isAvatarSVG } from '../components/Avatars'
 import './Home.css'
 
-// GOOGLE OAUTH SETUP INSTRUCTIONS:
-// 1. Go to: https://console.cloud.google.com/
-// 2. Create a new project or select existing one
-// 3. Enable Google+ API
-// 4. Go to "Credentials" → "Create Credentials" → "OAuth client ID"
-// 5. Configure OAuth consent screen
-// 6. Select "Web application" as Application type
-// 7. Add Authorized JavaScript origins: http://localhost:5174
-// 8. Add Authorized redirect URIs: http://localhost:5174
-// 9. Copy the Client ID and paste it below
-// 
-// OPTION 1: Direct (Quick Start)
-// Replace YOUR_GOOGLE_CLIENT_ID_HERE below with your actual Client ID
-
 const GOOGLE_CLIENT_ID = "518498924842-oi9g8sm4f5st8p46nst3t2tk0nvofo6b.apps.googleusercontent.com";
-
-// OPTION 2: Environment Variable (Recommended for Production)
-// 1. Create .env file in client folder
-// 2. Add: VITE_GOOGLE_CLIENT_ID=your_client_id_here
-// 3. Uncomment the line below and comment out the line above:
-// const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 function Home() {
   const navigate = useNavigate()
@@ -46,6 +30,10 @@ function Home() {
     birthdate: '',
     avatar_url: ''
   })
+  const [userStats, setUserStats] = useState({
+    total_games: 0, wins: 0, losses: 0, highest_score: 0, win_rate: 0, total_playtime: 0
+  })
+  const [userRankNum, setUserRankNum] = useState(null)
   const [saving, setSaving] = useState(false)
   const [showGameModeModal, setShowGameModeModal] = useState(false)
   const [showCustomMatchModal, setShowCustomMatchModal] = useState(false)
@@ -57,10 +45,13 @@ function Home() {
   })
   const [creatingRoom, setCreatingRoom] = useState(false)
   const [leaderboard, setLeaderboard] = useState([])
-  const [userRank, setUserRank] = useState(null)
+  const [currentUserRank, setCurrentUserRank] = useState(null)
+  const [totalPlayers, setTotalPlayers] = useState(0)
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(false)
+  const [showLeaderboardModal, setShowLeaderboardModal] = useState(false)
   const [showRoomWarning, setShowRoomWarning] = useState(false)
   const [currentRoomInfo, setCurrentRoomInfo] = useState(null)
+  const [profileTab, setProfileTab] = useState('info') // 'info' | 'stats' | 'avatar'
 
   // Check for existing token on mount (auto-login)
   useEffect(() => {
@@ -103,17 +94,12 @@ function Home() {
     const fetchLeaderboard = async () => {
       setLoadingLeaderboard(true);
       try {
-        const response = await gameAPI.getLeaderboard(5);
-        if (response.success && response.leaderboard) {
-          setLeaderboard(response.leaderboard);
-          
-          // Check if logged-in user is in top 5
-          if (userId) {
-            const userInTop = response.leaderboard.find(p => p.id === userId || p.user_id === userId);
-            if (!userInTop) {
-              // User not in top 5, show a separate entry
-              setUserRank(null);
-            }
+        const response = await gameAPI.getLeaderboard(10);
+        if (response.success) {
+          setLeaderboard(response.leaderboard || []);
+          setTotalPlayers(response.totalPlayers || 0);
+          if (response.currentUserRank) {
+            setCurrentUserRank(response.currentUserRank);
           }
         }
       } catch (error) {
@@ -125,6 +111,26 @@ function Home() {
 
     fetchLeaderboard();
   }, [userId]);
+
+  // Fetch user profile & stats when logged in
+  useEffect(() => {
+    const fetchProfileAndStats = async () => {
+      if (!isLoggedIn) return;
+      try {
+        const response = await userAPI.getProfile();
+        if (response.success) {
+          if (response.stats) setUserStats(response.stats);
+          if (response.rank) setUserRankNum(response.rank);
+          if (response.user?.avatar_url) {
+            setPlayerPicture(response.user.avatar_url);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+      }
+    };
+    fetchProfileAndStats();
+  }, [isLoggedIn]);
 
   const handlePlay = () => {
     if (!isLoggedIn) {
@@ -141,6 +147,10 @@ function Home() {
       setShowCustomMatchModal(true)
     } else if (mode === 'find') {
       navigate('/rooms')
+    } else if (mode === 'bots') {
+      navigate('/practice')
+    } else if (mode === 'quick') {
+      navigate('/quickmatch')
     } else {
       // Navigate to game with selected mode
       navigate('/game', { state: { mode } })
@@ -290,7 +300,7 @@ function Home() {
     }
   };
 
-  const handleProfileClick = () => {
+  const handleProfileClick = async () => {
     setProfileData({
       name: playerName,
       username: playerName,
@@ -298,6 +308,26 @@ function Home() {
       birthdate: '',
       avatar_url: playerPicture
     });
+    setProfileTab('info');
+    
+    // Fetch latest profile data from server
+    try {
+      const response = await userAPI.getProfile();
+      if (response.success) {
+        setProfileData({
+          name: response.user.name || playerName,
+          username: response.user.username || '',
+          email: response.user.email || playerEmail,
+          birthdate: response.user.birthdate || '',
+          avatar_url: response.user.avatar_url || playerPicture
+        });
+        if (response.stats) setUserStats(response.stats);
+        if (response.rank) setUserRankNum(response.rank);
+      }
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+    }
+    
     setShowProfileModal(true);
   }
 
@@ -312,21 +342,22 @@ function Home() {
   const handleSaveProfile = async () => {
     setSaving(true);
     try {
-      const response = await userAPI.updateProfile(profileData);
+      const response = await userAPI.updateProfile({
+        name: profileData.name,
+        username: profileData.username,
+        birthdate: profileData.birthdate,
+        avatar_url: profileData.avatar_url
+      });
       
       if (response.success) {
-        // Update local state
         setPlayerName(response.user.name || playerName);
-        if (response.user.avatar_url) {
-          setPlayerPicture(response.user.avatar_url);
-        }
+        setPlayerPicture(response.user.avatar_url || playerPicture);
         
         // Update localStorage
         const userData = authAPI.getCurrentUser();
         const updatedUserData = { ...userData, ...response.user };
         localStorage.setItem('userData', JSON.stringify(updatedUserData));
         
-        alert('Profile updated successfully!');
         setShowProfileModal(false);
       }
     } catch (error) {
@@ -335,6 +366,35 @@ function Home() {
     } finally {
       setSaving(false);
     }
+  }
+
+  const handleAvatarSelect = (avatarId) => {
+    setProfileData(prev => ({ ...prev, avatar_url: avatarId }));
+  }
+
+  // Render avatar (handles both SVG ID and URL)
+  const renderAvatar = (avatarUrl, size = 40, fallbackName = '') => {
+    if (isAvatarSVG(avatarUrl)) {
+      return <AvatarSVG avatarId={avatarUrl} size={size} />;
+    }
+    if (avatarUrl) {
+      return (
+        <img 
+          src={avatarUrl} 
+          alt="avatar" 
+          style={{ width: size, height: size, borderRadius: '50%', objectFit: 'cover' }}
+          onError={(e) => {
+            e.target.style.display = 'none';
+            e.target.parentElement.innerHTML = `<span style="color:white;font-size:${size/2.5}px;font-weight:bold;">${(fallbackName || '?').charAt(0).toUpperCase()}</span>`;
+          }}
+        />
+      );
+    }
+    return (
+      <span style={{color: 'white', fontSize: `${size/2.5}px`, fontWeight: 'bold'}}>
+        {(fallbackName || '?').charAt(0).toUpperCase()}
+      </span>
+    );
   }
 
   return (
@@ -361,50 +421,57 @@ function Home() {
       {/* Leaderboard Section - Top Left */}
       <div className="leaderboard-section">
         <div className="leaderboard-header">
-          <h3>🏆 Leaderboard</h3>
+          <h3><Trophy size={18} style={{display:'inline', verticalAlign:'-3px', marginRight:'4px'}} /> Leaderboard</h3>
         </div>
         <div className="leaderboard-content">
           {loadingLeaderboard ? (
             <div className="leaderboard-loading">Loading...</div>
           ) : (
             <>
-              {leaderboard.map((player, index) => (
-                <div key={player.id} className={`leaderboard-item ${player.id === userId ? 'current-user' : ''}`}>
-                  <div className="rank">#{index + 1}</div>
-                  <div className="player-info">
-                    <img 
-                      src={player.avatar_url || "/avatar.png"} 
-                      alt={player.name}
-                      className="player-avatar"
-                      onError={(e) => e.target.src = "/avatar.png"}
-                    />
-                    <span className="player-name">{player.name || 'Anonymous'}</span>
-                  </div>
-                  <div className="score">{player.high_score || 0}</div>
-                </div>
-              ))}
-              
-              {userRank && userRank.rank > 5 && (
-                <>
-                  <div className="leaderboard-divider">...</div>
-                  <div className="leaderboard-item current-user">
-                    <div className="rank">#{userRank.rank}</div>
+              {leaderboard.length === 0 ? (
+                <div className="leaderboard-empty">No players yet. Be the first!</div>
+              ) : (
+                leaderboard.slice(0, 5).map((player, index) => (
+                  <div key={player.user_id || index} className={`leaderboard-item ${player.user_id === userId ? 'current-user' : ''}`}>
+                    <div className={`rank rank-${index + 1}`}>
+                      {index === 0 ? <Medal size={18} style={{color:'#FFD700'}} /> : index === 1 ? <Medal size={18} style={{color:'#C0C0C0'}} /> : index === 2 ? <Medal size={18} style={{color:'#CD7F32'}} /> : `#${player.rank}`}
+                    </div>
                     <div className="player-info">
-                      <img 
-                        src={playerPicture || "/avatar.png"} 
-                        alt={playerName}
-                        className="player-avatar"
-                        onError={(e) => e.target.src = "/avatar.png"}
-                      />
+                      <div className="player-avatar-wrap">
+                        {renderAvatar(player.avatar_url, 35, player.name)}
+                      </div>
+                      <span className="player-name">{player.user_id === userId ? 'You' : (player.name || 'Anonymous')}</span>
+                    </div>
+                    <div className="lb-stats">
+                      <span className="wins-count">{player.wins}W</span>
+                      <span className="score-count">{player.win_rate}%</span>
+                    </div>
+                  </div>
+                ))
+              )}
+              
+              {/* Show current user position if not in top 5 */}
+              {currentUserRank && currentUserRank.rank > 5 && isLoggedIn && (
+                <>
+                  <div className="leaderboard-divider">···</div>
+                  <div className="leaderboard-item current-user">
+                    <div className="rank">#{currentUserRank.rank}</div>
+                    <div className="player-info">
+                      <div className="player-avatar-wrap">
+                        {renderAvatar(playerPicture, 35, playerName)}
+                      </div>
                       <span className="player-name">You</span>
                     </div>
-                    <div className="score">{userRank.high_score || 0}</div>
+                    <div className="lb-stats">
+                      <span className="wins-count">{currentUserRank.wins}W</span>
+                      <span className="score-count">{currentUserRank.win_rate}%</span>
+                    </div>
                   </div>
                 </>
               )}
               
-              <button className="see-more-btn" onClick={() => navigate('/rooms')}>
-                Find Rooms
+              <button className="see-more-btn" onClick={() => setShowLeaderboardModal(true)}>
+                View Full Leaderboard ({totalPlayers} players)
               </button>
             </>
           )}
@@ -424,14 +491,13 @@ function Home() {
       ) : (
         <div className="profile-section logged-in">
           <div className="profile-avatar" onClick={handleProfileClick} style={{ cursor: 'pointer' }}>
-            <img src={playerPicture || "/avatar.png"} alt="Profile" onError={(e) => {
-              e.target.style.display = 'none';
-              e.target.parentElement.innerHTML = `<span style="color: white; font-size: 24px; font-weight: bold;">${playerName.charAt(0).toUpperCase()}</span>`;
-            }} />
+            {renderAvatar(playerPicture, 45, playerName)}
           </div>
           <div className="profile-info" onClick={handleProfileClick} style={{ cursor: 'pointer' }}>
             <span className="profile-name">{playerName}</span>
-            <span className="profile-level">Level 1</span>
+            <span className="profile-level">
+              {userRankNum ? `Rank #${userRankNum}` : 'Unranked'} · {userStats.wins}W/{userStats.losses}L
+            </span>
           </div>
           <button className="logout-btn" onClick={handleLogout} title="Logout">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -441,83 +507,276 @@ function Home() {
         </div>
       )}
 
-      {/* Profile Edit Modal */}
+      {/* Profile Modal - Redesigned with Tabs */}
       {showProfileModal && (
         <div className="modal-overlay" onClick={() => setShowProfileModal(false)}>
-          <div className="profile-modal" onClick={(e) => e.stopPropagation()}>
+          <div className="profile-modal-v2" onClick={(e) => e.stopPropagation()}>
             <div className="modal-close" onClick={() => setShowProfileModal(false)}>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
               </svg>
             </div>
-            <h2>Edit Profile</h2>
-            <div className="profile-avatar-large">
-              <img src={playerPicture || "/avatar.png"} alt="Profile" />
-            </div>
             
-            <div className="profile-form">
-              <div className="form-group">
-                <label>Full Name</label>
-                <input
-                  type="text"
-                  name="name"
-                  value={profileData.name}
-                  onChange={handleProfileInputChange}
-                  placeholder="Enter your full name"
-                />
+            {/* Profile Header */}
+            <div className="pm-header">
+              <div className="pm-avatar-display">
+                {renderAvatar(profileData.avatar_url, 90, profileData.name)}
               </div>
-
-              <div className="form-group">
-                <label>Username</label>
-                <input
-                  type="text"
-                  name="username"
-                  value={profileData.username}
-                  onChange={handleProfileInputChange}
-                  placeholder="Enter username"
-                />
+              <div className="pm-header-info">
+                <h2>{profileData.name || 'Player'}</h2>
+                <span className="pm-rank-badge">
+                  {userRankNum ? <><Trophy size={14} style={{display:'inline', verticalAlign:'-2px'}} /> Rank #{userRankNum}</> : <><Gamepad2 size={14} style={{display:'inline', verticalAlign:'-2px'}} /> Unranked</>}
+                </span>
+                <span className="pm-join-date">
+                  Joined {new Date(profileData.created_at || Date.now()).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                </span>
               </div>
+            </div>
 
-              <div className="form-group">
-                <label>Email</label>
-                <input
-                  type="email"
-                  name="email"
-                  value={profileData.email}
-                  disabled
-                  style={{ backgroundColor: '#2a2a2a', cursor: 'not-allowed' }}
-                />
+            {/* Stats Bar */}
+            <div className="pm-stats-bar">
+              <div className="pm-stat-item">
+                <span className="pm-stat-value">{userStats.total_games}</span>
+                <span className="pm-stat-label">Games</span>
               </div>
-
-              <div className="form-group">
-                <label>Birthdate</label>
-                <input
-                  type="date"
-                  name="birthdate"
-                  value={profileData.birthdate}
-                  onChange={handleProfileInputChange}
-                />
+              <div className="pm-stat-divider"></div>
+              <div className="pm-stat-item">
+                <span className="pm-stat-value pm-wins">{userStats.wins}</span>
+                <span className="pm-stat-label">Wins</span>
               </div>
-
-              <div className="form-group">
-                <label>Avatar URL</label>
-                <input
-                  type="text"
-                  name="avatar_url"
-                  value={profileData.avatar_url}
-                  onChange={handleProfileInputChange}
-                  placeholder="Enter avatar URL"
-                />
+              <div className="pm-stat-divider"></div>
+              <div className="pm-stat-item">
+                <span className="pm-stat-value pm-losses">{userStats.losses}</span>
+                <span className="pm-stat-label">Losses</span>
               </div>
+              <div className="pm-stat-divider"></div>
+              <div className="pm-stat-item">
+                <span className="pm-stat-value pm-winrate">{userStats.win_rate}%</span>
+                <span className="pm-stat-label">Win Rate</span>
+              </div>
+              <div className="pm-stat-divider"></div>
+              <div className="pm-stat-item">
+                <span className="pm-stat-value pm-highscore">{userStats.highest_score}</span>
+                <span className="pm-stat-label">High Score</span>
+              </div>
+            </div>
 
+            {/* Tab Navigation */}
+            <div className="pm-tabs">
               <button 
-                className="save-profile-btn" 
-                onClick={handleSaveProfile}
-                disabled={saving}
+                className={`pm-tab ${profileTab === 'info' ? 'active' : ''}`}
+                onClick={() => setProfileTab('info')}
               >
-                {saving ? 'Saving...' : 'Save Profile'}
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                Edit Info
               </button>
+              <button 
+                className={`pm-tab ${profileTab === 'stats' ? 'active' : ''}`}
+                onClick={() => setProfileTab('stats')}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M18 20V10M12 20V4M6 20v-6"></path>
+                </svg>
+                Stats
+              </button>
+              <button 
+                className={`pm-tab ${profileTab === 'avatar' ? 'active' : ''}`}
+                onClick={() => setProfileTab('avatar')}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <circle cx="12" cy="10" r="3"></circle>
+                  <path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"></path>
+                </svg>
+                Avatar
+              </button>
+            </div>
+
+            {/* Tab Content */}
+            <div className="pm-tab-content">
+              {/* Edit Info Tab */}
+              {profileTab === 'info' && (
+                <div className="pm-info-tab">
+                  <div className="form-group">
+                    <label>Display Name</label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={profileData.name}
+                      onChange={handleProfileInputChange}
+                      placeholder="Enter your name"
+                      maxLength={50}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Username</label>
+                    <input
+                      type="text"
+                      name="username"
+                      value={profileData.username}
+                      onChange={handleProfileInputChange}
+                      placeholder="Enter username"
+                      maxLength={30}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Email</label>
+                    <input
+                      type="email"
+                      value={profileData.email}
+                      disabled
+                      style={{ backgroundColor: '#1a1a2e', cursor: 'not-allowed', opacity: 0.6 }}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Birthdate</label>
+                    <input
+                      type="date"
+                      name="birthdate"
+                      value={profileData.birthdate}
+                      onChange={handleProfileInputChange}
+                    />
+                  </div>
+                  <button 
+                    className="save-profile-btn" 
+                    onClick={handleSaveProfile}
+                    disabled={saving}
+                  >
+                    {saving ? 'Saving...' : 'Save Changes'}
+                  </button>
+                </div>
+              )}
+
+              {/* Stats Tab */}
+              {profileTab === 'stats' && (
+                <div className="pm-stats-tab">
+                  <div className="pm-stats-grid">
+                    <div className="pm-stat-card">
+                      <div className="pm-sc-icon" style={{background: 'rgba(139, 92, 246, 0.2)', color: '#a78bfa'}}>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <rect x="2" y="6" width="20" height="12" rx="3"></rect>
+                          <circle cx="8" cy="12" r="2"></circle>
+                          <circle cx="16" cy="12" r="2"></circle>
+                        </svg>
+                      </div>
+                      <div className="pm-sc-info">
+                        <span className="pm-sc-value">{userStats.total_games}</span>
+                        <span className="pm-sc-label">Total Games Played</span>
+                      </div>
+                    </div>
+
+                    <div className="pm-stat-card">
+                      <div className="pm-sc-icon" style={{background: 'rgba(16, 185, 129, 0.2)', color: '#34d399'}}>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"></path>
+                        </svg>
+                      </div>
+                      <div className="pm-sc-info">
+                        <span className="pm-sc-value pm-wins">{userStats.wins}</span>
+                        <span className="pm-sc-label">Victories</span>
+                      </div>
+                    </div>
+
+                    <div className="pm-stat-card">
+                      <div className="pm-sc-icon" style={{background: 'rgba(239, 68, 68, 0.2)', color: '#f87171'}}>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <circle cx="12" cy="12" r="10"></circle>
+                          <line x1="15" y1="9" x2="9" y2="15"></line>
+                          <line x1="9" y1="9" x2="15" y2="15"></line>
+                        </svg>
+                      </div>
+                      <div className="pm-sc-info">
+                        <span className="pm-sc-value pm-losses">{userStats.losses}</span>
+                        <span className="pm-sc-label">Defeats</span>
+                      </div>
+                    </div>
+
+                    <div className="pm-stat-card">
+                      <div className="pm-sc-icon" style={{background: 'rgba(251, 191, 36, 0.2)', color: '#fbbf24'}}>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                          <polyline points="17 6 23 6 23 12"></polyline>
+                        </svg>
+                      </div>
+                      <div className="pm-sc-info">
+                        <span className="pm-sc-value pm-highscore">{userStats.highest_score}</span>
+                        <span className="pm-sc-label">Highest Score</span>
+                      </div>
+                    </div>
+
+                    <div className="pm-stat-card">
+                      <div className="pm-sc-icon" style={{background: 'rgba(96, 165, 250, 0.2)', color: '#60a5fa'}}>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M18 20V10M12 20V4M6 20v-6"></path>
+                        </svg>
+                      </div>
+                      <div className="pm-sc-info">
+                        <span className="pm-sc-value pm-winrate">{userStats.win_rate}%</span>
+                        <span className="pm-sc-label">Win Rate</span>
+                      </div>
+                    </div>
+
+                    <div className="pm-stat-card">
+                      <div className="pm-sc-icon" style={{background: 'rgba(244, 114, 182, 0.2)', color: '#f472b6'}}>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M6 9l6 6 6-6"></path>
+                        </svg>
+                      </div>
+                      <div className="pm-sc-info">
+                        <span className="pm-sc-value">{userRankNum || '—'}</span>
+                        <span className="pm-sc-label">Global Rank</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Win Rate Bar */}
+                  {userStats.total_games > 0 && (
+                    <div className="pm-winrate-bar-wrap">
+                      <div className="pm-winrate-header">
+                        <span>Win/Loss Ratio</span>
+                        <span>{userStats.wins}W - {userStats.losses}L</span>
+                      </div>
+                      <div className="pm-winrate-bar">
+                        <div className="pm-winrate-fill" style={{ width: `${userStats.win_rate}%` }}></div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Avatar Tab */}
+              {profileTab === 'avatar' && (
+                <div className="pm-avatar-tab">
+                  <p className="pm-avatar-hint">Choose your avatar</p>
+                  <div className="pm-avatar-grid">
+                    {AVATAR_LIST.map(avatar => (
+                      <div 
+                        key={avatar.id}
+                        className={`pm-avatar-option ${profileData.avatar_url === avatar.id ? 'selected' : ''}`}
+                        onClick={() => handleAvatarSelect(avatar.id)}
+                        style={{ '--avatar-color': avatar.color }}
+                      >
+                        <AvatarSVG avatarId={avatar.id} size={70} />
+                        <span className="pm-avatar-name">{avatar.name}</span>
+                        {profileData.avatar_url === avatar.id && (
+                          <div className="pm-avatar-check">✓</div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  <button 
+                    className="save-profile-btn" 
+                    onClick={handleSaveProfile}
+                    disabled={saving}
+                  >
+                    {saving ? 'Saving...' : 'Save Avatar'}
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -816,7 +1075,7 @@ function Home() {
             
             {loginError && (
               <div className="login-error">
-                <span>⚠️</span> {loginError}
+                <span><AlertTriangle size={14} /></span> {loginError}
               </div>
             )}
             
@@ -854,7 +1113,7 @@ function Home() {
                       onKeyDown={(e) => e.key === 'Enter' && handleGuestLogin()}
                     />
                     <button className="guest-login-btn" onClick={handleGuestLogin}>
-                      🎮 Play as Guest
+                      <Gamepad2 size={16} /> Play as Guest
                     </button>
                   </div>
                 </>
@@ -899,44 +1158,101 @@ function Home() {
       {showRoomWarning && currentRoomInfo && (
         <div className="modal-overlay" onClick={() => setShowRoomWarning(false)}>
           <div className="modal-content room-warning-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>⚠️ Already in Room</h2>
-              <div className="close-button" onClick={() => setShowRoomWarning(false)}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-              </div>
+            <button className="room-warning-close" onClick={() => setShowRoomWarning(false)}>✕</button>
+            
+            <div className="room-warning-icon">
+              <AlertTriangle size={32} />
             </div>
-
-            <div className="room-warning-content">
-              <p className="warning-text">
-                You are already in <strong>{currentRoomInfo.roomName}</strong>
-              </p>
-              <p className="warning-subtext">
-                Status: <span className={`status-badge status-${currentRoomInfo.status}`}>
-                  {currentRoomInfo.status === 'waiting' ? 'Waiting' : 'Playing'}
-                </span>
-              </p>
-              
-              <div className="room-warning-actions">
-                <button 
-                  className="btn-primary btn-go-to-room" 
-                  onClick={handleGoToRoom}
-                >
-                  🎮 Go to Room
-                </button>
-                <button 
-                  className="btn-danger btn-leave-room" 
-                  onClick={handleLeaveCurrentRoom}
-                >
-                  🚪 Leave Room
-                </button>
-              </div>
+            
+            <h2 className="room-warning-title">Already in a Room</h2>
+            
+            <p className="room-warning-room-name">{currentRoomInfo.roomName}</p>
+            
+            <div className="room-warning-status-row">
+              <span className={`room-warning-badge ${currentRoomInfo.status}`}>
+                {currentRoomInfo.status === 'waiting' ? 'Waiting' : 'In Game'}
+              </span>
+            </div>
+            
+            <div className="room-warning-actions">
+              <button 
+                className="btn-go-to-room" 
+                onClick={handleGoToRoom}
+              >
+                <Gamepad2 size={18} /> Go to Room
+              </button>
+              <button 
+                className="btn-leave-room" 
+                onClick={handleLeaveCurrentRoom}
+              >
+                <DoorOpen size={18} /> Leave Room
+              </button>
             </div>
           </div>
         </div>
       )}
+
+      {/* Full Leaderboard Modal */}
+      {showLeaderboardModal && (
+        <div className="modal-overlay" onClick={() => setShowLeaderboardModal(false)}>
+          <div className="leaderboard-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-close" onClick={() => setShowLeaderboardModal(false)}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </div>
+            <h2><Trophy size={20} style={{display:'inline', verticalAlign:'-3px', marginRight:'6px'}} /> Full Leaderboard</h2>
+            <p className="lb-modal-subtitle">{totalPlayers} total players</p>
+            
+            <div className="lb-modal-header-row">
+              <span className="lb-col-rank">Rank</span>
+              <span className="lb-col-player">Player</span>
+              <span className="lb-col-stat">Wins</span>
+              <span className="lb-col-stat">Rate</span>
+              <span className="lb-col-stat">Score</span>
+            </div>
+
+            <div className="lb-modal-list">
+              {leaderboard.map((player, index) => (
+                <div key={player.user_id || index} className={`lb-modal-item ${player.user_id === userId ? 'current-user' : ''}`}>
+                  <span className="lb-col-rank">
+                    {index === 0 ? <Medal size={18} style={{color:'#FFD700'}} /> : index === 1 ? <Medal size={18} style={{color:'#C0C0C0'}} /> : index === 2 ? <Medal size={18} style={{color:'#CD7F32'}} /> : `#${player.rank}`}
+                  </span>
+                  <span className="lb-col-player">
+                    <span className="lb-avatar-mini">{renderAvatar(player.avatar_url, 28, player.name)}</span>
+                    {player.user_id === userId ? 'You' : (player.name || 'Anonymous')}
+                  </span>
+                  <span className="lb-col-stat">{player.wins}</span>
+                  <span className="lb-col-stat">{player.win_rate}%</span>
+                  <span className="lb-col-stat">{player.highest_score || 0}</span>
+                </div>
+              ))}
+              
+              {currentUserRank && currentUserRank.rank > leaderboard.length && isLoggedIn && (
+                <>
+                  <div className="leaderboard-divider">···</div>
+                  <div className="lb-modal-item current-user">
+                    <span className="lb-col-rank">#{currentUserRank.rank}</span>
+                    <span className="lb-col-player">
+                      <span className="lb-avatar-mini">{renderAvatar(playerPicture, 28, playerName)}</span>
+                      You
+                    </span>
+                    <span className="lb-col-stat">{currentUserRank.wins}</span>
+                    <span className="lb-col-stat">{currentUserRank.win_rate}%</span>
+                    <span className="lb-col-stat">{currentUserRank.highest_score || 0}</span>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Footer */}
+      <div className="home-footer">
+        <span>made by <a href="https://dharmikgohil.art/" target="_blank" rel="noopener noreferrer">dharmikgohil.art</a></span>
+      </div>
     </div>
     </GoogleOAuthProvider>
   )

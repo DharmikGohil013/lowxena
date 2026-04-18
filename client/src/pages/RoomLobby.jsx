@@ -269,7 +269,7 @@ function RoomLobby() {
                   >
                     <div className="player-avatar">
                       {player.avatarUrl ? (
-                        <img src={player.avatarUrl} alt={player.name} />
+                        <img src={player.avatarUrl} alt={player.name} referrerPolicy="no-referrer" />
                       ) : (
                         <div className="avatar-placeholder">
                           {player.name?.charAt(0).toUpperCase()}

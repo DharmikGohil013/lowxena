@@ -474,3 +474,51 @@ export const toggleReady = async (req, res) => {
     res.status(500).json({ error: 'Failed to toggle ready status' });
   }
 };
+
+// End game and reset room to waiting
+export const endGame = async (req, res) => {
+  try {
+    const { roomId } = req.params;
+    const userId = req.user.id;
+
+    // Verify room exists and user is host
+    const { data: room, error: roomError } = await supabaseAdmin
+      .from('rooms')
+      .select('host_id, status')
+      .eq('id', roomId)
+      .single();
+
+    if (roomError || !room) {
+      return res.status(404).json({ error: 'Room not found' });
+    }
+
+    if (room.host_id !== userId) {
+      return res.status(403).json({ error: 'Only the host can end the game' });
+    }
+
+    // Reset room status to waiting
+    const { error: updateError } = await supabaseAdmin
+      .from('rooms')
+      .update({ status: 'waiting' })
+      .eq('id', roomId);
+
+    if (updateError) throw updateError;
+
+    // Reset all players' ready status
+    await supabaseAdmin
+      .from('room_members')
+      .update({ is_ready: false })
+      .eq('room_id', roomId);
+
+    // Clear game state
+    await supabaseAdmin
+      .from('rooms')
+      .update({ game_state: null })
+      .eq('id', roomId);
+
+    res.json({ message: 'Game ended, room reset to lobby' });
+  } catch (error) {
+    console.error('Error ending game:', error);
+    res.status(500).json({ error: 'Failed to end game' });
+  }
+};

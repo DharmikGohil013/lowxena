@@ -1,0 +1,770 @@
+/* ═══════════════════════════════════════════════════════
+   QUICK MATCH — Setup & In-Game Styles
+   ═══════════════════════════════════════════════════════ */
+
+/* Override game-container for setup phase — allow scrolling */
+.game-container:has(.qm-setup) {
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: 100dvh;
+}
+
+/* ── Setup Screen ── */
+.qm-setup {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 24px 20px 40px;
+}
+
+.qm-back-btn {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  padding: 10px 18px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.3s ease;
+  z-index: 100;
+}
+.qm-back-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.qm-setup-card {
+  background: linear-gradient(145deg, rgba(10, 10, 28, 0.96) 0%, rgba(20, 12, 45, 0.96) 100%);
+  backdrop-filter: blur(24px);
+  border: 2px solid rgba(139, 92, 246, 0.25);
+  border-radius: 24px;
+  padding: 36px 32px 32px;
+  max-width: 680px;
+  width: 100%;
+  margin-top: 50px;
+  box-shadow:
+    0 25px 80px rgba(139, 92, 246, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* Header */
+.qm-setup-header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.qm-header-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(245, 158, 11, 0.1));
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  color: #fbbf24;
+  margin-bottom: 12px;
+}
+
+.qm-setup-header h1 {
+  color: white;
+  font-size: 30px;
+  font-weight: 800;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.qm-subtitle {
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 14px;
+  margin: 6px 0 0;
+}
+
+/* Sections */
+.qm-section {
+  margin-bottom: 24px;
+}
+
+.qm-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #a78bfa;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  margin-bottom: 12px;
+}
+
+.qm-label-count {
+  color: rgba(255, 255, 255, 0.35);
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 12px;
+}
+
+/* ── Difficulty Grid ── */
+.qm-diff-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.qm-diff-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 2px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: white;
+  text-align: left;
+}
+
+.qm-diff-btn:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.qm-diff-btn.active {
+  background: color-mix(in srgb, var(--diff-color) 10%, transparent);
+  border-color: var(--diff-color);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--diff-color) 15%, transparent);
+}
+
+.qm-diff-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.qm-diff-name {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.qm-diff-desc {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.4);
+  line-height: 1.3;
+}
+
+/* ── Bot Selection Grid ── */
+.qm-bots-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.qm-bot-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 8px 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 2px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: white;
+  text-align: center;
+  overflow: hidden;
+}
+
+.qm-bot-card:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.qm-bot-card.active {
+  background: color-mix(in srgb, var(--bot-color) 8%, transparent);
+  border-color: var(--bot-color);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--bot-color) 15%, transparent);
+}
+
+.qm-bot-select {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+.qm-bot-card.active .qm-bot-select {
+  background: var(--bot-color);
+  color: white;
+}
+
+.qm-bot-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.qm-bot-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.qm-bot-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: white;
+}
+
+.qm-bot-style {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: capitalize;
+  color: rgba(255, 255, 255, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+}
+
+.qm-bot-desc {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.25);
+  line-height: 1.3;
+  display: none;
+}
+
+.qm-bot-card.active .qm-bot-desc {
+  display: block;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* ── Advanced Settings ── */
+.qm-advanced-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 16px;
+}
+
+.qm-advanced-toggle:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.qm-advanced {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 18px 20px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  animation: advSlide 0.3s ease-out;
+}
+
+@keyframes advSlide {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.qm-adv-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.qm-adv-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 13px;
+  font-weight: 600;
+  flex: 1;
+  flex-wrap: wrap;
+}
+
+.qm-adv-hint {
+  display: block;
+  width: 100%;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.3);
+  font-weight: 400;
+  margin-top: -2px;
+  padding-left: 22px;
+}
+
+.qm-stepper {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.qm-stepper button {
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+}
+
+.qm-stepper button:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+}
+
+.qm-stepper-val {
+  min-width: 44px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 700;
+  color: white;
+  padding: 0 4px;
+}
+
+/* ── Start Button ── */
+.qm-start-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 16px 24px;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%);
+  border: none;
+  border-radius: 14px;
+  color: white;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.qm-start-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 35px rgba(245, 158, 11, 0.35);
+}
+
+.qm-start-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.qm-start-info {
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.35);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* ═══════════════════════════════════════════════════════
+   IN-GAME ELEMENTS
+   ═══════════════════════════════════════════════════════ */
+
+/* Quick Match Badge */
+.qm-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  color: #fbbf24;
+  padding: 3px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.qm-diff-badge-sm {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 10px;
+  border: 1px solid;
+  border-radius: 20px;
+  letter-spacing: 0.5px;
+}
+
+/* Tip Bar (simplified) */
+.qm-tip-bar {
+  position: fixed;
+  bottom: 210px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.85), rgba(79, 70, 229, 0.85));
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 10px 18px;
+  max-width: 400px;
+  width: 90%;
+  color: white;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  z-index: 200;
+  cursor: pointer;
+  animation: tipSlide 0.3s ease-out;
+  box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
+}
+
+@keyframes tipSlide {
+  from { transform: translateX(-50%) translateY(10px); opacity: 0; }
+  to { transform: translateX(-50%) translateY(0); opacity: 1; }
+}
+
+/* ═══════════════════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════════════════ */
+
+/* Tablet */
+@media (max-width: 768px) {
+  .qm-setup-card {
+    padding: 28px 22px 24px;
+    max-width: 520px;
+    border-radius: 20px;
+  }
+
+  .qm-setup-header h1 {
+    font-size: 26px;
+  }
+
+  .qm-bots-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+
+  .qm-bot-card {
+    padding: 10px 6px;
+  }
+
+  .qm-bot-avatar {
+    width: 36px;
+    height: 36px;
+  }
+
+  .qm-tip-bar {
+    bottom: 200px;
+    max-width: 340px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .qm-setup {
+    padding: 16px 12px 32px;
+  }
+
+  .qm-back-btn {
+    top: 12px;
+    left: 12px;
+    padding: 8px 14px;
+    font-size: 13px;
+  }
+
+  .qm-setup-card {
+    margin-top: 44px;
+    padding: 24px 16px 20px;
+    border-radius: 18px;
+    max-width: 100%;
+  }
+
+  .qm-header-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+  }
+
+  .qm-header-icon svg {
+    width: 28px;
+    height: 28px;
+  }
+
+  .qm-setup-header h1 {
+    font-size: 22px;
+  }
+
+  .qm-subtitle {
+    font-size: 12px;
+  }
+
+  .qm-diff-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .qm-diff-btn {
+    padding: 10px 12px;
+    border-radius: 12px;
+  }
+
+  .qm-diff-name {
+    font-size: 13px;
+  }
+
+  .qm-diff-desc {
+    font-size: 10px;
+  }
+
+  .qm-bots-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+  }
+
+  .qm-bot-card {
+    padding: 8px 4px;
+    border-radius: 10px;
+  }
+
+  .qm-bot-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+  }
+
+  .qm-bot-avatar svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .qm-bot-name {
+    font-size: 11px;
+  }
+
+  .qm-bot-style {
+    font-size: 9px;
+  }
+
+  .qm-bot-select {
+    width: 18px;
+    height: 18px;
+    top: 4px;
+    right: 4px;
+  }
+
+  .qm-bot-select svg {
+    width: 10px;
+    height: 10px;
+  }
+
+  .qm-advanced {
+    padding: 14px 16px;
+    gap: 12px;
+  }
+
+  .qm-adv-label {
+    font-size: 12px;
+  }
+
+  .qm-adv-hint {
+    font-size: 9px;
+    padding-left: 20px;
+  }
+
+  .qm-stepper button {
+    padding: 6px 10px;
+  }
+
+  .qm-stepper-val {
+    font-size: 14px;
+    min-width: 36px;
+  }
+
+  .qm-start-btn {
+    padding: 14px 20px;
+    font-size: 16px;
+    border-radius: 12px;
+  }
+
+  .qm-start-info {
+    font-size: 10px;
+  }
+
+  .qm-tip-bar {
+    bottom: 185px;
+    max-width: 280px;
+    font-size: 12px;
+    padding: 8px 14px;
+    border-radius: 10px;
+  }
+
+  .qm-badge {
+    font-size: 9px;
+    padding: 2px 8px;
+  }
+
+  .qm-diff-badge-sm {
+    font-size: 9px;
+    padding: 2px 8px;
+  }
+}
+
+/* Small Phone */
+@media (max-width: 480px) {
+  .qm-setup {
+    padding: 10px 8px 24px;
+  }
+
+  .qm-setup-card {
+    padding: 20px 12px 16px;
+    margin-top: 40px;
+    border-radius: 14px;
+  }
+
+  .qm-setup-header h1 {
+    font-size: 20px;
+  }
+
+  .qm-bots-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .qm-bot-card {
+    flex-direction: row;
+    padding: 10px 12px;
+    gap: 10px;
+    text-align: left;
+  }
+
+  .qm-bot-info {
+    align-items: flex-start;
+  }
+
+  .qm-bot-select {
+    top: 50%;
+    right: 8px;
+    transform: translateY(-50%);
+  }
+
+  .qm-diff-grid {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .qm-diff-btn {
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+  }
+
+  .qm-diff-desc {
+    flex: 1;
+  }
+
+  .qm-advanced-toggle {
+    font-size: 12px;
+    padding: 10px;
+  }
+
+  .qm-adv-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .qm-stepper {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .qm-stepper button {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .qm-stepper-val {
+    flex: 1;
+  }
+
+  .qm-start-btn {
+    padding: 12px 16px;
+    font-size: 15px;
+  }
+}
+
+/* Very Small */
+@media (max-width: 360px) {
+  .qm-setup-card {
+    padding: 16px 10px 14px;
+  }
+
+  .qm-setup-header h1 {
+    font-size: 18px;
+  }
+
+  .qm-bot-avatar {
+    width: 28px;
+    height: 28px;
+  }
+
+  .qm-bot-name {
+    font-size: 11px;
+  }
+
+  .qm-start-btn {
+    padding: 11px 14px;
+    font-size: 14px;
+  }
+}

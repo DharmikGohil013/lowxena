@@ -1,34 +1,104 @@
 import { supabaseAdmin } from '../config/supabase.js';
 
 /**
- * Get leaderboard
+ * Get leaderboard with current user position
  */
 export const getLeaderboard = async (req, res) => {
   try {
-    const { limit = 10, offset = 0 } = req.query;
+    const { limit = 20, offset = 0 } = req.query;
 
-    const { data: leaderboard, error } = await supabaseAdmin
-      .from('leaderboard')
-      .select(`
-        *,
-        users:user_id (name, avatar_url)
-      `)
-      .order('score', { ascending: false })
-      .range(offset, offset + limit - 1);
+    // Get auth token to find current user (optional)
+    let currentUserId = null;
+    try {
+      const authHeader = req.headers['authorization'];
+      if (authHeader) {
+        const token = authHeader.split(' ')[1];
+        if (token) {
+          const jwt = await import('jsonwebtoken');
+          const decoded = jwt.default.verify(token, process.env.JWT_SECRET);
+          currentUserId = decoded.userId;
+        }
+      }
+    } catch (e) { /* ignore auth errors for public endpoint */ }
 
-    if (error) throw error;
+    // Get all user stats sorted by wins first, then highest_score
+    const { data: allStats, error: statsError } = await supabaseAdmin
+      .from('user_stats')
+      .select('*')
+      .order('wins', { ascending: false });
+
+    if (statsError) throw statsError;
+
+    // Get users info for all stats entries
+    const userIds = (allStats || []).map(s => s.user_id);
+    let usersMap = {};
+    
+    if (userIds.length > 0) {
+      const { data: users } = await supabaseAdmin
+        .from('users')
+        .select('id, name, avatar_url, level');
+      
+      if (users) {
+        users.forEach(u => { usersMap[u.id] = u; });
+      }
+    }
+
+    // Build ranked leaderboard from user_stats
+    const rankedList = (allStats || [])
+      .filter(s => s.total_games > 0)
+      .sort((a, b) => {
+        if (b.wins !== a.wins) return b.wins - a.wins;
+        if (b.highest_score !== a.highest_score) return b.highest_score - a.highest_score;
+        return b.total_games - a.total_games;
+      })
+      .map((entry, index) => {
+        const user = usersMap[entry.user_id] || {};
+        return {
+          rank: index + 1,
+          user_id: entry.user_id,
+          name: user.name || 'Unknown',
+          avatar_url: user.avatar_url || '',
+          level: user.level || 1,
+          wins: entry.wins || 0,
+          losses: entry.losses || 0,
+          total_games: entry.total_games || 0,
+          highest_score: entry.highest_score || 0,
+          win_rate: entry.total_games > 0 ? Math.round((entry.wins / entry.total_games) * 100) : 0
+        };
+      });
+
+    // Paginated top list
+    const topList = rankedList.slice(parseInt(offset), parseInt(offset) + parseInt(limit));
+
+    // Find current user's position
+    let currentUserRank = null;
+    if (currentUserId) {
+      const userIndex = rankedList.findIndex(e => e.user_id === currentUserId);
+      if (userIndex !== -1) {
+        currentUserRank = rankedList[userIndex];
+      } else {
+        // User has no stats yet - show them at the bottom
+        const user = usersMap[currentUserId];
+        currentUserRank = {
+          rank: rankedList.length + 1,
+          user_id: currentUserId,
+          name: user?.name || 'You',
+          avatar_url: user?.avatar_url || '',
+          level: user?.level || 1,
+          wins: 0,
+          losses: 0,
+          total_games: 0,
+          highest_score: 0,
+          win_rate: 0
+        };
+      }
+    }
 
     res.json({
       success: true,
-      leaderboard: leaderboard.map((entry, index) => ({
-        rank: parseInt(offset) + index + 1,
-        user_id: entry.user_id,
-        name: entry.users.name,
-        avatar_url: entry.users.avatar_url,
-        score: entry.score,
-        level: entry.level,
-        date: entry.created_at
-      }))
+      leaderboard: topList,
+      totalPlayers: rankedList.length,
+      currentUserRank: currentUserRank
     });
 
   } catch (error) {
@@ -256,4 +326,74 @@ export const getGameState = async (req, res) => {
   }
 };
 
-export default { getLeaderboard, saveGameScore, getGameHistory, getGameSettings, updateGameState, getGameState };
+/**
+ * Save multiplayer game results for all players
+ */
+export const saveMultiplayerResults = async (req, res) => {
+  try {
+    const { players, totalRounds } = req.body;
+    // players: [{ id, score, isWinner }]
+
+    if (!players || !Array.isArray(players)) {
+      return res.status(400).json({ success: false, message: 'Players array required' });
+    }
+
+    for (const player of players) {
+      try {
+        // Save to game history
+        await supabaseAdmin
+          .from('game_history')
+          .insert([{
+            user_id: player.id,
+            score: player.score || 0,
+            level: totalRounds || 1,
+            duration: 0
+          }]);
+
+        // Get or create user_stats
+        const { data: stats } = await supabaseAdmin
+          .from('user_stats')
+          .select('*')
+          .eq('user_id', player.id)
+          .single();
+
+        if (stats) {
+          const updates = {
+            total_games: stats.total_games + 1,
+            highest_score: Math.max(stats.highest_score || 0, player.score || 0),
+          };
+          if (player.isWinner) {
+            updates.wins = (stats.wins || 0) + 1;
+          } else {
+            updates.losses = (stats.losses || 0) + 1;
+          }
+          await supabaseAdmin
+            .from('user_stats')
+            .update(updates)
+            .eq('user_id', player.id);
+        } else {
+          // Create stats entry
+          await supabaseAdmin
+            .from('user_stats')
+            .insert([{
+              user_id: player.id,
+              total_games: 1,
+              highest_score: player.score || 0,
+              wins: player.isWinner ? 1 : 0,
+              losses: player.isWinner ? 0 : 1,
+              total_playtime: 0
+            }]);
+        }
+      } catch (e) {
+        console.error(`Error saving results for player ${player.id}:`, e);
+      }
+    }
+
+    res.json({ success: true, message: 'Multiplayer results saved' });
+  } catch (error) {
+    console.error('Save multiplayer results error:', error);
+    res.status(500).json({ success: false, message: 'Failed to save results' });
+  }
+};
+
+export default { getLeaderboard, saveGameScore, saveMultiplayerResults, getGameHistory, getGameSettings, updateGameState, getGameState };
