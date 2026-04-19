@@ -8,6 +8,7 @@ const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 15000, // 15s timeout — triggers latency UI
 });
 
 // Add token to requests if it exists
@@ -17,10 +18,53 @@ apiClient.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    // Attach request start time for latency tracking
+    config.metadata = { startTime: Date.now() };
     return config;
   },
   (error) => {
     return Promise.reject(error);
+  }
+);
+
+// Normalize all error responses into a predictable shape
+apiClient.interceptors.response.use(
+  (response) => {
+    // Attach latency to response for optional UI use
+    if (response.config?.metadata?.startTime) {
+      response.latencyMs = Date.now() - response.config.metadata.startTime;
+    }
+    return response;
+  },
+  (error) => {
+    const normalized = {
+      success: false,
+      message: 'An unexpected error occurred',
+      code: 'ERR_UNKNOWN',
+      status: 0,
+    };
+
+    if (error.response) {
+      // Server responded with an error status
+      const data = error.response.data || {};
+      normalized.message = data.message || error.response.statusText || normalized.message;
+      normalized.code = data.code || `ERR_HTTP_${error.response.status}`;
+      normalized.status = error.response.status;
+    } else if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
+      normalized.message = 'Request timed out. Please check your connection.';
+      normalized.code = 'ERR_TIMEOUT';
+      normalized.status = 408;
+    } else if (!navigator.onLine) {
+      normalized.message = 'You are offline. Please check your internet connection.';
+      normalized.code = 'ERR_OFFLINE';
+      normalized.status = 0;
+    } else {
+      normalized.message = 'Network error. Server may be unreachable.';
+      normalized.code = 'ERR_NETWORK';
+      normalized.status = 0;
+    }
+
+    return Promise.reject(normalized);
   }
 );
 

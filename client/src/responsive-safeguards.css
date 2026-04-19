@@ -1,0 +1,157 @@
+/* ============================================
+   GLOBAL RESPONSIVE SAFEGUARDS
+   Prevents horizontal scroll, particle overflow,
+   and animation performance drops on mobile.
+   Import ONCE in main.jsx or index.css.
+   ============================================ */
+
+/* --- Horizontal Scroll Prevention --- */
+html, body, #root {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* --- Touch Device Optimizations --- */
+@media (hover: none) and (pointer: coarse) {
+  /* Disable heavy animations on touch devices */
+  .star,
+  .particle,
+  .floating-particle {
+    animation-duration: 0s !important;
+    opacity: 0.3 !important;
+  }
+
+  /* Reduce gradient animation complexity */
+  .gradient-overlay,
+  .animated-bg {
+    animation: none !important;
+  }
+
+  /* Disable backdrop-filter on low-end devices */
+  .modal-overlay,
+  .global-loader-overlay {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+}
+
+/* --- Reduce Motion for Accessibility + Performance --- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* --- Mobile (≤480px) --- */
+@media (max-width: 480px) {
+  /* Prevent any element from exceeding viewport */
+  .home-container,
+  .game-container,
+  .quickmatch-container,
+  .practice-container,
+  .room-list-container,
+  .room-lobby-container,
+  .rules-container {
+    max-width: 100vw;
+    overflow-x: hidden;
+    padding-left: env(safe-area-inset-left, 0);
+    padding-right: env(safe-area-inset-right, 0);
+  }
+
+  /* Modal safety */
+  .modal-overlay {
+    padding: 12px;
+  }
+
+  .modal-content,
+  .login-modal-content,
+  .profile-modal-content,
+  .game-mode-modal-content {
+    max-width: calc(100vw - 24px);
+    max-height: calc(100vh - 48px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Shrink stars/particles on tiny screens */
+  .star {
+    width: 1px !important;
+    height: 1px !important;
+  }
+
+  /* Card hands: prevent overflow */
+  .hand-container,
+  .player-hand {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .hand-container::-webkit-scrollbar,
+  .player-hand::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* --- Tablet (481px – 768px) --- */
+@media (min-width: 481px) and (max-width: 768px) {
+  .modal-content,
+  .login-modal-content,
+  .profile-modal-content {
+    max-width: 90vw;
+    max-height: 85vh;
+  }
+}
+
+/* --- Desktop safeguard --- */
+@media (min-width: 769px) {
+  .modal-content,
+  .login-modal-content,
+  .profile-modal-content {
+    max-width: 600px;
+  }
+}
+
+/* --- GPU-accelerated animation hints --- */
+.star,
+.particle,
+.floating-particle,
+.gradient-overlay {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* --- Safe area insets for notched devices --- */
+@supports (padding: env(safe-area-inset-top)) {
+  .home-container,
+  .game-container {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* --- Page transition base --- */
+.page-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.page-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 250ms ease-out, transform 250ms ease-out;
+}
+
+.page-exit {
+  opacity: 1;
+}
+
+.page-exit-active {
+  opacity: 0;
+  transition: opacity 150ms ease-in;
+}

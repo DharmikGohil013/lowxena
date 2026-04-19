@@ -1,0 +1,127 @@
+/* ============================================
+   Network Status — Reconnecting Bar & Zone Indicators
+   ============================================ */
+
+/* --- Bottom reconnecting bar (non-blocking) --- */
+.network-reconnecting-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10000;
+  background: linear-gradient(135deg, #1e1e2e 0%, #2d1b4e 100%);
+  border-top: 2px solid #f59e0b;
+  padding: 12px 20px;
+  animation: slideUpBar 0.3s ease-out;
+}
+
+.network-reconnecting-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.network-reconnecting-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.network-reconnecting-text strong {
+  color: #f59e0b;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.network-reconnecting-text span {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+}
+
+/* Spinner */
+.network-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(245, 158, 11, 0.3);
+  border-top-color: #f59e0b;
+  border-radius: 50%;
+  animation: netSpin 0.8s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes netSpin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes slideUpBar {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* --- Zone-level latency indicator --- */
+.zone-latency-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.zone-latency-indicator.slow {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.zone-latency-indicator.high {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.zone-latency-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  animation: latencyPulse 1.5s ease-in-out infinite;
+}
+
+.zone-latency-indicator.slow .zone-latency-dot {
+  background: #f59e0b;
+}
+
+.zone-latency-indicator.high .zone-latency-dot {
+  background: #ef4444;
+}
+
+@keyframes latencyPulse {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.3); }
+}
+
+/* --- Mobile adjustments --- */
+@media (max-width: 480px) {
+  .network-reconnecting-bar {
+    padding: 10px 16px;
+  }
+
+  .network-reconnecting-text strong {
+    font-size: 13px;
+  }
+
+  .network-reconnecting-text span {
+    font-size: 11px;
+  }
+}

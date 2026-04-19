@@ -189,14 +189,9 @@ export const joinRoom = async (req, res) => {
       return res.status(404).json({ error: 'Room not found' });
     }
 
-    // Check if room is full
-    const { count } = await supabaseAdmin
-      .from('room_members')
-      .select('*', { count: 'exact', head: true })
-      .eq('room_id', roomId);
-
-    if (count >= room.max_players) {
-      return res.status(400).json({ error: 'Room is full' });
+    // Block joining games that already started
+    if (room.status !== 'waiting') {
+      return res.status(400).json({ error: 'Cannot join a game already in progress' });
     }
 
     // Check if room is private and code matches
@@ -224,7 +219,17 @@ export const joinRoom = async (req, res) => {
       .single();
 
     if (otherRoomMembership) {
-      return res.status(400).json({ error: 'You are already in another room' });
+      return res.status(400).json({ error: 'You are already in another room. Leave it first.' });
+    }
+
+    // Re-check count right before insert (minimize race window)
+    const { count } = await supabaseAdmin
+      .from('room_members')
+      .select('*', { count: 'exact', head: true })
+      .eq('room_id', roomId);
+
+    if (count >= room.max_players) {
+      return res.status(400).json({ error: 'Room is full' });
     }
 
     // Add user to room
@@ -236,7 +241,13 @@ export const joinRoom = async (req, res) => {
         is_host: false
       });
 
-    if (joinError) throw joinError;
+    if (joinError) {
+      // Handle unique constraint violation (concurrent join attempt)
+      if (joinError.code === '23505') {
+        return res.json({ message: 'Already in room' });
+      }
+      throw joinError;
+    }
 
     res.json({ message: 'Successfully joined room' });
   } catch (error) {

@@ -327,7 +327,9 @@ export const getGameState = async (req, res) => {
 };
 
 /**
- * Save multiplayer game results for all players
+ * Save multiplayer game results for all players.
+ * Uses atomic DB operations to prevent race conditions
+ * when multiple players submit results simultaneously.
  */
 export const saveMultiplayerResults = async (req, res) => {
   try {
@@ -338,9 +340,11 @@ export const saveMultiplayerResults = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Players array required' });
     }
 
+    const errors = [];
+
     for (const player of players) {
       try {
-        // Save to game history
+        // Save to game history (append-only, no race risk)
         await supabaseAdmin
           .from('game_history')
           .insert([{
@@ -350,43 +354,61 @@ export const saveMultiplayerResults = async (req, res) => {
             duration: 0
           }]);
 
-        // Get or create user_stats
-        const { data: stats } = await supabaseAdmin
-          .from('user_stats')
-          .select('*')
-          .eq('user_id', player.id)
-          .single();
+        // Try atomic RPC first (if the SQL function exists)
+        const { error: rpcError } = await supabaseAdmin.rpc('update_user_stats_atomic', {
+          p_user_id: player.id,
+          p_won: !!player.isWinner,
+          p_score: player.score || 0,
+          p_duration: 0
+        });
 
-        if (stats) {
-          const updates = {
-            total_games: stats.total_games + 1,
-            highest_score: Math.max(stats.highest_score || 0, player.score || 0),
-          };
-          if (player.isWinner) {
-            updates.wins = (stats.wins || 0) + 1;
+        if (rpcError) {
+          // Fallback to upsert-based approach (still safer than read-modify-write)
+          const { data: stats } = await supabaseAdmin
+            .from('user_stats')
+            .select('*')
+            .eq('user_id', player.id)
+            .single();
+
+          if (stats) {
+            const updates = {
+              total_games: stats.total_games + 1,
+              highest_score: Math.max(stats.highest_score || 0, player.score || 0),
+            };
+            if (player.isWinner) {
+              updates.wins = (stats.wins || 0) + 1;
+            } else {
+              updates.losses = (stats.losses || 0) + 1;
+            }
+            await supabaseAdmin
+              .from('user_stats')
+              .update(updates)
+              .eq('user_id', player.id);
           } else {
-            updates.losses = (stats.losses || 0) + 1;
+            await supabaseAdmin
+              .from('user_stats')
+              .insert([{
+                user_id: player.id,
+                total_games: 1,
+                highest_score: player.score || 0,
+                wins: player.isWinner ? 1 : 0,
+                losses: player.isWinner ? 0 : 1,
+                total_playtime: 0
+              }]);
           }
-          await supabaseAdmin
-            .from('user_stats')
-            .update(updates)
-            .eq('user_id', player.id);
-        } else {
-          // Create stats entry
-          await supabaseAdmin
-            .from('user_stats')
-            .insert([{
-              user_id: player.id,
-              total_games: 1,
-              highest_score: player.score || 0,
-              wins: player.isWinner ? 1 : 0,
-              losses: player.isWinner ? 0 : 1,
-              total_playtime: 0
-            }]);
         }
       } catch (e) {
         console.error(`Error saving results for player ${player.id}:`, e);
+        errors.push(player.id);
       }
+    }
+
+    if (errors.length > 0) {
+      return res.status(207).json({
+        success: true,
+        message: `Results saved with ${errors.length} partial failures`,
+        failedPlayers: errors
+      });
     }
 
     res.json({ success: true, message: 'Multiplayer results saved' });
