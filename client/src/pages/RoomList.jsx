@@ -30,7 +30,6 @@ function RoomList() {
   const fetchRooms = async () => {
     try {
       const response = await gameAPI.getRooms()
-      console.log('Fetched rooms:', response)
       setRooms(Array.isArray(response) ? response : [])
     } catch (error) {
       console.error('Error fetching rooms:', error)

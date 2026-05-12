@@ -379,15 +379,24 @@ function Home() {
     }
     if (avatarUrl) {
       return (
-        <img 
-          src={avatarUrl} 
-          alt="avatar" 
-          style={{ width: size, height: size, borderRadius: '50%', objectFit: 'cover' }}
-          onError={(e) => {
-            e.target.style.display = 'none';
-            e.target.parentElement.innerHTML = `<span style="color:white;font-size:${size/2.5}px;font-weight:bold;">${(fallbackName || '?').charAt(0).toUpperCase()}</span>`;
-          }}
-        />
+        <>
+          <img 
+            src={avatarUrl} 
+            alt="avatar" 
+            style={{ width: size, height: size, borderRadius: '50%', objectFit: 'cover' }}
+            referrerPolicy="no-referrer"
+            onError={(e) => {
+              // Hide the broken image and show fallback letter
+              e.target.style.display = 'none';
+              if (e.target.nextElementSibling) {
+                e.target.nextElementSibling.style.display = 'inline';
+              }
+            }}
+          />
+          <span style={{display: 'none', color: 'white', fontSize: `${size/2.5}px`, fontWeight: 'bold'}}>
+            {(fallbackName || '?').charAt(0).toUpperCase()}
+          </span>
+        </>
       );
     }
     return (

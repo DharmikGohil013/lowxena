@@ -72,22 +72,14 @@ apiClient.interceptors.response.use(
 export const authAPI = {
   // Send Google credential to backend
   googleLogin: async (credential) => {
-    try {
-      const response = await apiClient.post('/auth/google', { token: credential });
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error.message;
-    }
+    const response = await apiClient.post('/auth/google', { token: credential });
+    return response.data;
   },
 
   // Guest login
   guestLogin: async (name) => {
-    try {
-      const response = await apiClient.post('/auth/guest', { name });
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error.message;
-    }
+    const response = await apiClient.post('/auth/guest', { name });
+    return response.data;
   },
 
   // Logout
@@ -98,8 +90,12 @@ export const authAPI = {
 
   // Get current user data
   getCurrentUser: () => {
-    const userData = localStorage.getItem('userData');
-    return userData ? JSON.parse(userData) : null;
+    try {
+      const userData = localStorage.getItem('userData');
+      return userData ? JSON.parse(userData) : null;
+    } catch {
+      return null;
+    }
   },
 
   // Get auth token
@@ -117,52 +113,32 @@ export const authAPI = {
 export const userAPI = {
   // Get user profile with stats and rank
   getProfile: async () => {
-    try {
-      const response = await apiClient.get('/user/profile');
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error.message;
-    }
+    const response = await apiClient.get('/user/profile');
+    return response.data;
   },
 
   // Update user profile
   updateProfile: async (updates) => {
-    try {
-      const response = await apiClient.put(`/user/profile`, updates);
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error.message;
-    }
+    const response = await apiClient.put(`/user/profile`, updates);
+    return response.data;
   },
 
   // Get user stats
   getStats: async () => {
-    try {
-      const response = await apiClient.get('/user/stats');
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error.message;
-    }
+    const response = await apiClient.get('/user/stats');
+    return response.data;
   },
 
   // Update user stats after a game
   updateStats: async (gameResult) => {
-    try {
-      const response = await apiClient.post('/user/stats', gameResult);
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error.message;
-    }
+    const response = await apiClient.post('/user/stats', gameResult);
+    return response.data;
   },
 
   // Get available avatars
   getAvatars: async () => {
-    try {
-      const response = await apiClient.get('/user/avatars');
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error.message;
-    }
+    const response = await apiClient.get('/user/avatars');
+    return response.data;
   },
 };
 
@@ -170,166 +146,98 @@ export const userAPI = {
 export const gameAPI = {
   // Get leaderboard with user position
   getLeaderboard: async (limit = 20) => {
-    try {
-      const response = await apiClient.get(`/game/leaderboard?limit=${limit}`);
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error.message;
-    }
+    const response = await apiClient.get(`/game/leaderboard?limit=${limit}`);
+    return response.data;
   },
 
   // Save game score
   saveScore: async (scoreData) => {
-    try {
-      const response = await apiClient.post('/game/score', scoreData);
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error.message;
-    }
+    const response = await apiClient.post('/game/score', scoreData);
+    return response.data;
   },
 
   // Save multiplayer results for all players
   saveMultiplayerResults: async (data) => {
-    try {
-      const response = await apiClient.post('/game/multiplayer-results', data);
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error.message;
-    }
+    const response = await apiClient.post('/game/multiplayer-results', data);
+    return response.data;
   },
 
   // Get game history
   getHistory: async (limit = 10) => {
-    try {
-      const response = await apiClient.get(`/game/history?limit=${limit}`);
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error.message;
-    }
+    const response = await apiClient.get(`/game/history?limit=${limit}`);
+    return response.data;
   },
 
   // Create room
   createRoom: async (config) => {
-    try {
-      const response = await apiClient.post('/game/create-room', config);
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error.message;
-    }
+    const response = await apiClient.post('/game/create-room', config);
+    return response.data;
   },
 
   // Get all available rooms
   getRooms: async () => {
-    try {
-      const response = await apiClient.get('/game/rooms');
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error.message;
-    }
+    const response = await apiClient.get('/game/rooms');
+    return response.data;
   },
 
   // Get room details
   getRoomDetails: async (roomId) => {
-    try {
-      const response = await apiClient.get(`/game/room/${roomId}`);
-      return response.data;
-    } catch (error) {
-      const err = error.response?.data || { message: error.message };
-      err.status = error.response?.status;
-      throw err;
-    }
+    const response = await apiClient.get(`/game/room/${roomId}`);
+    return response.data;
   },
 
   // Join room
   joinRoom: async (roomId, code = null) => {
-    try {
-      const response = await apiClient.post(`/game/join-room/${roomId}`, { code });
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error.message;
-    }
+    const response = await apiClient.post(`/game/join-room/${roomId}`, { code });
+    return response.data;
   },
 
   // Leave room
   leaveRoom: async (roomId) => {
-    try {
-      const response = await apiClient.post(`/game/leave-room/${roomId}`);
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error.message;
-    }
+    const response = await apiClient.post(`/game/leave-room/${roomId}`);
+    return response.data;
   },
 
   // Start game in room
   startGame: async (roomId) => {
-    try {
-      const response = await apiClient.post(`/game/start-game/${roomId}`);
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error.message;
-    }
+    const response = await apiClient.post(`/game/start-game/${roomId}`);
+    return response.data;
   },
 
   // End game and reset room to lobby
   endGame: async (roomId) => {
-    try {
-      const response = await apiClient.post(`/game/end-game/${roomId}`);
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error.message;
-    }
+    const response = await apiClient.post(`/game/end-game/${roomId}`);
+    return response.data;
   },
 
   // Kick player from room
   kickPlayer: async (roomId, playerId) => {
-    try {
-      const response = await apiClient.post(`/game/kick-player/${roomId}`, { playerId });
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error.message;
-    }
+    const response = await apiClient.post(`/game/kick-player/${roomId}`, { playerId });
+    return response.data;
   },
 
   // Check if user is in any room
   checkUserRoom: async () => {
-    try {
-      const response = await apiClient.get('/game/check-room');
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error.message;
-    }
+    const response = await apiClient.get('/game/check-room');
+    return response.data;
   },
 
   // Toggle ready status
   toggleReady: async (roomId) => {
-    try {
-      const response = await apiClient.post(`/game/toggle-ready/${roomId}`);
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error.message;
-    }
+    const response = await apiClient.post(`/game/toggle-ready/${roomId}`);
+    return response.data;
   },
 
   // Update game state
   updateGameState: async (roomId, gameState) => {
-    try {
-      const response = await apiClient.put(`/game/state/${roomId}`, gameState);
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error.message;
-    }
+    const response = await apiClient.put(`/game/state/${roomId}`, gameState);
+    return response.data;
   },
 
   // Get game state
   getGameState: async (roomId) => {
-    try {
-      const response = await apiClient.get(`/game/state/${roomId}`);
-      return response.data;
-    } catch (error) {
-      const err = error.response?.data || { message: error.message };
-      err.status = error.response?.status;
-      throw err;
-    }
+    const response = await apiClient.get(`/game/state/${roomId}`);
+    return response.data;
   },
 };
 

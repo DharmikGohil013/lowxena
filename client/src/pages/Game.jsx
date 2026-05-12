@@ -92,7 +92,10 @@ function Game() {
     if (roomId) {
       fetchRoomDetails()
     } else {
+      // No roomId in URL, redirect home
       setLoading(false)
+      navigate('/')
+      return
     }
     
     // Poll for game updates
@@ -296,8 +299,12 @@ function Game() {
   }, [gameState.gameStarted, gameState.currentTurnIndex, gameState.mustPickup, gameState.hasPlayedCard, roomDetails?.players])
 
   const fetchCurrentUser = () => {
-    const userData = JSON.parse(localStorage.getItem('userData'))
-    if (userData) setCurrentUser(userData)
+    try {
+      const userData = JSON.parse(localStorage.getItem('userData'))
+      if (userData) setCurrentUser(userData)
+    } catch {
+      // Invalid data in localStorage, ignore
+    }
   }
 
   const fetchRoomDetails = async () => {
@@ -812,10 +819,27 @@ function Game() {
         { top: '15%', left: '35%', transform: 'translate(-50%, 0)' },
         { top: '15%', right: '35%', transform: 'translate(50%, 0)' },
         { top: '40%', right: '8%', transform: 'translate(0, -50%)' }
+      ],
+      // 6 players: 5 other players
+      [
+        { top: '50%', left: '6%', transform: 'translate(0, -50%)' },
+        { top: '20%', left: '22%', transform: 'translate(-50%, 0)' },
+        { top: '15%', left: '50%', transform: 'translate(-50%, 0)' },
+        { top: '20%', right: '22%', transform: 'translate(50%, 0)' },
+        { top: '50%', right: '6%', transform: 'translate(0, -50%)' }
+      ],
+      // 7 players: 6 other players
+      [
+        { top: '55%', left: '5%', transform: 'translate(0, -50%)' },
+        { top: '30%', left: '10%', transform: 'translate(0, -50%)' },
+        { top: '15%', left: '35%', transform: 'translate(-50%, 0)' },
+        { top: '15%', right: '35%', transform: 'translate(50%, 0)' },
+        { top: '30%', right: '10%', transform: 'translate(0, -50%)' },
+        { top: '55%', right: '5%', transform: 'translate(0, -50%)' }
       ]
     ]
     
-    const positionSet = positions[total - 1] || positions[3]
+    const positionSet = positions[total - 1] || positions[positions.length - 1]
     return positionSet[index] || positions[0][0]
   }
 
@@ -1119,8 +1143,8 @@ function Game() {
             <h2 className="modal-heading"><BarChart3 size={20} style={{display:'inline', verticalAlign:'-3px', marginRight:'6px'}} /> Scoreboard</h2>
             <div className="round-info">Round {gameState.roundNumber} · Max {roomDetails?.maxPoints || 40} pts</div>
             <div className="scoreboard-list">
-              {roomDetails?.players
-                ?.sort((a, b) => (gameState.scores?.[a.id] || 0) - (gameState.scores?.[b.id] || 0))
+              {[...(roomDetails?.players || [])]
+                .sort((a, b) => (gameState.scores?.[a.id] || 0) - (gameState.scores?.[b.id] || 0))
                 .map((player, index) => (
                 <div key={player.id} className={`score-row ${gameState.eliminatedPlayers.includes(player.id) ? 'score-eliminated' : ''}`}>
                   <span className="score-rank">#{index + 1}</span>
@@ -1273,7 +1297,7 @@ function Game() {
             {roomDetails?.players && (
               <div className="game-end-final-scores">
                 <h3 className="game-end-scores-title">Final Scores</h3>
-                {roomDetails.players
+                {[...(roomDetails.players)]
                   .sort((a, b) => (gameState.gameEndSummary.finalScores[a.id] || 0) - (gameState.gameEndSummary.finalScores[b.id] || 0))
                   .map(p => (
                     <div key={p.id} className={`game-end-score-row ${p.id === gameState.gameEndSummary.overallWinner?.id ? 'game-end-score-winner' : ''}`}>

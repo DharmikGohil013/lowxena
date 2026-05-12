@@ -136,10 +136,14 @@ function QuickMatch() {
 
   // ── Init user ──
   useEffect(() => {
-    const data = JSON.parse(localStorage.getItem('userData'))
-    if (data) {
-      setCurrentUser({ id: data.id || 'player-1', name: data.name || 'You' })
-    } else {
+    try {
+      const data = JSON.parse(localStorage.getItem('userData'))
+      if (data) {
+        setCurrentUser({ id: data.id || 'player-1', name: data.name || 'You' })
+      } else {
+        setCurrentUser({ id: 'player-1', name: 'You' })
+      }
+    } catch {
       setCurrentUser({ id: 'player-1', name: 'You' })
     }
   }, [])

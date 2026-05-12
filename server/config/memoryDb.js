@@ -232,8 +232,8 @@ class QueryBuilder {
       inserted.push(clone(row));
     }
 
-    // If .select() was chained after insert
-    if (this._selectCols) {
+    // If .select() was explicitly chained after insert
+    if (this._returnData) {
       if (this._wantSingle) {
         return { data: inserted[0] || null, error: null };
       }
@@ -288,9 +288,8 @@ class QueryBuilder {
   }
 
   _doDelete(table) {
-    const tableRef = getTable(this._table);
-    const before = tableRef.length;
-    const remaining = tableRef.filter(r => !matchesFilters(r, this._filters));
+    const before = table.length;
+    const remaining = table.filter(r => !matchesFilters(r, this._filters));
     store[this._table] = remaining;
     return { data: null, error: null, count: before - remaining.length };
   }
@@ -300,6 +299,10 @@ class QueryBuilder {
 const memoryClient = {
   from(tableName) {
     return new QueryBuilder(tableName);
+  },
+  // RPC stub — falls back gracefully so callers use their own fallback logic
+  async rpc(functionName, params) {
+    return { data: null, error: { message: `RPC '${functionName}' not available in memory DB`, code: 'MEMORY_NO_RPC' } };
   }
 };
 

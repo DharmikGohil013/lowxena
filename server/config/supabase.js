@@ -19,9 +19,16 @@ if (supabaseUrl && supabaseAnonKey) {
     : realSupabase;
 }
 
-// Exported references — will be swapped to memoryClient if Supabase is unreachable
-export let supabase = realSupabase || memoryClient;
-export let supabaseAdmin = realAdmin || memoryClient;
+// Use a holder object so reassignment inside testConnection() is visible
+// to all modules that import these references.
+const _clients = {
+  supabase: realSupabase || memoryClient,
+  supabaseAdmin: realAdmin || memoryClient,
+};
+
+// Live getters so importers always see the current client
+export const supabase = new Proxy({}, { get: (_, prop) => _clients.supabase[prop] });
+export const supabaseAdmin = new Proxy({}, { get: (_, prop) => _clients.supabaseAdmin[prop] });
 
 // Test connection and auto-fallback
 export async function testConnection() {
@@ -44,8 +51,8 @@ export async function testConnection() {
   } catch (error) {
     console.warn('⚠️  Supabase unreachable:', error.message);
     console.warn('⚠️  Falling back to in-memory database (data will not persist across restarts)');
-    supabase = memoryClient;
-    supabaseAdmin = memoryClient;
+    _clients.supabase = memoryClient;
+    _clients.supabaseAdmin = memoryClient;
     usingMemory = true;
     return false;
   }
@@ -56,3 +63,4 @@ export function isUsingMemory() {
 }
 
 export default supabase;
+

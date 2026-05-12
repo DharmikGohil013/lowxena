@@ -507,10 +507,10 @@ export const endGame = async (req, res) => {
       return res.status(403).json({ error: 'Only the host can end the game' });
     }
 
-    // Reset room status to waiting
+    // Reset room status to waiting and clear game state in one update
     const { error: updateError } = await supabaseAdmin
       .from('rooms')
-      .update({ status: 'waiting' })
+      .update({ status: 'waiting', game_state: null })
       .eq('id', roomId);
 
     if (updateError) throw updateError;
@@ -520,12 +520,6 @@ export const endGame = async (req, res) => {
       .from('room_members')
       .update({ is_ready: false })
       .eq('room_id', roomId);
-
-    // Clear game state
-    await supabaseAdmin
-      .from('rooms')
-      .update({ game_state: null })
-      .eq('id', roomId);
 
     res.json({ message: 'Game ended, room reset to lobby' });
   } catch (error) {

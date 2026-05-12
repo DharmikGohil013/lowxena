@@ -28,7 +28,6 @@ function RoomLobby() {
   const fetchCurrentUser = async () => {
     try {
       const userData = JSON.parse(localStorage.getItem('userData'));
-      console.log('User from localStorage:', userData);
       if (userData) {
         setCurrentUser(userData);
       }
@@ -40,11 +39,9 @@ function RoomLobby() {
   const fetchRoomDetails = async () => {
     try {
       const response = await gameAPI.getRoomDetails(roomId);
-      console.log('Room details response:', response);
       
       // Check if game has started and navigate all players to game page
       if (response.status === 'playing') {
-        console.log('🎮 Game has started! Navigating to game page...');
         navigate(`/game?roomId=${roomId}`);
         return;
       }
@@ -75,9 +72,7 @@ function RoomLobby() {
     
     setTogglingReady(true); // Start loading
     try {
-      console.log('🔄 Toggling ready status for room:', roomId);
       const response = await gameAPI.toggleReady(roomId);
-      console.log('✅ Ready status updated:', response);
       // Refresh room details to show updated ready status
       await fetchRoomDetails();
     } catch (err) {
@@ -129,16 +124,6 @@ function RoomLobby() {
 
   const isHost = () => {
     const result = currentUser && roomDetails && currentUser.id === roomDetails.hostId;
-    console.log('🔍 isHost check:', {
-      currentUserId: currentUser?.id,
-      currentUserIdType: typeof currentUser?.id,
-      hostId: roomDetails?.hostId,
-      hostIdType: typeof roomDetails?.hostId,
-      areEqual: currentUser?.id === roomDetails?.hostId,
-      isHost: result,
-      currentUser: currentUser,
-      roomDetails: roomDetails
-    });
     return result;
   };
 

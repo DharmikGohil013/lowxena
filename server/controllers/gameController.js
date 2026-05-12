@@ -119,7 +119,7 @@ export const saveGameScore = async (req, res) => {
     const userId = req.user.id;
     const { score, level, duration } = req.body;
 
-    if (!score || !level) {
+    if (score === undefined || score === null || !level) {
       return res.status(400).json({
         success: false,
         message: 'Score and level are required'
@@ -177,6 +177,18 @@ export const saveGameScore = async (req, res) => {
           total_playtime: stats.total_playtime + (duration || 0)
         })
         .eq('user_id', userId);
+    } else {
+      // Create new stats entry if none exists
+      await supabaseAdmin
+        .from('user_stats')
+        .insert([{
+          user_id: userId,
+          total_games: 1,
+          wins: 0,
+          losses: 0,
+          highest_score: score || 0,
+          total_playtime: duration || 0
+        }]);
     }
 
     res.json({
@@ -201,7 +213,8 @@ export const saveGameScore = async (req, res) => {
 export const getGameHistory = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { limit = 20, offset = 0 } = req.query;
+    const limit = parseInt(req.query.limit) || 20;
+    const offset = parseInt(req.query.offset) || 0;
 
     const { data: history, error } = await supabaseAdmin
       .from('game_history')

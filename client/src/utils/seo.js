@@ -29,10 +29,25 @@ const SEO_CONFIG = {
     description: 'You are in a live LowXena game session.',
     canonical: 'https://lowxena.com/game',
   },
+  '/room': {
+    title: 'Game Lobby — LowXena',
+    description: 'Waiting in a LowXena game lobby. Get ready to play!',
+    canonical: 'https://lowxena.com/room',
+  },
+}
+
+// Match dynamic routes like /room/abc123 to their base path
+function getConfigForPath(path) {
+  if (SEO_CONFIG[path]) return SEO_CONFIG[path];
+  // Match /room/:id pattern
+  if (path.startsWith('/room/')) return SEO_CONFIG['/room'];
+  // Match /game with query params
+  if (path.startsWith('/game')) return SEO_CONFIG['/game'];
+  return SEO_CONFIG['/'];
 }
 
 export function updateSEO(path) {
-  const config = SEO_CONFIG[path] || SEO_CONFIG['/']
+  const config = getConfigForPath(path)
   document.title = config.title
 
   let metaDesc = document.querySelector('meta[name="description"]')
@@ -48,3 +63,4 @@ export function updateSEO(path) {
   }
   canonical.setAttribute('href', config.canonical)
 }
+

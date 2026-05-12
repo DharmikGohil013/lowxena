@@ -173,10 +173,14 @@ function PracticeGame() {
 
   // Initialize user
   useEffect(() => {
-    const userData = JSON.parse(localStorage.getItem('userData'))
-    if (userData) {
-      setCurrentUser({ id: userData.id || 'player-1', name: userData.name || 'You' })
-    } else {
+    try {
+      const userData = JSON.parse(localStorage.getItem('userData'))
+      if (userData) {
+        setCurrentUser({ id: userData.id || 'player-1', name: userData.name || 'You' })
+      } else {
+        setCurrentUser({ id: 'player-1', name: 'You' })
+      }
+    } catch {
       setCurrentUser({ id: 'player-1', name: 'You' })
     }
   }, [])
