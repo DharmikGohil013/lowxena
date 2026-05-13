@@ -13,10 +13,13 @@ import { errorHandler } from './middleware/errorHandler.js';
 
 // Load environment variables
 dotenv.config();
+const mongoose = require("mongoose");
 
 // Connect MongoDB
 connectDB();
 
+// Connect Redis
+connectRedis();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
