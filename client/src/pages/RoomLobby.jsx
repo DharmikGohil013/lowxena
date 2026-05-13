@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { gameAPI, authAPI } from '../services/api';
 import Loader from '../components/Loader';
+import { AvatarSVG, isAvatarSVG } from '../components/Avatars';
 import './RoomLobby.css';
 
 function RoomLobby() {
@@ -134,6 +135,16 @@ function RoomLobby() {
     }
   };
 
+  const renderAvatar = (avatarUrl, name = '') => {
+    if (isAvatarSVG(avatarUrl)) {
+      return <AvatarSVG avatarId={avatarUrl} size={40} />;
+    }
+    if (avatarUrl) {
+      return <img src={avatarUrl} alt={name} referrerPolicy="no-referrer" />;
+    }
+    return null;
+  };
+
   if (loading) {
     return (
       <div className="room-lobby-container">
@@ -254,7 +265,7 @@ function RoomLobby() {
                   >
                     <div className="player-avatar">
                       {player.avatarUrl ? (
-                        <img src={player.avatarUrl} alt={player.name} referrerPolicy="no-referrer" />
+                        renderAvatar(player.avatarUrl, player.name)
                       ) : (
                         <div className="avatar-placeholder">
                           {player.name?.charAt(0).toUpperCase()}

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { getCardImage, getCardBack } from '../utils/cardImages'
 import { 
   Gamepad2, Target, Package, Zap, Lightbulb, Layers, BarChart3, Skull, 
   SkipForward, Moon, Flame, Brain, Trophy, ShieldHalf, Swords, User, 
@@ -529,13 +530,20 @@ function PracticeGame() {
       showTip('doublePlay')
     }
     
-    setPlayerHands(prev => ({ ...prev, [myId]: myHand }))
-    setPlayedCards(prev => [...prev, ...cardsToPlay])
-    setMustPickup(true)
-    setHasPlayedCard(true)
-    setSelectedCard(null)
-    
-    showTip('mustPickup')
+    if (cardsToPlay.length > 1) {
+      setPlayerHands(prev => ({ ...prev, [myId]: myHand }))
+      setPlayedCards(prev => [...prev, ...cardsToPlay])
+      setSelectedCard(null)
+      setTimeout(() => advanceTurn(), 300)
+    } else {
+      setPlayerHands(prev => ({ ...prev, [myId]: myHand }))
+      setPlayedCards(prev => [...prev, ...cardsToPlay])
+      setMustPickup(true)
+      setHasPlayedCard(true)
+      setSelectedCard(null)
+      
+      showTip('mustPickup')
+    }
   }
 
   const doPickupCard = () => {
@@ -940,18 +948,8 @@ function PracticeGame() {
                   transform: `rotate(${(index * 7) - 7}deg) translateX(${(index - 1) * 12}px)`,
                   zIndex: index
                 }}>
-                  <div className="playing-card" data-color={card.color}>
-                    <div className="card-corner top-left">
-                      <span className="card-value">{card.value}</span>
-                      <span className="card-suit">{SUIT_SYMBOLS[card.suit]}</span>
-                    </div>
-                    <div className="card-center">
-                      <span className="card-suit-large">{SUIT_SYMBOLS[card.suit]}</span>
-                    </div>
-                    <div className="card-corner bottom-right">
-                      <span className="card-value">{card.value}</span>
-                      <span className="card-suit">{SUIT_SYMBOLS[card.suit]}</span>
-                    </div>
+                  <div className="playing-card svg-card">
+                    <img src={getCardImage(card)} alt={`${card.value} of ${card.suit}`} className="card-svg-img" draggable="false" />
                   </div>
                 </div>
               ))
@@ -1016,18 +1014,8 @@ function PracticeGame() {
                 onDragEnd={handleDragEnd}
                 onClick={() => handleCardClick(card)}
               >
-                <div className="playing-card" data-color={card.color}>
-                  <div className="card-corner top-left">
-                    <span className="card-value">{card.value}</span>
-                    <span className="card-suit">{SUIT_SYMBOLS[card.suit]}</span>
-                  </div>
-                  <div className="card-center">
-                    <span className="card-suit-large">{SUIT_SYMBOLS[card.suit]}</span>
-                  </div>
-                  <div className="card-corner bottom-right">
-                    <span className="card-value">{card.value}</span>
-                    <span className="card-suit">{SUIT_SYMBOLS[card.suit]}</span>
-                  </div>
+                <div className="playing-card svg-card">
+                  <img src={getCardImage(card)} alt={`${card.value} of ${card.suit}`} className="card-svg-img" draggable="false" />
                 </div>
               </div>
             ))}

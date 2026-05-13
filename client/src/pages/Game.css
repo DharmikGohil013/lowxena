@@ -408,6 +408,36 @@
   opacity: .75;
 }
 
+/* SVG Card Image Styles */
+.playing-card.svg-card {
+  background: transparent;
+  border: none;
+  box-shadow: 0 3px 12px rgba(0,0,0,.45);
+  overflow: hidden;
+  padding: 0;
+}
+
+.card-svg-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  border-radius: 6px;
+  pointer-events: none;
+}
+
+.card-back .card-svg-img {
+  width: 60%;
+  height: 60%;
+  object-fit: contain;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 0;
+  filter: brightness(0.9);
+}
+
 .empty-deck {
   width: 70px;
   height: 98px;

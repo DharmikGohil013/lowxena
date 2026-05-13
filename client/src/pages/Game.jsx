@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { gameAPI } from '../services/api'
+import { getCardImage, getCardBack } from '../utils/cardImages'
 import { 
   Package, Target, Crown, BarChart3, Settings, DoorOpen, Trophy, Skull, Hourglass, StopCircle
 } from 'lucide-react'
 import Loader from '../components/Loader'
+import { AvatarSVG, isAvatarSVG } from '../components/Avatars'
 import './Game.css'
 
 // Card suits and values
@@ -630,26 +632,37 @@ function Game() {
 
     const updatedPlayed = [...gameState.playedCards, ...cardsToPlay]
 
-    // Don't advance turn yet - must pickup first
-    const updatedState = {
-      ...gameState,
-      playerHands: updatedHands,
-      playedCards: updatedPlayed,
-      mustPickup: true,
-      hasPlayedCard: true,
-      gameStarted: true,
-      isShuffling: false,
-      isDealing: false
-    }
+    if (cardsToPlay.length > 1) {
+      const stateOverride = {
+        ...gameState,
+        playerHands: updatedHands,
+        playedCards: updatedPlayed
+      }
+      setSelectedCard(null)
+      setDraggingCard(null)
+      handleNextTurn(stateOverride)
+    } else {
+      // Don't advance turn yet - must pickup first
+      const updatedState = {
+        ...gameState,
+        playerHands: updatedHands,
+        playedCards: updatedPlayed,
+        mustPickup: true,
+        hasPlayedCard: true,
+        gameStarted: true,
+        isShuffling: false,
+        isDealing: false
+      }
 
-    setGameState(updatedState)
-    setSelectedCard(null)
-    setDraggingCard(null)
+      setGameState(updatedState)
+      setSelectedCard(null)
+      setDraggingCard(null)
 
-    try {
-      await gameAPI.updateGameState(roomId, updatedState)
-    } catch (error) {
-      console.error('Error playing card:', error)
+      try {
+        await gameAPI.updateGameState(roomId, updatedState)
+      } catch (error) {
+        console.error('Error playing card:', error)
+      }
     }
   }
 
@@ -859,6 +872,16 @@ function Game() {
     return [currentPlayer, ...ordered]
   }
 
+  const renderAvatar = (avatarUrl, name = '', size = 40) => {
+    if (isAvatarSVG(avatarUrl)) {
+      return <AvatarSVG avatarId={avatarUrl} size={size} />;
+    }
+    if (avatarUrl) {
+      return <img src={avatarUrl} alt={name} referrerPolicy="no-referrer" />;
+    }
+    return null;
+  };
+
   if (loading) {
     return <Loader message="Loading Game..." />
   }
@@ -932,7 +955,7 @@ function Game() {
           >
             <div className="seat-avatar">
               {player.avatarUrl ? (
-                <img src={player.avatarUrl} alt={player.name} referrerPolicy="no-referrer" />
+                renderAvatar(player.avatarUrl, player.name)
               ) : (
                 <span className="seat-letter">{player.name?.charAt(0).toUpperCase()}</span>
               )}
@@ -999,18 +1022,8 @@ function Game() {
                   transform: `rotate(${(index * 7) - 7}deg) translateX(${(index - 1) * 12}px)`,
                   zIndex: index 
                 }}>
-                  <div className="playing-card" data-color={card.color}>
-                    <div className="card-corner top-left">
-                      <span className="card-value">{card.value}</span>
-                      <span className="card-suit">{SUIT_SYMBOLS[card.suit]}</span>
-                    </div>
-                    <div className="card-center">
-                      <span className="card-suit-large">{SUIT_SYMBOLS[card.suit]}</span>
-                    </div>
-                    <div className="card-corner bottom-right">
-                      <span className="card-value">{card.value}</span>
-                      <span className="card-suit">{SUIT_SYMBOLS[card.suit]}</span>
-                    </div>
+                  <div className="playing-card svg-card">
+                    <img src={getCardImage(card)} alt={`${card.value} of ${card.suit}`} className="card-svg-img" draggable="false" />
                   </div>
                 </div>
               ))
@@ -1058,7 +1071,7 @@ function Game() {
           <div className="my-info-bar">
             <div className="my-avatar">
               {orderedPlayers[0].avatarUrl ? (
-                <img src={orderedPlayers[0].avatarUrl} alt={orderedPlayers[0].name} referrerPolicy="no-referrer" />
+                renderAvatar(orderedPlayers[0].avatarUrl, orderedPlayers[0].name, 45)
               ) : (
                 <span className="my-avatar-letter">{orderedPlayers[0].name?.charAt(0).toUpperCase()}</span>
               )}
@@ -1080,24 +1093,14 @@ function Game() {
                 onDragEnd={handleDragEnd}
                 onClick={() => handleCardClick(card)}
               >
-                <div className="playing-card" data-color={card.color}>
-                  <div className="card-corner top-left">
-                    <span className="card-value">{card.value}</span>
-                    <span className="card-suit">{SUIT_SYMBOLS[card.suit]}</span>
-                  </div>
-                  <div className="card-center">
-                    <span className="card-suit-large">{SUIT_SYMBOLS[card.suit]}</span>
-                  </div>
-                  <div className="card-corner bottom-right">
-                    <span className="card-value">{card.value}</span>
-                    <span className="card-suit">{SUIT_SYMBOLS[card.suit]}</span>
-                  </div>
+                <div className="playing-card svg-card">
+                  <img src={getCardImage(card)} alt={`${card.value} of ${card.suit}`} className="card-svg-img" draggable="false" />
                 </div>
               </div>
             )) || (
               [...Array(7)].map((_, i) => (
                 <div key={i} className="hand-card" style={{ '--i': i, '--total': 7 }}>
-                  <div className="card-back"><div className="card-pattern"></div></div>
+                  <div className="card-back"><img src={getCardBack()} alt="Card Back" className="card-svg-img" /></div>
                 </div>
               ))
             )}
