@@ -52,9 +52,10 @@ export function NetworkStatusProvider({ children, apiBaseUrl }) {
   }, [])
 
   const pingServer = useCallback(async () => {
-    const rawApiUrl = apiBaseUrl || import.meta.env.VITE_API_URL;
+    let rawApiUrl = apiBaseUrl || import.meta.env.VITE_API_URL || '';
+    if (typeof rawApiUrl === 'string') rawApiUrl = rawApiUrl.replace(/^["']|["']$/g, '');
     const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:';
-    const baseUrl = (isHttps && rawApiUrl && rawApiUrl.startsWith('http://')) 
+    const baseUrl = (isHttps && rawApiUrl && rawApiUrl.includes('http://')) 
       ? '/api' 
       : (rawApiUrl || '/api');
     const url = baseUrl.endsWith('/') ? `${baseUrl}health` : `${baseUrl}/health`

@@ -1,9 +1,10 @@
 import axios from 'axios';
 
 // If running in browser over HTTPS and VITE_API_URL is insecure HTTP, force /api to use the proxy
-const rawApiUrl = import.meta.env.VITE_API_URL;
+let rawApiUrl = import.meta.env.VITE_API_URL || '';
+if (typeof rawApiUrl === 'string') rawApiUrl = rawApiUrl.replace(/^["']|["']$/g, '');
 const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:';
-const API_BASE_URL = (isHttps && rawApiUrl && rawApiUrl.startsWith('http://')) 
+const API_BASE_URL = (isHttps && rawApiUrl && rawApiUrl.includes('http://')) 
   ? '/api' 
   : (rawApiUrl || '/api');
 
