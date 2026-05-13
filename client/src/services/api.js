@@ -1,6 +1,11 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+// If running in browser over HTTPS and VITE_API_URL is insecure HTTP, force /api to use the proxy
+const rawApiUrl = import.meta.env.VITE_API_URL;
+const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:';
+const API_BASE_URL = (isHttps && rawApiUrl && rawApiUrl.startsWith('http://')) 
+  ? '/api' 
+  : (rawApiUrl || '/api');
 
 // Create axios instance with default config
 const apiClient = axios.create({
