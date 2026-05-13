@@ -2,41 +2,52 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import morgan from 'morgan';
+
 import { connectDB } from './config/db.js';
+
 import authRoutes from './routes/auth.js';
 import userRoutes from './routes/user.js';
 import gameRoutes from './routes/game.js';
+
 import { errorHandler } from './middleware/errorHandler.js';
 
 // Load environment variables
 dotenv.config();
 
+// Connect MongoDB
+connectDB();
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
+// Allowed Origins
 const allowedOrigins = [
   process.env.CLIENT_URL,
   'http://localhost:5173',
   'http://localhost:4173',
 ].filter(Boolean);
 
+// Middleware
 app.use(cors({
-  origin: function(origin, callback) {
-    // Allow requests with no origin (mobile apps, curl, etc)
+  origin: function (origin, callback) {
+    // Allow requests with no origin
     if (!origin) return callback(null, true);
+
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
-    return callback(null, true); // Allow all origins in dev; restrict in prod if needed
+
+    // Allow all origins temporarily
+    return callback(null, true);
   },
   credentials: true
 }));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(morgan('dev')); // Logging
+app.use(morgan('dev'));
 
-// Health check route
+// Root Route
 app.get('/', (req, res) => {
   res.json({
     success: true,
@@ -46,8 +57,13 @@ app.get('/', (req, res) => {
   });
 });
 
+// Health Check Route
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok' });
+  res.json({
+    success: true,
+    status: 'ok',
+    database: 'MongoDB Connected'
+  });
 });
 
 // API Routes
@@ -63,15 +79,12 @@ app.use((req, res) => {
   });
 });
 
-// Error Handler (must be last)
+// Global Error Handler
 app.use(errorHandler);
 
-// Start server
-async function start() {
-  await connectDB();
-
-  app.listen(PORT, () => {
-    console.log(`
+// Start Server
+app.listen(PORT, () => {
+  console.log(`
 ╔═══════════════════════════════════════╗
 ║   🎮 LowXena Server Running! 🎮      ║
 ╠═══════════════════════════════════════╣
@@ -79,10 +92,7 @@ async function start() {
 ║  Environment: ${process.env.NODE_ENV || 'development'}           ║
 ║  API: http://localhost:${PORT}         ║
 ╚═══════════════════════════════════════╝
-    `);
-  });
-}
-
-start();
+  `);
+});
 
 export default app;
