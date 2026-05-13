@@ -1072,15 +1072,30 @@ function Home() {
       {/* Login Modal */}
       {showLoginModal && (
         <div className="modal-overlay" onClick={() => { setShowLoginModal(false); setLoginError(''); }}>
-          <div className="login-modal" onClick={(e) => e.stopPropagation()}>
+          <div className="login-modal-v2" onClick={(e) => e.stopPropagation()}>
+            {/* Decorative suits */}
+            <div className="lm-deco-suits">
+              <span className="lm-suit lm-suit-1">♠</span>
+              <span className="lm-suit lm-suit-2">♥</span>
+              <span className="lm-suit lm-suit-3">♦</span>
+              <span className="lm-suit lm-suit-4">♣</span>
+            </div>
+            
             <div className="modal-close" onClick={() => { setShowLoginModal(false); setLoginError(''); }}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
               </svg>
             </div>
-            <h2>Welcome to LowXena</h2>
-            <p>Sign in to start your gaming journey</p>
+
+            {/* Header */}
+            <div className="lm-header">
+              <div className="lm-icon-wrap">
+                <Gamepad2 size={28} />
+              </div>
+              <h2>Welcome to LowXena</h2>
+              <p>Sign in to start your gaming journey</p>
+            </div>
             
             {loginError && (
               <div className="login-error">
@@ -1088,41 +1103,55 @@ function Home() {
               </div>
             )}
             
-            <div className="google-login-container">
+            <div className="lm-body">
               {loading ? (
                 <div style={{ position: 'relative', minHeight: '200px' }}>
                   <Loader message="Signing you in..." />
                 </div>
               ) : (
                 <>
-                  <GoogleLogin
-                    onSuccess={handleGoogleSuccess}
-                    onError={handleGoogleError}
-                    useOneTap
-                    theme="filled_black"
-                    size="large"
-                    text="signin_with"
-                    shape="rectangular"
-                    logo_alignment="left"
-                    width="340"
-                  />
-                  
-                  <div className="login-divider">
-                    <span>or</span>
+                  {/* Google Login Section */}
+                  <div className="lm-google-section">
+                    <GoogleLogin
+                      onSuccess={handleGoogleSuccess}
+                      onError={handleGoogleError}
+                      useOneTap
+                      theme="filled_black"
+                      size="large"
+                      text="signin_with"
+                      shape="rectangular"
+                      logo_alignment="left"
+                      width="340"
+                    />
                   </div>
                   
-                  <div className="guest-login-section">
-                    <input
-                      type="text"
-                      className="guest-name-input"
-                      placeholder="Enter your name (optional)"
-                      value={guestName}
-                      onChange={(e) => setGuestName(e.target.value)}
-                      maxLength={30}
-                      onKeyDown={(e) => e.key === 'Enter' && handleGuestLogin()}
-                    />
-                    <button className="guest-login-btn" onClick={handleGuestLogin}>
-                      <Gamepad2 size={16} /> Play as Guest
+                  <div className="lm-divider">
+                    <div className="lm-divider-line"></div>
+                    <span>or</span>
+                    <div className="lm-divider-line"></div>
+                  </div>
+                  
+                  {/* Guest Login Section */}
+                  <div className="lm-guest-section">
+                    <div className="lm-input-wrap">
+                      <svg className="lm-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                      </svg>
+                      <input
+                        type="text"
+                        className="lm-guest-input"
+                        placeholder="Enter your name (optional)"
+                        value={guestName}
+                        onChange={(e) => setGuestName(e.target.value)}
+                        maxLength={30}
+                        onKeyDown={(e) => e.key === 'Enter' && handleGuestLogin()}
+                      />
+                    </div>
+                    <button className="lm-guest-btn" onClick={handleGuestLogin}>
+                      <span className="lm-btn-glow"></span>
+                      <Gamepad2 size={18} /> 
+                      <span>Play as Guest</span>
                     </button>
                   </div>
                 </>
@@ -1132,35 +1161,41 @@ function Home() {
         </div>
       )}
 
-      {/* Play Button - Bottom Left */}
-      <div className="play-button-container">
-        <button className="home-play-button" onClick={handlePlay}>
-          <span className="play-icon">▶</span>
-          <span className="play-text">PLAY</span>
-          <div className="button-glow"></div>
-        </button>
-      </div>
-
-      {/* Read Rules Button - Bottom Right */}
-      <div className="rules-button-container">
-        <button className="rules-button" onClick={() => navigate('/rules')}>
-          <span className="rules-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-              <line x1="10" y1="8" x2="16" y2="8"></line>
-              <line x1="10" y1="12" x2="16" y2="12"></line>
-              <line x1="10" y1="16" x2="14" y2="16"></line>
-            </svg>
-          </span>
-          <span className="rules-text">READ RULES</span>
-        </button>
-      </div>
-
-      {/* Game Title - Center (optional) */}
-      <div className="game-title-center">
-        <h1 className="title-text">LowXena</h1>
-        <p className="subtitle-text">Where the Lowest Wins.</p>
+      {/* Hero Section - Centered */}
+      <div className="hero-section">
+        <div className="hero-glow-orb"></div>
+        <div className="hero-card">
+          <h1 className="hero-title">LowXena</h1>
+          <p className="hero-tagline">Where the Lowest Wins.</p>
+          <div className="hero-chips">
+            <span className="hero-chip">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+              2-7 Players
+            </span>
+            <span className="hero-chip">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+              Quick Rounds
+            </span>
+            <span className="hero-chip">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"></path></svg>
+              Free to Play
+            </span>
+          </div>
+          <div className="hero-actions">
+            <button className="hero-play-btn" onClick={handlePlay}>
+              <span className="hero-btn-glow"></span>
+              <span className="hero-play-icon">▶</span>
+              <span>PLAY NOW</span>
+            </button>
+            <button className="hero-rules-btn" onClick={() => navigate('/rules')}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+              </svg>
+              <span>RULES</span>
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Room Warning Modal */}
