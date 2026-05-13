@@ -1,13 +1,9 @@
-import { supabaseAdmin } from '../config/supabase.js';
+import { User, UserStat, GameHistory, Room } from '../models/index.js';
 
-/**
- * Get leaderboard with current user position
- */
 export const getLeaderboard = async (req, res) => {
   try {
     const { limit = 20, offset = 0 } = req.query;
 
-    // Get auth token to find current user (optional)
     let currentUserId = null;
     try {
       const authHeader = req.headers['authorization'];
@@ -19,32 +15,16 @@ export const getLeaderboard = async (req, res) => {
           currentUserId = decoded.userId;
         }
       }
-    } catch (e) { /* ignore auth errors for public endpoint */ }
+    } catch (e) {}
 
-    // Get all user stats sorted by wins first, then highest_score
-    const { data: allStats, error: statsError } = await supabaseAdmin
-      .from('user_stats')
-      .select('*')
-      .order('wins', { ascending: false });
+    const allStats = await UserStat.find().sort({ wins: -1, highest_score: -1 });
 
-    if (statsError) throw statsError;
+    const userIds = allStats.map(s => s.user_id);
+    const users = await User.find({ id: { $in: userIds } }).select('id name avatar_url level');
+    const usersMap = {};
+    users.forEach(u => { usersMap[u.id] = u; });
 
-    // Get users info for all stats entries
-    const userIds = (allStats || []).map(s => s.user_id);
-    let usersMap = {};
-    
-    if (userIds.length > 0) {
-      const { data: users } = await supabaseAdmin
-        .from('users')
-        .select('id, name, avatar_url, level');
-      
-      if (users) {
-        users.forEach(u => { usersMap[u.id] = u; });
-      }
-    }
-
-    // Build ranked leaderboard from user_stats
-    const rankedList = (allStats || [])
+    const rankedList = allStats
       .filter(s => s.total_games > 0)
       .sort((a, b) => {
         if (b.wins !== a.wins) return b.wins - a.wins;
@@ -67,18 +47,15 @@ export const getLeaderboard = async (req, res) => {
         };
       });
 
-    // Paginated top list
     const topList = rankedList.slice(parseInt(offset), parseInt(offset) + parseInt(limit));
 
-    // Find current user's position
     let currentUserRank = null;
     if (currentUserId) {
       const userIndex = rankedList.findIndex(e => e.user_id === currentUserId);
       if (userIndex !== -1) {
         currentUserRank = rankedList[userIndex];
       } else {
-        // User has no stats yet - show them at the bottom
-        const user = usersMap[currentUserId];
+        const user = await User.findOne({ id: currentUserId });
         currentUserRank = {
           rank: rankedList.length + 1,
           user_id: currentUserId,
@@ -111,9 +88,6 @@ export const getLeaderboard = async (req, res) => {
   }
 };
 
-/**
- * Save game score
- */
 export const saveGameScore = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -126,69 +100,29 @@ export const saveGameScore = async (req, res) => {
       });
     }
 
-    // Save to game history
-    const { data: gameHistory, error: historyError } = await supabaseAdmin
-      .from('game_history')
-      .insert([{
-        user_id: userId,
-        score: score,
-        level: level,
-        duration: duration || 0
-      }])
-      .select()
-      .single();
+    const gameHistory = new GameHistory({
+      user_id: userId,
+      score: score,
+      level: level,
+      duration: duration || 0
+    });
+    await gameHistory.save();
 
-    if (historyError) throw historyError;
-
-    // Update or insert leaderboard
-    const { data: existingEntry, error: fetchError } = await supabaseAdmin
-      .from('leaderboard')
-      .select('*')
-      .eq('user_id', userId)
-      .single();
-
-    if (fetchError && fetchError.code !== 'PGRST116') throw fetchError;
-
-    if (!existingEntry || score > existingEntry.score) {
-      const { error: leaderboardError } = await supabaseAdmin
-        .from('leaderboard')
-        .upsert({
-          user_id: userId,
-          score: score,
-          level: level
-        });
-
-      if (leaderboardError) throw leaderboardError;
-    }
-
-    // Update user stats
-    const { data: stats } = await supabaseAdmin
-      .from('user_stats')
-      .select('*')
-      .eq('user_id', userId)
-      .single();
-
+    let stats = await UserStat.findOne({ user_id: userId });
     if (stats) {
-      await supabaseAdmin
-        .from('user_stats')
-        .update({
-          total_games: stats.total_games + 1,
-          highest_score: Math.max(stats.highest_score, score),
-          total_playtime: stats.total_playtime + (duration || 0)
-        })
-        .eq('user_id', userId);
+      stats.total_games += 1;
+      stats.highest_score = Math.max(stats.highest_score, score);
+      stats.total_playtime += (duration || 0);
+      await stats.save();
     } else {
-      // Create new stats entry if none exists
-      await supabaseAdmin
-        .from('user_stats')
-        .insert([{
-          user_id: userId,
-          total_games: 1,
-          wins: 0,
-          losses: 0,
-          highest_score: score || 0,
-          total_playtime: duration || 0
-        }]);
+      await UserStat.create({
+        user_id: userId,
+        total_games: 1,
+        wins: 0,
+        losses: 0,
+        highest_score: score || 0,
+        total_playtime: duration || 0
+      });
     }
 
     res.json({
@@ -207,23 +141,16 @@ export const saveGameScore = async (req, res) => {
   }
 };
 
-/**
- * Get game history
- */
 export const getGameHistory = async (req, res) => {
   try {
     const userId = req.user.id;
     const limit = parseInt(req.query.limit) || 20;
     const offset = parseInt(req.query.offset) || 0;
 
-    const { data: history, error } = await supabaseAdmin
-      .from('game_history')
-      .select('*')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1);
-
-    if (error) throw error;
+    const history = await GameHistory.find({ user_id: userId })
+      .sort({ created_at: -1 })
+      .skip(offset)
+      .limit(limit);
 
     res.json({
       success: true,
@@ -240,18 +167,8 @@ export const getGameHistory = async (req, res) => {
   }
 };
 
-/**
- * Get game settings
- */
 export const getGameSettings = async (req, res) => {
   try {
-    const { data: settings, error } = await supabaseAdmin
-      .from('game_settings')
-      .select('*')
-      .single();
-
-    if (error && error.code !== 'PGRST116') throw error;
-
     const defaultSettings = {
       difficulty: 'normal',
       sound_enabled: true,
@@ -262,7 +179,7 @@ export const getGameSettings = async (req, res) => {
 
     res.json({
       success: true,
-      settings: settings || defaultSettings
+      settings: defaultSettings
     });
 
   } catch (error) {
@@ -275,24 +192,14 @@ export const getGameSettings = async (req, res) => {
   }
 };
 
-/**
- * Update game state
- */
 export const updateGameState = async (req, res) => {
   try {
     const { roomId } = req.params;
     const gameState = req.body;
 
-    // Store game state in rooms table metadata
-    const { error } = await supabaseAdmin
-      .from('rooms')
-      .update({
-        game_state: gameState,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', roomId);
-
-    if (error) throw error;
+    await Room.findByIdAndUpdate(roomId, {
+      game_state: gameState,
+    });
 
     res.json({
       success: true,
@@ -309,20 +216,13 @@ export const updateGameState = async (req, res) => {
   }
 };
 
-/**
- * Get game state
- */
 export const getGameState = async (req, res) => {
   try {
     const { roomId } = req.params;
 
-    const { data: room, error } = await supabaseAdmin
-      .from('rooms')
-      .select('game_state')
-      .eq('id', roomId)
-      .single();
+    const room = await Room.findById(roomId).select('game_state');
 
-    if (error) throw error;
+    if (!room) throw new Error('Room not found');
 
     res.json({
       success: true,
@@ -339,15 +239,9 @@ export const getGameState = async (req, res) => {
   }
 };
 
-/**
- * Save multiplayer game results for all players.
- * Uses atomic DB operations to prevent race conditions
- * when multiple players submit results simultaneously.
- */
 export const saveMultiplayerResults = async (req, res) => {
   try {
     const { players, totalRounds } = req.body;
-    // players: [{ id, score, isWinner }]
 
     if (!players || !Array.isArray(players)) {
       return res.status(400).json({ success: false, message: 'Players array required' });
@@ -357,58 +251,33 @@ export const saveMultiplayerResults = async (req, res) => {
 
     for (const player of players) {
       try {
-        // Save to game history (append-only, no race risk)
-        await supabaseAdmin
-          .from('game_history')
-          .insert([{
-            user_id: player.id,
-            score: player.score || 0,
-            level: totalRounds || 1,
-            duration: 0
-          }]);
-
-        // Try atomic RPC first (if the SQL function exists)
-        const { error: rpcError } = await supabaseAdmin.rpc('update_user_stats_atomic', {
-          p_user_id: player.id,
-          p_won: !!player.isWinner,
-          p_score: player.score || 0,
-          p_duration: 0
+        await GameHistory.create({
+          user_id: player.id,
+          score: player.score || 0,
+          level: totalRounds || 1,
+          duration: 0
         });
 
-        if (rpcError) {
-          // Fallback to upsert-based approach (still safer than read-modify-write)
-          const { data: stats } = await supabaseAdmin
-            .from('user_stats')
-            .select('*')
-            .eq('user_id', player.id)
-            .single();
+        let stats = await UserStat.findOne({ user_id: player.id });
 
-          if (stats) {
-            const updates = {
-              total_games: stats.total_games + 1,
-              highest_score: Math.max(stats.highest_score || 0, player.score || 0),
-            };
-            if (player.isWinner) {
-              updates.wins = (stats.wins || 0) + 1;
-            } else {
-              updates.losses = (stats.losses || 0) + 1;
-            }
-            await supabaseAdmin
-              .from('user_stats')
-              .update(updates)
-              .eq('user_id', player.id);
+        if (stats) {
+          stats.total_games += 1;
+          stats.highest_score = Math.max(stats.highest_score || 0, player.score || 0);
+          if (player.isWinner) {
+            stats.wins += 1;
           } else {
-            await supabaseAdmin
-              .from('user_stats')
-              .insert([{
-                user_id: player.id,
-                total_games: 1,
-                highest_score: player.score || 0,
-                wins: player.isWinner ? 1 : 0,
-                losses: player.isWinner ? 0 : 1,
-                total_playtime: 0
-              }]);
+            stats.losses += 1;
           }
+          await stats.save();
+        } else {
+          await UserStat.create({
+            user_id: player.id,
+            total_games: 1,
+            highest_score: player.score || 0,
+            wins: player.isWinner ? 1 : 0,
+            losses: player.isWinner ? 0 : 1,
+            total_playtime: 0
+          });
         }
       } catch (e) {
         console.error(`Error saving results for player ${player.id}:`, e);

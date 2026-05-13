@@ -1,4 +1,4 @@
-import { supabaseAdmin } from '../config/supabase.js';
+import { User } from '../models/index.js';
 import { validationResult } from 'express-validator';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
@@ -18,56 +18,28 @@ export const googleLogin = async (req, res) => {
 
     const { email, name, picture, sub } = req.googleUser;
 
-    // Check if user exists (use admin client to bypass RLS)
-    let { data: existingUser, error: fetchError } = await supabaseAdmin
-      .from('users')
-      .select('*')
-      .eq('email', email)
-      .single();
+    let user = await User.findOne({ email });
 
-    if (fetchError && fetchError.code !== 'PGRST116') {
-      throw fetchError;
-    }
-
-    let user;
-
-    if (!existingUser) {
-      // Create new user (use admin client to bypass RLS)
-      const { data: newUser, error: insertError } = await supabaseAdmin
-        .from('users')
-        .insert([{
-          email: email,
-          name: name,
-          avatar_url: picture,
-          google_id: sub,
-          level: 1,
-          experience: 0,
-          coins: 0,
-          last_login: new Date().toISOString()
-        }])
-        .select()
-        .single();
-
-      if (insertError) throw insertError;
-      user = newUser;
+    if (!user) {
+      user = new User({
+        id: sub || crypto.randomUUID(),
+        email: email,
+        name: name,
+        avatar_url: picture,
+        google_id: sub,
+        level: 1,
+        experience: 0,
+        coins: 0,
+        last_login: new Date()
+      });
+      await user.save();
     } else {
-      // Update last login (use admin client to bypass RLS)
-      const { data: updatedUser, error: updateError } = await supabaseAdmin
-        .from('users')
-        .update({ 
-          last_login: new Date().toISOString(),
-          name: name,
-          avatar_url: picture
-        })
-        .eq('id', existingUser.id)
-        .select()
-        .single();
-
-      if (updateError) throw updateError;
-      user = updatedUser;
+      user.last_login = new Date();
+      user.name = name;
+      user.avatar_url = picture;
+      await user.save();
     }
 
-    // Create JWT token
     const token = jwt.sign(
       { 
         userId: user.id, 
@@ -118,10 +90,8 @@ export const refreshToken = async (req, res) => {
       });
     }
 
-    // Verify the old token (allow expired)
     const decoded = jwt.verify(oldToken, process.env.JWT_SECRET, { ignoreExpiration: true });
 
-    // Issue a new token
     const newToken = jwt.sign(
       {
         userId: decoded.userId,
@@ -152,12 +122,10 @@ export const refreshToken = async (req, res) => {
  */
 export const logout = async (req, res) => {
   try {
-    // Client-side token removal handles logout
     res.json({
       success: true,
       message: 'Logout successful'
     });
-
   } catch (error) {
     console.error('Logout error:', error);
     res.status(500).json({
@@ -186,7 +154,6 @@ export const verifyToken = async (req, res) => {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // Guest users aren't in the DB
     if (decoded.isGuest) {
       return res.json({
         success: true,
@@ -204,14 +171,9 @@ export const verifyToken = async (req, res) => {
       });
     }
 
-    // Fetch current user data
-    const { data: user, error } = await supabaseAdmin
-      .from('users')
-      .select('*')
-      .eq('id', decoded.userId)
-      .single();
+    const user = await User.findOne({ id: decoded.userId });
 
-    if (error) throw error;
+    if (!user) throw new Error('User not found');
 
     res.json({
       success: true,
@@ -246,20 +208,17 @@ export const guestLogin = async (req, res) => {
     const guestName = name && name.trim() ? name.trim().slice(0, 30) : `Guest_${Math.floor(1000 + Math.random() * 9000)}`;
     const guestEmail = `${guestId}@guest.lowxena`;
 
-    // Insert guest into users table so room joins/lookups work
-    await supabaseAdmin
-      .from('users')
-      .insert([{
-        id: guestId,
-        email: guestEmail,
-        name: guestName,
-        avatar_url: '',
-        level: 1,
-        experience: 0,
-        coins: 0,
-        is_guest: true,
-        last_login: new Date().toISOString()
-      }]);
+    await User.create({
+      id: guestId,
+      email: guestEmail,
+      name: guestName,
+      avatar_url: '',
+      level: 1,
+      experience: 0,
+      coins: 0,
+      is_guest: true,
+      last_login: new Date()
+    });
 
     const token = jwt.sign(
       {

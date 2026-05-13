@@ -1,13 +1,11 @@
-import { supabaseAdmin } from '../config/supabase.js';
+import { Room, User } from '../models/index.js';
 import * as roomNames from '../utils/roomNames.js';
 
-// Create a new game room
 export const createRoom = async (req, res) => {
   try {
     const { maxPoints, maxPlayers, isPrivate, roomCode } = req.body;
     const userId = req.user.id;
 
-    // Validate input
     if (!maxPoints || !maxPlayers) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
@@ -20,56 +18,35 @@ export const createRoom = async (req, res) => {
       return res.status(400).json({ error: 'Max players must be between 2 and 7' });
     }
 
-    // Check if user is already in a room
-    const { data: existingMembership } = await supabaseAdmin
-      .from('room_members')
-      .select('room_id')
-      .eq('user_id', userId)
-      .single();
-
+    const existingMembership = await Room.findOne({ 'members.user_id': userId });
     if (existingMembership) {
       return res.status(400).json({ error: 'You are already in a room' });
     }
 
-    // Get existing room names to ensure uniqueness
-    const { data: existingRooms } = await supabaseAdmin
-      .from('rooms')
-      .select('room_name');
-
-    const existingNames = existingRooms?.map(room => room.room_name) || [];
+    const existingRooms = await Room.find().select('room_name');
+    const existingNames = existingRooms.map(room => room.room_name);
     const roomName = roomNames.generateUniqueRoomName(existingNames);
 
-    // Create room
-    const { data: room, error: roomError } = await supabaseAdmin
-      .from('rooms')
-      .insert({
-        room_name: roomName,
-        room_code: isPrivate ? roomCode : null,
-        host_id: userId,
-        max_players: maxPlayers,
-        max_points: maxPoints,
-        is_private: isPrivate,
-        status: 'waiting'
-      })
-      .select()
-      .single();
-
-    if (roomError) throw roomError;
-
-    // Add creator as first member
-    const { error: memberError } = await supabaseAdmin
-      .from('room_members')
-      .insert({
-        room_id: room.id,
+    const room = new Room({
+      room_name: roomName,
+      room_code: isPrivate ? roomCode : null,
+      host_id: userId,
+      max_players: maxPlayers,
+      max_points: maxPoints,
+      is_private: isPrivate,
+      status: 'waiting',
+      members: [{
         user_id: userId,
-        is_host: true
-      });
+        is_host: true,
+        is_ready: false
+      }]
+    });
 
-    if (memberError) throw memberError;
+    await room.save();
 
     res.status(201).json({ 
       message: 'Room created successfully',
-      roomId: room.id,
+      roomId: room._id,
       roomName: room.room_name,
       roomCode: room.room_code
     });
@@ -79,31 +56,23 @@ export const createRoom = async (req, res) => {
   }
 };
 
-// Get all available rooms
 export const getRooms = async (req, res) => {
   try {
-    // Get rooms with status 'waiting'
-    const { data: rooms, error } = await supabaseAdmin
-      .from('rooms')
-      .select(`
-        *,
-        host:users!rooms_host_id_fkey(id, name, avatar_url),
-        members:room_members(count)
-      `)
-      .eq('status', 'waiting')
-      .order('created_at', { ascending: false });
+    const rooms = await Room.find({ status: 'waiting' }).sort({ created_at: -1 });
 
-    if (error) throw error;
+    const hostIds = rooms.map(r => r.host_id);
+    const hosts = await User.find({ id: { $in: hostIds } }).select('id name avatar_url');
+    const hostMap = {};
+    hosts.forEach(h => { hostMap[h.id] = h; });
 
-    // Format rooms data
     const formattedRooms = rooms.map(room => ({
-      id: room.id,
+      id: room._id,
       roomName: room.room_name,
       roomCode: room.room_code,
       hostId: room.host_id,
-      hostName: room.host?.name || 'Unknown',
+      hostName: hostMap[room.host_id]?.name || 'Unknown',
       maxPlayers: room.max_players,
-      currentPlayers: room.members[0]?.count || 0,
+      currentPlayers: room.members.length,
       maxPoints: room.max_points,
       isPrivate: room.is_private,
       status: room.status,
@@ -117,45 +86,33 @@ export const getRooms = async (req, res) => {
   }
 };
 
-// Get room details with players
 export const getRoomDetails = async (req, res) => {
   try {
     const { roomId } = req.params;
 
-    // Get room details
-    const { data: room, error: roomError } = await supabaseAdmin
-      .from('rooms')
-      .select('*')
-      .eq('id', roomId)
-      .single();
-
-    if (roomError || !room) {
+    const room = await Room.findById(roomId);
+    if (!room) {
       return res.status(404).json({ error: 'Room not found' });
     }
 
-    // Get all members in the room
-    const { data: members, error: membersError } = await supabaseAdmin
-      .from('room_members')
-      .select(`
-        user:users(id, name, avatar_url),
-        is_host,
-        is_ready
-      `)
-      .eq('room_id', roomId);
+    const memberIds = room.members.map(m => m.user_id);
+    const users = await User.find({ id: { $in: memberIds } }).select('id name avatar_url');
+    const userMap = {};
+    users.forEach(u => { userMap[u.id] = u; });
 
-    if (membersError) throw membersError;
-
-    // Format players data
-    const players = members.map(member => ({
-      id: member.user?.id || member.user_id || 'unknown',
-      name: member.user?.name || 'Guest',
-      avatarUrl: member.user?.avatar_url || '',
-      isHost: member.is_host,
-      isReady: member.is_ready || false
-    }));
+    const players = room.members.map(member => {
+      const user = userMap[member.user_id] || {};
+      return {
+        id: member.user_id,
+        name: user.name || 'Guest',
+        avatarUrl: user.avatar_url || '',
+        isHost: member.is_host,
+        isReady: member.is_ready || false
+      };
+    });
 
     res.json({
-      id: room.id,
+      id: room._id,
       roomName: room.room_name,
       roomCode: room.room_code,
       hostId: room.host_id,
@@ -171,83 +128,45 @@ export const getRoomDetails = async (req, res) => {
   }
 };
 
-// Join a room
 export const joinRoom = async (req, res) => {
   try {
     const { roomId } = req.params;
     const { code } = req.body;
     const userId = req.user.id;
 
-    // Get room details
-    const { data: room, error: roomError } = await supabaseAdmin
-      .from('rooms')
-      .select('*')
-      .eq('id', roomId)
-      .single();
-
-    if (roomError || !room) {
+    const room = await Room.findById(roomId);
+    if (!room) {
       return res.status(404).json({ error: 'Room not found' });
     }
 
-    // Block joining games that already started
     if (room.status !== 'waiting') {
       return res.status(400).json({ error: 'Cannot join a game already in progress' });
     }
 
-    // Check if room is private and code matches
     if (room.is_private && room.room_code !== code) {
       return res.status(403).json({ error: 'Invalid room code' });
     }
 
-    // Check if already in this room
-    const { data: existingMember } = await supabaseAdmin
-      .from('room_members')
-      .select('*')
-      .eq('room_id', roomId)
-      .eq('user_id', userId)
-      .single();
-
-    if (existingMember) {
+    if (room.members.find(m => m.user_id === userId)) {
       return res.json({ message: 'Already in room' });
     }
 
-    // Check if user is in another room
-    const { data: otherRoomMembership } = await supabaseAdmin
-      .from('room_members')
-      .select('room_id')
-      .eq('user_id', userId)
-      .single();
-
-    if (otherRoomMembership) {
+    const otherRoom = await Room.findOne({ 'members.user_id': userId });
+    if (otherRoom) {
       return res.status(400).json({ error: 'You are already in another room. Leave it first.' });
     }
 
-    // Re-check count right before insert (minimize race window)
-    const { count } = await supabaseAdmin
-      .from('room_members')
-      .select('*', { count: 'exact', head: true })
-      .eq('room_id', roomId);
-
-    if (count >= room.max_players) {
+    if (room.members.length >= room.max_players) {
       return res.status(400).json({ error: 'Room is full' });
     }
 
-    // Add user to room
-    const { error: joinError } = await supabaseAdmin
-      .from('room_members')
-      .insert({
-        room_id: roomId,
-        user_id: userId,
-        is_host: false
-      });
+    room.members.push({
+      user_id: userId,
+      is_host: false,
+      is_ready: false
+    });
 
-    if (joinError) {
-      // Handle unique constraint violation (concurrent join attempt)
-      if (joinError.code === '23505') {
-        return res.json({ message: 'Already in room' });
-      }
-      throw joinError;
-    }
+    await room.save();
 
     res.json({ message: 'Successfully joined room' });
   } catch (error) {
@@ -256,63 +175,32 @@ export const joinRoom = async (req, res) => {
   }
 };
 
-// Leave a room
 export const leaveRoom = async (req, res) => {
   try {
     const { roomId } = req.params;
     const userId = req.user.id;
 
-    // Check if user is in the room
-    const { data: membership, error: memberError } = await supabaseAdmin
-      .from('room_members')
-      .select('is_host')
-      .eq('room_id', roomId)
-      .eq('user_id', userId)
-      .single();
+    const room = await Room.findById(roomId);
+    if (!room) {
+      return res.status(404).json({ error: 'Room not found' });
+    }
 
-    if (memberError || !membership) {
+    const memberIndex = room.members.findIndex(m => m.user_id === userId);
+    if (memberIndex === -1) {
       return res.status(404).json({ error: 'You are not in this room' });
     }
 
-    // Remove user from room
-    const { error: deleteError } = await supabaseAdmin
-      .from('room_members')
-      .delete()
-      .eq('room_id', roomId)
-      .eq('user_id', userId);
+    const wasHost = room.members[memberIndex].is_host;
+    room.members.splice(memberIndex, 1);
 
-    if (deleteError) throw deleteError;
-
-    // If user was host, delete room or transfer host
-    if (membership.is_host) {
-      // Check if there are other members
-      const { data: remainingMembers } = await supabaseAdmin
-        .from('room_members')
-        .select('user_id')
-        .eq('room_id', roomId)
-        .limit(1);
-
-      if (!remainingMembers || remainingMembers.length === 0) {
-        // Delete room if no members left
-        await supabaseAdmin
-          .from('rooms')
-          .delete()
-          .eq('id', roomId);
-      } else {
-        // Transfer host to first remaining member
-        const newHostId = remainingMembers[0].user_id;
-        
-        await supabaseAdmin
-          .from('room_members')
-          .update({ is_host: true })
-          .eq('room_id', roomId)
-          .eq('user_id', newHostId);
-
-        await supabaseAdmin
-          .from('rooms')
-          .update({ host_id: newHostId })
-          .eq('id', roomId);
+    if (room.members.length === 0) {
+      await Room.findByIdAndDelete(roomId);
+    } else {
+      if (wasHost) {
+        room.members[0].is_host = true;
+        room.host_id = room.members[0].user_id;
       }
+      await room.save();
     }
 
     res.json({ message: 'Successfully left room' });
@@ -322,20 +210,13 @@ export const leaveRoom = async (req, res) => {
   }
 };
 
-// Start game in room
 export const startGame = async (req, res) => {
   try {
     const { roomId } = req.params;
     const userId = req.user.id;
 
-    // Check if user is the host
-    const { data: room, error: roomError } = await supabaseAdmin
-      .from('rooms')
-      .select('host_id, status')
-      .eq('id', roomId)
-      .single();
-
-    if (roomError || !room) {
+    const room = await Room.findById(roomId);
+    if (!room) {
       return res.status(404).json({ error: 'Room not found' });
     }
 
@@ -347,23 +228,12 @@ export const startGame = async (req, res) => {
       return res.status(400).json({ error: 'Game already started or finished' });
     }
 
-    // Check if there are at least 2 players
-    const { count } = await supabaseAdmin
-      .from('room_members')
-      .select('*', { count: 'exact', head: true })
-      .eq('room_id', roomId);
-
-    if (count < 2) {
+    if (room.members.length < 2) {
       return res.status(400).json({ error: 'Need at least 2 players to start' });
     }
 
-    // Update room status
-    const { error: updateError } = await supabaseAdmin
-      .from('rooms')
-      .update({ status: 'playing' })
-      .eq('id', roomId);
-
-    if (updateError) throw updateError;
+    room.status = 'playing';
+    await room.save();
 
     res.json({ message: 'Game started successfully' });
   } catch (error) {
@@ -372,21 +242,14 @@ export const startGame = async (req, res) => {
   }
 };
 
-// Kick player from room
 export const kickPlayer = async (req, res) => {
   try {
     const { roomId } = req.params;
     const { playerId } = req.body;
     const userId = req.user.id;
 
-    // Check if user is the host
-    const { data: room, error: roomError } = await supabaseAdmin
-      .from('rooms')
-      .select('host_id')
-      .eq('id', roomId)
-      .single();
-
-    if (roomError || !room) {
+    const room = await Room.findById(roomId);
+    if (!room) {
       return res.status(404).json({ error: 'Room not found' });
     }
 
@@ -398,14 +261,11 @@ export const kickPlayer = async (req, res) => {
       return res.status(400).json({ error: 'Cannot kick yourself' });
     }
 
-    // Remove player from room
-    const { error: deleteError } = await supabaseAdmin
-      .from('room_members')
-      .delete()
-      .eq('room_id', roomId)
-      .eq('user_id', playerId);
-
-    if (deleteError) throw deleteError;
+    const memberIndex = room.members.findIndex(m => m.user_id === playerId);
+    if (memberIndex !== -1) {
+      room.members.splice(memberIndex, 1);
+      await room.save();
+    }
 
     res.json({ message: 'Player kicked successfully' });
   } catch (error) {
@@ -414,31 +274,18 @@ export const kickPlayer = async (req, res) => {
   }
 };
 
-// Check if user is in any room
 export const checkUserRoom = async (req, res) => {
   try {
     const userId = req.user.id;
 
-    // Check if user is in any room
-    const { data: membership, error } = await supabaseAdmin
-      .from('room_members')
-      .select(`
-        room_id,
-        room:rooms(id, room_name, status)
-      `)
-      .eq('user_id', userId)
-      .single();
+    const room = await Room.findOne({ 'members.user_id': userId });
 
-    if (error && error.code !== 'PGRST116') {
-      throw error;
-    }
-
-    if (membership && membership.room) {
+    if (room) {
       res.json({
         inRoom: true,
-        roomId: membership.room.id,
-        roomName: membership.room.room_name,
-        status: membership.room.status
+        roomId: room._id,
+        roomName: room.room_name,
+        status: room.status
       });
     } else {
       res.json({ inRoom: false });
@@ -449,36 +296,27 @@ export const checkUserRoom = async (req, res) => {
   }
 };
 
-// Toggle player ready status
 export const toggleReady = async (req, res) => {
   try {
     const { roomId } = req.params;
     const userId = req.user.id;
 
-    // Get current ready status
-    const { data: membership, error: fetchError } = await supabaseAdmin
-      .from('room_members')
-      .select('is_ready')
-      .eq('room_id', roomId)
-      .eq('user_id', userId)
-      .single();
-
-    if (fetchError || !membership) {
+    const room = await Room.findById(roomId);
+    if (!room) {
       return res.status(404).json({ error: 'Not in this room' });
     }
 
-    // Toggle ready status
-    const { error: updateError } = await supabaseAdmin
-      .from('room_members')
-      .update({ is_ready: !membership.is_ready })
-      .eq('room_id', roomId)
-      .eq('user_id', userId);
+    const member = room.members.find(m => m.user_id === userId);
+    if (!member) {
+      return res.status(404).json({ error: 'Not in this room' });
+    }
 
-    if (updateError) throw updateError;
+    member.is_ready = !member.is_ready;
+    await room.save();
 
     res.json({ 
       message: 'Ready status updated',
-      isReady: !membership.is_ready
+      isReady: member.is_ready
     });
   } catch (error) {
     console.error('Error toggling ready status:', error);
@@ -486,20 +324,13 @@ export const toggleReady = async (req, res) => {
   }
 };
 
-// End game and reset room to waiting
 export const endGame = async (req, res) => {
   try {
     const { roomId } = req.params;
     const userId = req.user.id;
 
-    // Verify room exists and user is host
-    const { data: room, error: roomError } = await supabaseAdmin
-      .from('rooms')
-      .select('host_id, status')
-      .eq('id', roomId)
-      .single();
-
-    if (roomError || !room) {
+    const room = await Room.findById(roomId);
+    if (!room) {
       return res.status(404).json({ error: 'Room not found' });
     }
 
@@ -507,19 +338,11 @@ export const endGame = async (req, res) => {
       return res.status(403).json({ error: 'Only the host can end the game' });
     }
 
-    // Reset room status to waiting and clear game state in one update
-    const { error: updateError } = await supabaseAdmin
-      .from('rooms')
-      .update({ status: 'waiting', game_state: null })
-      .eq('id', roomId);
-
-    if (updateError) throw updateError;
-
-    // Reset all players' ready status
-    await supabaseAdmin
-      .from('room_members')
-      .update({ is_ready: false })
-      .eq('room_id', roomId);
+    room.status = 'waiting';
+    room.game_state = undefined;
+    room.members.forEach(m => m.is_ready = false);
+    
+    await room.save();
 
     res.json({ message: 'Game ended, room reset to lobby' });
   } catch (error) {

@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import morgan from 'morgan';
-import { testConnection } from './config/supabase.js';
+import { connectDB } from './config/db.js';
 import authRoutes from './routes/auth.js';
 import userRoutes from './routes/user.js';
 import gameRoutes from './routes/game.js';
@@ -68,7 +68,7 @@ app.use(errorHandler);
 
 // Start server
 async function start() {
-  await testConnection();
+  await connectDB();
 
   app.listen(PORT, () => {
     console.log(`
