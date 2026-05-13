@@ -9,8 +9,7 @@ import { authAPI, gameAPI, userAPI } from '../services/api'
 import { AvatarSVG, AVATAR_LIST, isAvatarSVG } from '../components/Avatars'
 import './Home.css'
 
-const GOOGLE_CLIENT_ID = "518498924842-oi9g8sm4f5st8p46nst3t2tk0nvofo6b.apps.googleusercontent.com";
-
+const GOOGLE_CLIENT_ID = "878079171404-6o87ieel3jiio8aeb0mfmu4a407gh02n.apps.googleusercontent.com";
 function Home() {
   const navigate = useNavigate()
   const [isLoggedIn, setIsLoggedIn] = useState(false)
