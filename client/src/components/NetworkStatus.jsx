@@ -51,10 +51,9 @@ export function NetworkStatusProvider({ children, apiBaseUrl }) {
     }
   }, [])
 
-  // Periodic latency ping (every 10s when online, every 3s when reconnecting)
   const pingServer = useCallback(async () => {
-    const baseUrl = apiBaseUrl || import.meta.env.VITE_API_URL || 'http://localhost:8080/api'
-    const url = baseUrl.replace(/\/api\/?$/, '') // hit health check root
+    const baseUrl = apiBaseUrl || import.meta.env.VITE_API_URL || '/api'
+    const url = baseUrl.endsWith('/') ? `${baseUrl}health` : `${baseUrl}/health`
     const start = performance.now()
 
     try {
