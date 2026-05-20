@@ -13,13 +13,14 @@ function Loader({ message = 'Loading...' }) {
   }, [])
 
   return (
-    <div className="global-loader-overlay">
+    <div className="global-loader-overlay" role="status" aria-live="polite" aria-busy="true" aria-label={message}>
       <div className="global-loader-content">
         {loaderAnimation && (
           <Lottie 
             animationData={loaderAnimation} 
             loop={true}
             style={{ width: 200, height: 200 }}
+            aria-hidden="true"
           />
         )}
         <p className="loader-message">{message}</p>
