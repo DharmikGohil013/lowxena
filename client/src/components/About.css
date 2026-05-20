@@ -1,0 +1,347 @@
+/* ===== Google Fonts (loaded via @import for component isolation) ===== */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Outfit:wght@300;400;500;600;700&display=swap');
+
+/* ===== About Section Root ===== */
+#about {
+  --about-bg: #0b0b14;
+  --about-surface: #13132a;
+  --about-card: #1a1a35;
+  --about-gold: #d4a44c;
+  --about-gold-light: #f0d58c;
+  --about-gold-glow: rgba(212, 164, 76, 0.25);
+  --about-text: #e8e6f0;
+  --about-text-muted: #8a889a;
+  --about-accent-red: #e74c5e;
+  --about-accent-blue: #4ca8e7;
+  --about-font-display: 'Cinzel Decorative', serif;
+  --about-font-body: 'Outfit', sans-serif;
+
+  position: relative;
+  background: var(--about-bg);
+  padding: 100px 24px 80px;
+  overflow: hidden;
+  font-family: var(--about-font-body);
+  color: var(--about-text);
+}
+
+/* ===== Decorative Card Suits Background ===== */
+#about::before {
+  content: '♠ ♥ ♦ ♣ ♠ ♥ ♦ ♣ ♠ ♥ ♦ ♣';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  font-size: 180px;
+  font-family: var(--about-font-display);
+  color: rgba(212, 164, 76, 0.018);
+  line-height: 1.4;
+  word-spacing: 60px;
+  letter-spacing: 40px;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
+/* Subtle gold gradient line at top */
+#about::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--about-gold), transparent);
+  z-index: 1;
+}
+
+.about-container {
+  position: relative;
+  z-index: 2;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* ===== Section Header ===== */
+.about-header {
+  text-align: center;
+  margin-bottom: 64px;
+}
+
+.about-suits-deco {
+  font-size: 14px;
+  letter-spacing: 12px;
+  color: var(--about-gold);
+  margin-bottom: 16px;
+  opacity: 0.7;
+}
+
+.about-header h2 {
+  font-family: var(--about-font-display);
+  font-size: clamp(28px, 5vw, 48px);
+  font-weight: 900;
+  color: var(--about-gold-light);
+  margin: 0 0 16px;
+  text-shadow: 0 0 40px var(--about-gold-glow);
+  line-height: 1.2;
+}
+
+.about-tagline {
+  font-size: clamp(16px, 2.5vw, 20px);
+  font-weight: 300;
+  color: var(--about-text-muted);
+  letter-spacing: 1px;
+  margin: 0;
+}
+
+.about-tagline em {
+  color: var(--about-gold);
+  font-style: normal;
+  font-weight: 500;
+}
+
+/* ===== Main Content Grid ===== */
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  margin-bottom: 48px;
+}
+
+/* ===== Feature Cards ===== */
+.about-card {
+  background: var(--about-card);
+  border: 1px solid rgba(212, 164, 76, 0.1);
+  border-radius: 16px;
+  padding: 36px 32px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.about-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(212, 164, 76, 0.3);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4), 0 0 30px var(--about-gold-glow);
+}
+
+/* Card suit watermarks */
+.about-card::before {
+  position: absolute;
+  top: 16px;
+  right: 20px;
+  font-size: 48px;
+  opacity: 0.06;
+  font-family: var(--about-font-display);
+  color: var(--about-gold);
+}
+
+.about-card:nth-child(1)::before { content: '♠'; }
+.about-card:nth-child(2)::before { content: '♥'; color: var(--about-accent-red); }
+.about-card:nth-child(3)::before { content: '♦'; color: var(--about-accent-red); }
+.about-card:nth-child(4)::before { content: '♣'; }
+
+.about-card h3 {
+  font-family: var(--about-font-display);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--about-gold-light);
+  margin: 0 0 12px;
+}
+
+.about-card p {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--about-text-muted);
+  margin: 0;
+}
+
+.about-card .card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  font-size: 22px;
+}
+
+.card-icon-game { background: rgba(212, 164, 76, 0.12); }
+.card-icon-modes { background: rgba(74, 168, 231, 0.12); }
+.card-icon-rewards { background: rgba(231, 76, 94, 0.12); }
+.card-icon-quick { background: rgba(52, 211, 153, 0.12); }
+
+/* ===== Full-Width "Why Play" Banner ===== */
+.about-why {
+  background: linear-gradient(135deg, var(--about-surface) 0%, var(--about-card) 100%);
+  border: 1px solid rgba(212, 164, 76, 0.12);
+  border-radius: 20px;
+  padding: 48px 40px;
+  text-align: center;
+  margin-bottom: 48px;
+  position: relative;
+}
+
+.about-why::before {
+  content: '♠  ♥  ♦  ♣';
+  position: absolute;
+  bottom: 16px;
+  right: 24px;
+  font-size: 16px;
+  color: rgba(212, 164, 76, 0.08);
+  letter-spacing: 8px;
+}
+
+.about-why h3 {
+  font-family: var(--about-font-display);
+  font-size: clamp(22px, 3.5vw, 32px);
+  font-weight: 700;
+  color: var(--about-gold-light);
+  margin: 0 0 20px;
+}
+
+.about-why p {
+  font-size: 17px;
+  line-height: 1.8;
+  color: var(--about-text);
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.about-why .highlight {
+  color: var(--about-gold);
+  font-weight: 600;
+}
+
+/* ===== Developer Credit Block ===== */
+.about-dev {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  background: var(--about-surface);
+  border: 1px solid rgba(212, 164, 76, 0.08);
+  border-radius: 16px;
+  padding: 32px;
+  flex-wrap: wrap;
+}
+
+.about-dev-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--about-gold), var(--about-gold-light));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--about-font-display);
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--about-bg);
+  flex-shrink: 0;
+  box-shadow: 0 0 20px var(--about-gold-glow);
+}
+
+.about-dev-info {
+  text-align: left;
+}
+
+.about-dev-info .dev-label {
+  display: block;
+  font-size: 13px;
+  color: var(--about-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 4px;
+}
+
+.about-dev-info .dev-name {
+  font-family: var(--about-font-display);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--about-gold-light);
+  margin: 0 0 4px;
+}
+
+.about-dev-info .dev-portfolio {
+  display: inline-block;
+  color: var(--about-gold);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  border-bottom: 1px dashed rgba(212, 164, 76, 0.4);
+  transition: border-color 0.3s;
+}
+
+.about-dev-info .dev-portfolio:hover {
+  border-color: var(--about-gold);
+}
+
+.about-dev-heart {
+  font-size: 14px;
+  color: var(--about-text-muted);
+  margin-top: 12px;
+  text-align: center;
+  width: 100%;
+}
+
+.about-dev-heart span {
+  color: var(--about-accent-red);
+}
+
+.dev-portfolio-inline {
+  color: var(--about-gold);
+  text-decoration: none;
+  transition: opacity 0.3s;
+}
+
+.dev-portfolio-inline:hover {
+  opacity: 0.8;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  #about {
+    padding: 64px 16px 56px;
+  }
+
+  .about-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .about-card {
+    padding: 28px 24px;
+  }
+
+  .about-why {
+    padding: 32px 24px;
+  }
+
+  .about-dev {
+    flex-direction: column;
+    text-align: center;
+    padding: 24px;
+  }
+
+  .about-dev-info {
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  #about::before {
+    font-size: 100px;
+    letter-spacing: 20px;
+    word-spacing: 30px;
+  }
+
+  .about-header h2 {
+    font-size: 24px;
+  }
+
+  .about-card h3 {
+    font-size: 18px;
+  }
+}
