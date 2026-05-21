@@ -155,9 +155,21 @@ function RoomLobby() {
           muted
           playsInline
         >
-          <source src="https://cdn.pixabay.com/video/2024/11/27/243011_large.mp4" type="video/mp4" />
+          <source src="/background.mp4" type="video/mp4" />
         </video>
-        <div className="loading-message">Loading room...</div>
+        {/* Decorative background suits */}
+        <div className="rl-deco-suits">
+          <span className="rl-suit rl-suit-1">♠</span>
+          <span className="rl-suit rl-suit-2">♥</span>
+          <span className="rl-suit rl-suit-3">♦</span>
+          <span className="rl-suit rl-suit-4">♣</span>
+        </div>
+        <div className="loading-message">
+          <div className="loading-card-spinner">
+            <span className="card-spin-icon">♠</span>
+          </div>
+          Loading Room...
+        </div>
       </div>
     );
   }
@@ -172,9 +184,17 @@ function RoomLobby() {
           muted
           playsInline
         >
-          <source src="https://cdn.pixabay.com/video/2024/11/27/243011_large.mp4" type="video/mp4" />
+          <source src="/background.mp4" type="video/mp4" />
         </video>
+        {/* Decorative background suits */}
+        <div className="rl-deco-suits">
+          <span className="rl-suit rl-suit-1">♠</span>
+          <span className="rl-suit rl-suit-2">♥</span>
+          <span className="rl-suit rl-suit-3">♦</span>
+          <span className="rl-suit rl-suit-4">♣</span>
+        </div>
         <div className="error-message">
+          <div className="error-icon-glow">⚠️</div>
           <h2>{error}</h2>
           <button onClick={() => navigate('/rooms')}>Back to Rooms</button>
         </div>
@@ -191,8 +211,16 @@ function RoomLobby() {
         muted
         playsInline
       >
-        <source src="https://cdn.pixabay.com/video/2024/11/27/243011_large.mp4" type="video/mp4" />
+        <source src="/background.mp4" type="video/mp4" />
       </video>
+
+      {/* Decorative background suits */}
+      <div className="rl-deco-suits">
+        <span className="rl-suit rl-suit-1">♠</span>
+        <span className="rl-suit rl-suit-2">♥</span>
+        <span className="rl-suit rl-suit-3">♦</span>
+        <span className="rl-suit rl-suit-4">♣</span>
+      </div>
 
       <div className="room-lobby-content">
         {/* Room Header */}
@@ -214,13 +242,16 @@ function RoomLobby() {
           </button>
           <div className="room-title">
             <h1>{roomDetails?.roomName}</h1>
-            {roomDetails?.isPrivate && (
-              <div className="room-code-display" onClick={copyRoomCode}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 17a2 2 0 0 1-2-2c0-1.11.89-2 2-2a2 2 0 0 1 2 2 2 2 0 0 1-2 2m6 3V10H6v10h12m0-12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V10c0-1.11.89-2 2-2h1V6a5 5 0 0 1 5-5 5 5 0 0 1 5 5v2h1m-6-5a3 3 0 0 0-3 3v2h6V6a3 3 0 0 0-3-3z"/>
+            {roomDetails?.roomCode && (
+              <div className="room-code-keycard" onClick={copyRoomCode}>
+                <span className="keycard-chip"></span>
+                <span className="keycard-label">ACCESS KEY</span>
+                <span className="keycard-value">{roomDetails.roomCode}</span>
+                <svg className="keycard-copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                 </svg>
-                Code: {roomDetails?.roomCode}
-                <span className="copy-hint">Click to copy</span>
+                <span className="copy-tooltip">Copy Access Key</span>
               </div>
             )}
           </div>
@@ -254,15 +285,21 @@ function RoomLobby() {
           <div className="players-panel">
             <h3>Players ({roomDetails?.players?.length || 0}/{roomDetails?.maxPlayers})</h3>
             <div className="players-list">
-              {roomDetails?.players?.map((player) => {
+              {roomDetails?.players?.map((player, index) => {
                 const isPlayerHost = player.id === roomDetails.hostId;
                 const isCurrentPlayer = currentUser && player.id === currentUser.id;
+                const suits = ['♠', '♥', '♦', '♣'];
+                const suitWatermark = suits[index % 4];
+                const watermarkClass = `suit-watermark watermark-${index % 4}`;
 
                 return (
                   <div 
                     key={player.id} 
                     className={`player-card ${isPlayerHost ? 'host-card' : ''} ${isCurrentPlayer ? 'current-player' : ''}`}
                   >
+                    <div className="card-shine"></div>
+                    <div className={watermarkClass}>{suitWatermark}</div>
+
                     <div className="player-avatar">
                       {player.avatarUrl ? (
                         renderAvatar(player.avatarUrl, player.name)
@@ -272,7 +309,7 @@ function RoomLobby() {
                         </div>
                       )}
                       {isPlayerHost && (
-                        <div className="master-badge">M</div>
+                        <div className="master-badge" title="Room Master">👑</div>
                       )}
                     </div>
                     <div className="player-info">
@@ -287,7 +324,9 @@ function RoomLobby() {
                         <div className={`player-status ${player.isReady ? 'ready' : 'not-ready'}`}>
                           {player.isReady ? (
                             <><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"></polyline></svg> Ready</>
-                          ) : 'Not Ready'}
+                          ) : (
+                            <><span className="stby-dot"></span> STBY</>
+                          )}
                         </div>
                       )}
                     </div>
