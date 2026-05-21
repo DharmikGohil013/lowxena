@@ -71,6 +71,16 @@ function Home() {
     checkAuth();
   }, []);
 
+  // Check for session expiration flag in URL
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.location.search.includes('expired=true')) {
+      setShowLoginModal(true);
+      setLoginError('Your session has expired. Please login again to continue playing.');
+      // Clean up the URL search parameter so it doesn't show up again if the user refreshes
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, []);
+
   // Check if user is in any room
   useEffect(() => {
     const checkUserRoom = async () => {

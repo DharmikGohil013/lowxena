@@ -56,6 +56,24 @@ apiClient.interceptors.response.use(
       normalized.message = data.message || error.response.statusText || normalized.message;
       normalized.code = data.code || `ERR_HTTP_${error.response.status}`;
       normalized.status = error.response.status;
+
+      // Handle token expiration or invalidity (401 or 403)
+      const isAuthError = normalized.status === 401 || normalized.status === 403;
+      const isTokenExpired = normalized.message.toLowerCase().includes('token expired') || 
+                            normalized.message.toLowerCase().includes('expired token') ||
+                            normalized.message.toLowerCase().includes('invalid token') ||
+                            normalized.message.toLowerCase().includes('token is required');
+
+      if (isAuthError && isTokenExpired) {
+        // Clear auth tokens from storage
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userData');
+        
+        // Gracefully redirect to the home page with a token expired flag
+        if (typeof window !== 'undefined' && !window.location.search.includes('expired=true')) {
+          window.location.href = '/?expired=true';
+        }
+      }
     } else if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
       normalized.message = 'Request timed out. Please check your connection.';
       normalized.code = 'ERR_TIMEOUT';
