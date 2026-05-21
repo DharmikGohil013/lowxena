@@ -1044,43 +1044,47 @@
    Game Mode Modal
    ============================ */
 .game-mode-modal {
-  background: linear-gradient(145deg, rgba(10,10,28,0.97) 0%, rgba(20,15,42,0.97) 100%);
+  background: linear-gradient(145deg, rgba(8, 8, 22, 0.98) 0%, rgba(18, 14, 38, 0.98) 100%);
   backdrop-filter: blur(40px);
   -webkit-backdrop-filter: blur(40px);
-  padding: 22px 24px 24px;
-  border-radius: 20px;
-  border: 1px solid rgba(251,191,36,0.15);
+  padding: 28px 30px 32px;
+  border-radius: 24px;
+  border: 1px solid rgba(251, 191, 36, 0.22);
   box-shadow:
-    0 30px 80px rgba(0,0,0,0.7),
-    0 0 50px rgba(251,191,36,0.06),
-    inset 0 1px 0 rgba(255,255,255,0.05);
-  width: 540px;
+    0 30px 80px rgba(0, 0, 0, 0.85),
+    0 0 60px rgba(251, 191, 36, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  width: 580px;
   max-width: 92vw;
-  animation: modal-pop 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: modal-pop 0.5s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
+  overflow: hidden;
 }
 
 .modal-header {
   text-align: center;
-  margin-bottom: 16px;
+  margin-bottom: 22px;
+  position: relative;
+  z-index: 2;
 }
 
 .modal-title-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 46px;
-  height: 46px;
-  margin: 0 auto 10px;
-  border-radius: 14px;
-  background: linear-gradient(135deg, rgba(251,191,36,0.1) 0%, rgba(245,158,11,0.05) 100%);
-  border: 1.5px solid rgba(251,191,36,0.2);
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 12px;
+  border-radius: 15px;
+  background: linear-gradient(135deg, rgba(251,191,36,0.12) 0%, rgba(245,158,11,0.06) 100%);
+  border: 1.5px solid rgba(251,191,36,0.25);
   color: #fbbf24;
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.15);
 }
 
 .game-mode-modal h2 {
-  margin: 0 0 4px 0;
-  font-size: 20px;
+  margin: 0 0 6px 0;
+  font-size: 22px;
   font-weight: 800;
   font-family: 'Outfit', 'Inter', sans-serif;
   background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #f97316 100%);
@@ -1092,32 +1096,84 @@
 
 .modal-subtitle {
   margin: 0;
-  color: rgba(253,232,138,0.6);
-  font-size: 12px;
+  color: rgba(253, 232, 138, 0.7);
+  font-size: 13px;
   font-weight: 500;
+  letter-spacing: 0.2px;
 }
 
 /* Game mode grid */
 .game-mode-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  margin-top: 16px;
+  gap: 16px;
+  margin-top: 20px;
+  perspective: 1000px;
+  position: relative;
+  z-index: 2;
 }
 
 .game-mode-card {
-  background: rgba(255,255,255,0.02);
-  border: 1.5px solid rgba(255,255,255,0.06);
-  border-radius: 16px;
-  padding: 18px 16px 16px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 20px;
+  padding: 24px 20px 20px;
   cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
   position: relative;
   overflow: hidden;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* Card Suit Watermark Background Decoration */
+.card-suit-watermark {
+  position: absolute;
+  bottom: -25px;
+  right: -25px;
+  font-size: 140px;
+  line-height: 1;
+  font-weight: 900;
+  pointer-events: none;
+  z-index: 0;
+  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: 'Outfit', sans-serif;
+  user-select: none;
+}
+
+.create-custom .card-suit-watermark { color: rgba(139, 92, 246, 0.035); }
+.find-room .card-suit-watermark    { color: rgba(59, 130, 246, 0.035); }
+.join-bots .card-suit-watermark    { color: rgba(16, 185, 129, 0.035); }
+.fast-join .card-suit-watermark    { color: rgba(245, 158, 11, 0.035); }
+
+/* Card passing shine effect */
+.card-shine {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    125deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.05) 40%,
+    rgba(255, 255, 255, 0.12) 50%,
+    rgba(255, 255, 255, 0.05) 60%,
+    transparent 70%
+  );
+  transform: translateX(-100%);
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.game-mode-card:hover .card-shine {
+  transform: translateX(100%);
 }
 
 .card-glow {
@@ -1126,11 +1182,17 @@
   left: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(circle, rgba(251,191,36,0.15) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
   transform: scale(0);
-  transition: transform 0.5s ease;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
   pointer-events: none;
+  z-index: 0;
 }
+
+.create-custom .card-glow { background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%); }
+.find-room .card-glow    { background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 70%); }
+.join-bots .card-glow    { background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, transparent 70%); }
+.fast-join .card-glow    { background: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, transparent 70%); }
 
 .game-mode-card:hover .card-glow {
   transform: scale(1);
@@ -1140,130 +1202,174 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
-  margin-bottom: 10px;
-  transition: all 0.4s ease;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  margin-bottom: 14px;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   position: relative;
-  z-index: 1;
+  z-index: 2;
 }
 
 .create-custom .mode-icon {
-  background: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(109,40,217,0.08));
-  border: 1.5px solid rgba(139,92,246,0.2);
+  background: linear-gradient(135deg, rgba(139,92,246,0.18), rgba(109,40,217,0.08));
+  border: 1.5px solid rgba(139,92,246,0.25);
   color: #a78bfa;
 }
 
 .find-room .mode-icon {
-  background: linear-gradient(135deg, rgba(59,130,246,0.15), rgba(29,78,216,0.08));
-  border: 1.5px solid rgba(59,130,246,0.2);
+  background: linear-gradient(135deg, rgba(59,130,246,0.18), rgba(29,78,216,0.08));
+  border: 1.5px solid rgba(59,130,246,0.25);
   color: #60a5fa;
 }
 
 .join-bots .mode-icon {
-  background: linear-gradient(135deg, rgba(16,185,129,0.15), rgba(5,150,105,0.08));
-  border: 1.5px solid rgba(16,185,129,0.2);
+  background: linear-gradient(135deg, rgba(16,185,129,0.18), rgba(5,150,105,0.08));
+  border: 1.5px solid rgba(16,185,129,0.25);
   color: #34d399;
 }
 
 .fast-join .mode-icon {
-  background: linear-gradient(135deg, rgba(245,158,11,0.15), rgba(217,119,6,0.08));
-  border: 1.5px solid rgba(245,158,11,0.2);
+  background: linear-gradient(135deg, rgba(245,158,11,0.18), rgba(217,119,6,0.08));
+  border: 1.5px solid rgba(245,158,11,0.25);
   color: #fbbf24;
 }
 
 .game-mode-card:hover .mode-icon {
-  transform: scale(1.15) translateY(-2px);
+  transform: scale(1.15) translateY(-3px);
 }
 
-.create-custom:hover .mode-icon { box-shadow: 0 0 20px rgba(139,92,246,0.3); }
-.find-room:hover .mode-icon    { box-shadow: 0 0 20px rgba(59,130,246,0.3); }
-.join-bots:hover .mode-icon    { box-shadow: 0 0 20px rgba(16,185,129,0.3); }
-.fast-join:hover .mode-icon    { box-shadow: 0 0 20px rgba(245,158,11,0.3); }
+.create-custom:hover .mode-icon { box-shadow: 0 0 25px rgba(139,92,246,0.45); }
+.find-room:hover .mode-icon    { box-shadow: 0 0 25px rgba(59,130,246,0.45); }
+.join-bots:hover .mode-icon    { box-shadow: 0 0 25px rgba(16,185,129,0.45); }
+.fast-join:hover .mode-icon    { box-shadow: 0 0 25px rgba(245,158,11,0.45); }
 
+/* Card Premium Hover States */
 .game-mode-card:hover {
-  transform: translateY(-8px);
+  transform: translateY(-8px) scale(1.02);
+  z-index: 5;
 }
 
 .create-custom:hover {
-  border-color: rgba(139,92,246,0.4);
-  background: rgba(139,92,246,0.06);
-  box-shadow: 0 16px 40px rgba(139,92,246,0.15);
+  border-color: rgba(139,92,246,0.45);
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(139, 92, 246, 0.01) 100%);
+  box-shadow: 
+    0 20px 40px rgba(139,92,246,0.18),
+    inset 0 1px 0 rgba(255,255,255,0.1);
 }
 .find-room:hover {
-  border-color: rgba(59,130,246,0.4);
-  background: rgba(59,130,246,0.06);
-  box-shadow: 0 16px 40px rgba(59,130,246,0.15);
+  border-color: rgba(59,130,246,0.45);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(59, 130, 246, 0.01) 100%);
+  box-shadow: 
+    0 20px 40px rgba(59,130,246,0.18),
+    inset 0 1px 0 rgba(255,255,255,0.1);
 }
 .join-bots:hover {
-  border-color: rgba(16,185,129,0.4);
-  background: rgba(16,185,129,0.06);
-  box-shadow: 0 16px 40px rgba(16,185,129,0.15);
+  border-color: rgba(16,185,129,0.45);
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(16, 185, 129, 0.01) 100%);
+  box-shadow: 
+    0 20px 40px rgba(16,185,129,0.18),
+    inset 0 1px 0 rgba(255,255,255,0.1);
 }
 .fast-join:hover {
-  border-color: rgba(245,158,11,0.4);
-  background: rgba(245,158,11,0.06);
-  box-shadow: 0 16px 40px rgba(245,158,11,0.15);
+  border-color: rgba(245,158,11,0.45);
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(245, 158, 11, 0.01) 100%);
+  box-shadow: 
+    0 20px 40px rgba(245,158,11,0.18),
+    inset 0 1px 0 rgba(255,255,255,0.1);
 }
 
+/* Watermark hover glow and spin */
+.create-custom:hover .card-suit-watermark { color: rgba(139, 92, 246, 0.08); transform: rotate(-8deg) scale(1.1); filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.3)); }
+.find-room:hover .card-suit-watermark    { color: rgba(59, 130, 246, 0.08); transform: rotate(-8deg) scale(1.1); filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.3)); }
+.join-bots:hover .card-suit-watermark    { color: rgba(16, 185, 129, 0.08); transform: rotate(-8deg) scale(1.1); filter: drop-shadow(0 0 20px rgba(16, 185, 129, 0.3)); }
+.fast-join:hover .card-suit-watermark    { color: rgba(245, 158, 11, 0.08); transform: rotate(-8deg) scale(1.1); filter: drop-shadow(0 0 20px rgba(245, 158, 11, 0.3)); }
+
 .game-mode-card:active {
-  transform: translateY(-3px);
+  transform: translateY(-2px) scale(0.99);
 }
 
 .game-mode-card h3 {
-  color: #f0ecfc;
-  font-size: 14px;
-  font-weight: 700;
-  margin: 0 0 4px 0;
-  letter-spacing: 0.2px;
+  color: #f3f0ff;
+  font-size: 15px;
+  font-weight: 750;
+  margin: 0 0 6px 0;
+  letter-spacing: 0.3px;
   transition: all 0.3s ease;
+  position: relative;
+  z-index: 2;
+  font-family: 'Outfit', sans-serif;
 }
 
-.create-custom:hover h3 { color: #c4b5fd; }
-.find-room:hover h3    { color: #93c5fd; }
-.join-bots:hover h3    { color: #6ee7b7; }
-.fast-join:hover h3    { color: #fde68a; }
+.create-custom:hover h3 { color: #d8b4fe; }
+.find-room:hover h3    { color: #bae6fd; }
+.join-bots:hover h3    { color: #a7f3d0; }
+.fast-join:hover h3    { color: #fef08a; }
 
 .game-mode-card p {
-  color: rgba(255,255,255,0.4);
+  color: rgba(255, 255, 255, 0.42);
   font-size: 11px;
-  margin: 0 0 10px 0;
-  line-height: 1.4;
+  margin: 0 0 14px 0;
+  line-height: 1.45;
   transition: color 0.3s ease;
+  position: relative;
+  z-index: 2;
+  font-family: 'Inter', sans-serif;
 }
 
-.game-mode-card:hover p { color: rgba(255,255,255,0.6); }
+.game-mode-card:hover p { color: rgba(255, 255, 255, 0.65); }
 
 .card-badge {
-  color: #111;
+  color: #ffffff;
   font-size: 9px;
-  font-weight: 800;
+  font-weight: 700;
   padding: 4px 12px;
   border-radius: 14px;
   text-transform: uppercase;
-  letter-spacing: 0.6px;
-  transition: all 0.3s ease;
+  letter-spacing: 0.8px;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  position: relative;
+  z-index: 2;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.2);
 }
 
 .create-custom .card-badge {
-  background: linear-gradient(135deg, #c4b5fd 0%, #8b5cf6 100%);
-  box-shadow: 0 3px 12px rgba(139,92,246,0.25);
+  background: rgba(139, 92, 246, 0.25);
+  border: 1px solid rgba(139, 92, 246, 0.4);
+  color: #c4b5fd;
 }
 .find-room .card-badge {
-  background: linear-gradient(135deg, #bfdbfe 0%, #3b82f6 100%);
-  box-shadow: 0 3px 12px rgba(59,130,246,0.25);
+  background: rgba(59, 130, 246, 0.25);
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  color: #93c5fd;
 }
 .join-bots .card-badge {
-  background: linear-gradient(135deg, #a7f3d0 0%, #10b981 100%);
-  box-shadow: 0 3px 12px rgba(16,185,129,0.25);
+  background: rgba(16, 185, 129, 0.25);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #6ee7b7;
 }
 .fast-join .card-badge {
-  background: linear-gradient(135deg, #fde68a 0%, #f59e0b 100%);
-  box-shadow: 0 3px 12px rgba(245,158,11,0.25);
+  background: rgba(245, 158, 11, 0.25);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  color: #fde68a;
+  animation: pulse-badge 2s infinite ease-in-out;
 }
 
-.game-mode-card:hover .card-badge { transform: scale(1.08); }
+@keyframes pulse-badge {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+  70% { transform: scale(1.03); box-shadow: 0 0 10px 4px rgba(245, 158, 11, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+}
+
+.game-mode-card:hover .card-badge { 
+  transform: scale(1.08); 
+}
+
+.create-custom:hover .card-badge { background: rgba(139, 92, 246, 0.4); border-color: rgba(139, 92, 246, 0.6); box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3); }
+.find-room:hover .card-badge    { background: rgba(59, 130, 246, 0.4); border-color: rgba(59, 130, 246, 0.6); box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3); }
+.join-bots:hover .card-badge    { background: rgba(16, 185, 129, 0.4); border-color: rgba(16, 185, 129, 0.6); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); }
+.fast-join:hover .card-badge    { background: rgba(245, 158, 11, 0.4); border-color: rgba(245, 158, 11, 0.6); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3); }
+
 
 /* ============================
    Custom Match Modal
@@ -2441,16 +2547,53 @@
   }
 
   .game-mode-card {
-    flex-direction: row;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto;
     text-align: left;
     padding: 14px 16px;
-    gap: 14px;
+    gap: 2px 14px;
   }
 
-  .game-mode-card .mode-icon { margin-bottom: 0; flex-shrink: 0; }
-  .game-mode-card h3 { font-size: 14px; margin: 0 0 2px; }
-  .game-mode-card p { font-size: 11px; margin: 0; }
-  .card-badge { position: absolute; top: 10px; right: 10px; font-size: 8px; }
+  .game-mode-card .mode-icon { 
+    margin-bottom: 0; 
+    flex-shrink: 0;
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    align-self: center;
+  }
+
+  .game-mode-card h3 { 
+    font-size: 13.5px; 
+    margin: 0; 
+    grid-column: 2;
+    grid-row: 1;
+    padding-right: 70px; /* Make room for the absolute badge */
+  }
+
+  .game-mode-card p { 
+    font-size: 10.5px; 
+    margin: 0; 
+    grid-column: 2;
+    grid-row: 2;
+    padding-right: 20px;
+  }
+
+  .card-badge { 
+    position: absolute; 
+    top: 14px; 
+    right: 12px; 
+    font-size: 7.5px; 
+    padding: 2px 8px;
+    border-radius: 8px;
+  }
+
+  .card-suit-watermark {
+    bottom: -15px;
+    right: 5px;
+    font-size: 80px;
+    opacity: 0.035;
+  }
 
   .modal-title-icon { width: 38px; height: 38px; }
   .modal-title-icon svg { width: 20px; height: 20px; }

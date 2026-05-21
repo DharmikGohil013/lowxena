@@ -838,6 +838,8 @@ function Home() {
                 onClick={() => handleGameModeSelect('custom')}
               >
                 <div className="card-glow"></div>
+                <div className="card-shine"></div>
+                <div className="card-suit-watermark">♠</div>
                 <div className="mode-icon">
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M12 5v14M5 12h14"></path>
@@ -854,6 +856,8 @@ function Home() {
                 onClick={() => handleGameModeSelect('find')}
               >
                 <div className="card-glow"></div>
+                <div className="card-shine"></div>
+                <div className="card-suit-watermark">♦</div>
                 <div className="mode-icon">
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <circle cx="11" cy="11" r="7"></circle>
@@ -871,6 +875,8 @@ function Home() {
                 onClick={() => handleGameModeSelect('bots')}
               >
                 <div className="card-glow"></div>
+                <div className="card-shine"></div>
+                <div className="card-suit-watermark">♣</div>
                 <div className="mode-icon">
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <rect x="4" y="8" width="16" height="12" rx="2"></rect>
@@ -890,6 +896,8 @@ function Home() {
                 onClick={() => handleGameModeSelect('quick')}
               >
                 <div className="card-glow"></div>
+                <div className="card-shine"></div>
+                <div className="card-suit-watermark">♥</div>
                 <div className="mode-icon">
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
