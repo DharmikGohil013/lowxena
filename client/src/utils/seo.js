@@ -28,6 +28,15 @@ const SEO_CONFIG = {
     ogDescription: 'Complete LowXena card game rules. Card values, scoring, combos, and strategies to win.',
     robots: 'index, follow',
   },
+  '/about': {
+    title: 'About LowXena — The Inspiration, Tech Stack & Creators',
+    description: 'Explore the vision, state-of-the-art tech stack (React 19, Node.js, Supabase), and game architecture behind LowXena—the ultimate 3D cosmic casino least-count card game. Meet developer Dharmik Gohil!',
+    canonical: `${BASE_URL}/about`,
+    keywords: 'about LowXena, LowXena technology stack, React card game architecture, indie game development, Xenaplay Studio, Dharmik Gohil, least-count philosophy',
+    ogTitle: 'About LowXena — Modern Card Game Architecture',
+    ogDescription: 'Discover the inspiration, technology, and developer behind LowXena: a premium 3D browser card game.',
+    robots: 'index, follow',
+  },
   '/rooms': {
     title: 'Game Rooms — Join Multiplayer Card Games Online | LowXena',
     description: 'Browse and join open LowXena game rooms or create your own. Play multiplayer card games with friends online — private or public matches. Join free!',
