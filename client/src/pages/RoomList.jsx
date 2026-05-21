@@ -11,6 +11,8 @@ function RoomList() {
   const [loading, setLoading] = useState(false)
   const [fetchingRooms, setFetchingRooms] = useState(true)
   const [filter, setFilter] = useState('all') // all, public, private
+  const [statusFilter, setStatusFilter] = useState('all') // all, waiting, playing
+  const [sortBy, setSortBy] = useState('newest') // newest, players_high, players_low, points_high, points_low
   const [searchQuery, setSearchQuery] = useState('')
   const [showJoinModal, setShowJoinModal] = useState(false)
   const [selectedRoom, setSelectedRoom] = useState(null)
@@ -25,7 +27,7 @@ function RoomList() {
 
   useEffect(() => {
     applyFilters()
-  }, [rooms, filter, searchQuery])
+  }, [rooms, filter, statusFilter, sortBy, searchQuery])
 
   const fetchRooms = async () => {
     try {
@@ -40,24 +42,57 @@ function RoomList() {
   }
 
   const applyFilters = () => {
-    let filtered = rooms
+    let filtered = [...rooms]
 
-    // Filter by type
+    // Filter by type (public/private)
     if (filter === 'public') {
       filtered = filtered.filter(room => !room.isPrivate)
     } else if (filter === 'private') {
       filtered = filtered.filter(room => room.isPrivate)
     }
 
+    // Filter by status (waiting/playing)
+    if (statusFilter === 'waiting') {
+      filtered = filtered.filter(room => room.status === 'waiting')
+    } else if (statusFilter === 'playing') {
+      filtered = filtered.filter(room => room.status === 'playing')
+    }
+
     // Filter by search query
     if (searchQuery) {
       filtered = filtered.filter(room => 
-        room.roomName.toLowerCase().includes(searchQuery.toLowerCase())
+        room.roomName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (room.hostName && room.hostName.toLowerCase().includes(searchQuery.toLowerCase()))
       )
+    }
+
+    // Sort rooms
+    if (sortBy === 'newest') {
+      filtered.sort((a, b) => b.id - a.id)
+    } else if (sortBy === 'players_high') {
+      filtered.sort((a, b) => (b.currentPlayers || 0) - (a.currentPlayers || 0))
+    } else if (sortBy === 'players_low') {
+      filtered.sort((a, b) => (a.currentPlayers || 0) - (b.currentPlayers || 0))
+    } else if (sortBy === 'points_high') {
+      filtered.sort((a, b) => (b.maxPoints || 0) - (a.maxPoints || 0))
+    } else if (sortBy === 'points_low') {
+      filtered.sort((a, b) => (a.maxPoints || 0) - (b.maxPoints || 0))
     }
 
     setFilteredRooms(filtered)
   }
+
+  const handleQuickJoin = async () => {
+    const joinableRoom = rooms.find(
+      room => !room.isPrivate && room.status === 'waiting' && (room.currentPlayers < room.maxPlayers)
+    );
+
+    if (joinableRoom) {
+      joinRoom(joinableRoom.id);
+    } else {
+      alert("No open public rooms waiting for players were found. Take the lead and host one!");
+    }
+  };
 
   const handleJoinRoom = (room) => {
     if (room.isPrivate) {
@@ -122,6 +157,7 @@ function RoomList() {
             </svg>
             Back
           </button>
+          
           <div className="header-title">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="11" cy="11" r="8"></circle>
@@ -129,7 +165,22 @@ function RoomList() {
             </svg>
             <h1>Find a Room</h1>
           </div>
+          
           <div className="header-actions">
+            <button className="quick-join-header-btn" onClick={handleQuickJoin}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+              </svg>
+              Quick Join
+            </button>
+            <button className="host-match-header-btn" onClick={() => navigate('/', { state: { openCreateRoom: true } })}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="16"></line>
+                <line x1="8" y1="12" x2="16" y2="12"></line>
+              </svg>
+              Host Match
+            </button>
             <button className="refresh-btn" onClick={fetchRooms}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <polyline points="23 4 23 10 17 10"></polyline>
@@ -141,48 +192,164 @@ function RoomList() {
           </div>
         </header>
 
-        <div className="filters-section">
-          <div className="search-bar">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="11" cy="11" r="8"></circle>
-              <path d="m21 21-4.35-4.35"></path>
-            </svg>
-            <input 
-              type="text"
-              placeholder="Search rooms..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+        {/* Live Statistics Dashboard Grid */}
+        <div className="lobby-stats-grid">
+          <div className="lobby-stat-card players-online">
+            <div className="stat-glow"></div>
+            <div className="stat-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+            </div>
+            <div className="stat-info">
+              <span className="stat-label">Players Online</span>
+              <h2 className="stat-value">{rooms.reduce((acc, r) => acc + (r.currentPlayers || 0), 0)}</h2>
+            </div>
+            <div className="stat-badge online">LIVE</div>
           </div>
 
-          <div className="filter-buttons">
-            <button 
-              className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
-              onClick={() => setFilter('all')}
-            >
-              All Rooms ({rooms.length})
-            </button>
-            <button 
-              className={`filter-btn ${filter === 'public' ? 'active' : ''}`}
-              onClick={() => setFilter('public')}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="2" y1="12" x2="22" y2="12"></line>
-                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+          <div className="lobby-stat-card open-lobbies">
+            <div className="stat-glow"></div>
+            <div className="stat-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="9" y1="3" x2="9" y2="21"></line>
               </svg>
-              Public ({rooms.filter(r => !r.isPrivate).length})
-            </button>
-            <button 
-              className={`filter-btn ${filter === 'private' ? 'active' : ''}`}
-              onClick={() => setFilter('private')}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            </div>
+            <div className="stat-info">
+              <span className="stat-label">Open Lobbies</span>
+              <h2 className="stat-value">{rooms.filter(r => r.status === 'waiting').length}</h2>
+            </div>
+            <div className="stat-badge waiting">WAITING</div>
+          </div>
+
+          <div className="lobby-stat-card private-rooms">
+            <div className="stat-glow"></div>
+            <div className="stat-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                 <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
               </svg>
-              Private ({rooms.filter(r => r.isPrivate).length})
-            </button>
+            </div>
+            <div className="stat-info">
+              <span className="stat-label">Private Rooms</span>
+              <h2 className="stat-value">{rooms.filter(r => r.isPrivate).length}</h2>
+            </div>
+            <div className="stat-badge private">SECURE</div>
+          </div>
+
+          <div className="lobby-stat-card match-rate">
+            <div className="stat-glow"></div>
+            <div className="stat-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <polygon points="12 2 2 22 22 22"></polygon>
+                <line x1="12" y1="13" x2="12" y2="17"></line>
+                <line x1="12" y1="9" x2="12" y2="9"></line>
+              </svg>
+            </div>
+            <div className="stat-info">
+              <span className="stat-label">Match Start Rate</span>
+              <h2 className="stat-value">
+                {rooms.length > 0 ? Math.round((rooms.filter(r => r.status === 'playing').length / rooms.length) * 100) : 0}%
+              </h2>
+            </div>
+            <div className="stat-badge playing">ACTIVE</div>
+          </div>
+        </div>
+
+        <div className="filters-section">
+          <div className="filters-top-row">
+            <div className="search-bar">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
+              </svg>
+              <input 
+                type="text"
+                placeholder="Search by room name or host..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+
+            <div className="sort-selector-wrapper">
+              <label htmlFor="room-sort">Sort By</label>
+              <select 
+                id="room-sort"
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="sort-dropdown"
+              >
+                <option value="newest">Recently Created</option>
+                <option value="players_high">Players: High to Low</option>
+                <option value="players_low">Players: Low to High</option>
+                <option value="points_high">Points: High to Low</option>
+                <option value="points_low">Points: Low to High</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="filters-bottom-row">
+            <div className="filter-group">
+              <span className="filter-group-label">Visibility</span>
+              <div className="filter-buttons">
+                <button 
+                  className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
+                  onClick={() => setFilter('all')}
+                >
+                  All ({rooms.length})
+                </button>
+                <button 
+                  className={`filter-btn ${filter === 'public' ? 'active' : ''}`}
+                  onClick={() => setFilter('public')}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="2" y1="12" x2="22" y2="12"></line>
+                  </svg>
+                  Public ({rooms.filter(r => !r.isPrivate).length})
+                </button>
+                <button 
+                  className={`filter-btn ${filter === 'private' ? 'active' : ''}`}
+                  onClick={() => setFilter('private')}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                  </svg>
+                  Private ({rooms.filter(r => r.isPrivate).length})
+                </button>
+              </div>
+            </div>
+
+            <div className="filter-group">
+              <span className="filter-group-label">Status</span>
+              <div className="filter-buttons">
+                <button 
+                  className={`filter-btn status-all ${statusFilter === 'all' ? 'active' : ''}`}
+                  onClick={() => setStatusFilter('all')}
+                >
+                  All Statuses
+                </button>
+                <button 
+                  className={`filter-btn status-waiting ${statusFilter === 'waiting' ? 'active' : ''}`}
+                  onClick={() => setStatusFilter('waiting')}
+                >
+                  <span className="status-dot pulsing"></span>
+                  Waiting ({rooms.filter(r => r.status === 'waiting').length})
+                </button>
+                <button 
+                  className={`filter-btn status-playing ${statusFilter === 'playing' ? 'active' : ''}`}
+                  onClick={() => setStatusFilter('playing')}
+                >
+                  <span className="status-dot playing"></span>
+                  In-Game ({rooms.filter(r => r.status === 'playing').length})
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -195,100 +362,155 @@ function RoomList() {
             </div>
           ) : filteredRooms.length === 0 ? (
             <div className="no-rooms-card">
-              <div className="no-rooms-glow"></div>
+              <div className="no-rooms-radar">
+                <div className="radar-circle radar-c1"></div>
+                <div className="radar-circle radar-c2"></div>
+                <div className="radar-circle radar-c3"></div>
+                <div className="radar-line"></div>
+                <div className="radar-center-dot"></div>
+              </div>
               <div className="no-rooms-content">
-                <div className="no-rooms-icon">
-                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                    <line x1="9" y1="9" x2="15" y2="15"></line>
-                    <line x1="15" y1="9" x2="9" y2="15"></line>
-                  </svg>
+                <h3>Lobby Radar Scanning...</h3>
+                <p>No active rooms match your current filters. Take the lead by hosting a custom match, practice against advanced AI, or clear your filters to find other decks!</p>
+                
+                <div className="no-rooms-actions">
+                  <button 
+                    className="create-room-direct-btn"
+                    onClick={() => navigate('/', { state: { openCreateRoom: true } })}
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <line x1="12" y1="8" x2="12" y2="16"></line>
+                      <line x1="8" y1="12" x2="16" y2="12"></line>
+                    </svg>
+                    Host Custom Match
+                  </button>
+                  
+                  <button 
+                    className="practice-mode-direct-btn"
+                    onClick={() => navigate('/practice')}
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg>
+                    Play vs AI (Practice)
+                  </button>
+                  
+                  {(filter !== 'all' || statusFilter !== 'all' || searchQuery !== '') && (
+                    <button 
+                      className="reset-filters-btn"
+                      onClick={() => {
+                        setFilter('all');
+                        setStatusFilter('all');
+                        setSearchQuery('');
+                        setSortBy('newest');
+                      }}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                        <polyline points="3 3 3 8 8 8"></polyline>
+                      </svg>
+                      Reset Filters
+                    </button>
+                  )}
                 </div>
-                <h3>No Active Lobbies</h3>
-                <p>There are currently no active rooms matching your filters. Take the lead and host a custom match for players to join!</p>
-                <button 
-                  className="create-room-direct-btn"
-                  onClick={() => navigate('/', { state: { openCreateRoom: true } })}
-                >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <line x1="12" y1="8" x2="12" y2="16"></line>
-                    <line x1="8" y1="12" x2="16" y2="12"></line>
-                  </svg>
-                  Create Custom Room
-                </button>
               </div>
             </div>
           ) : (
-            filteredRooms.map(room => (
-              <div key={room.id} className="room-card">
-                <div className="card-shine"></div>
-                <div className="room-card-suit-watermark">
-                  {room.isPrivate ? '♠' : '♣'}
-                </div>
-                
-                <div className="room-header">
-                  <div className="room-name">
-                    {room.isPrivate && <span className="lock-icon">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                      </svg>
-                    </span>}
-                    <h3>{room.roomName}</h3>
+            filteredRooms.map(room => {
+              const seatsArray = Array.from({ length: room.maxPlayers }, (_, i) => i < room.currentPlayers);
+              return (
+                <div key={room.id} className={`room-card card-status-${room.status} ${room.isPrivate ? 'card-private' : 'card-public'}`}>
+                  <div className="card-shine"></div>
+                  <div className="room-card-suit-watermark">
+                    {room.isPrivate ? '♠' : room.status === 'playing' ? '♥' : '♣'}
                   </div>
-                  <div className={`room-status ${room.status}`}>
-                    {room.status === 'waiting' ? (
-                      <><span className="status-dot pulsing"></span> Waiting</>
+                  
+                  <div className="room-header">
+                    <div className="room-name">
+                      {room.isPrivate && <span className="lock-icon">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                      </span>}
+                      <h3>{room.roomName}</h3>
+                    </div>
+                    <div className={`room-status ${room.status}`}>
+                      {room.status === 'waiting' ? (
+                        <><span className="status-dot pulsing"></span> Waiting</>
+                      ) : (
+                        <><span className="status-dot playing"></span> Playing</>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="room-info">
+                    {/* Visual Seats Grid */}
+                    <div className="info-item seats-info-item">
+                      <span className="label">Occupied Seats</span>
+                      <div className="seats-visualizer">
+                        {seatsArray.map((occupied, idx) => (
+                          <span 
+                            key={idx} 
+                            className={`seat-dot ${occupied ? 'occupied' : 'vacant'}`}
+                            title={occupied ? "Occupied Slot" : "Empty Slot"}
+                          ></span>
+                        ))}
+                        <span className="seats-text">{room.currentPlayers} / {room.maxPlayers}</span>
+                      </div>
+                    </div>
+
+                    <div className="info-item">
+                      <span className="label">Points to Win</span>
+                      <span className="value game-chip-pts">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" style={{marginRight: '4px'}}>
+                          <polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5"></polygon>
+                        </svg>
+                        {room.maxPoints} pts
+                      </span>
+                    </div>
+
+                    <div className="info-item host-info-item">
+                      <span className="label">Lobby Host</span>
+                      <span className="value host-name-badge">
+                        <svg className="crown-icon" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M2 22h20v-2H2v2zm2-4h16V9l-4 4-4-6-4 6-4-4v9z"/>
+                        </svg>
+                        {room.hostName || 'Unknown'}
+                      </span>
+                    </div>
+                  </div>
+
+                  <button 
+                    className="join-room-btn"
+                    onClick={() => handleJoinRoom(room)}
+                    disabled={room.currentPlayers >= room.maxPlayers || room.status === 'playing'}
+                  >
+                    {room.currentPlayers >= room.maxPlayers ? (
+                      'Room Full'
+                    ) : room.status === 'playing' ? (
+                      'Game Started'
+                    ) : room.isPrivate ? (
+                      <>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{marginRight: '6px', display: 'inline-block', verticalAlign: 'middle'}}>
+                          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                        Join with Code
+                      </>
                     ) : (
-                      <><span className="status-dot playing"></span> Playing</>
+                      <>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{marginRight: '6px', display: 'inline-block', verticalAlign: 'middle'}}>
+                          <path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                        </svg>
+                        Join Room
+                      </>
                     )}
-                  </div>
+                  </button>
                 </div>
-
-                <div className="room-info">
-                  <div className="info-item">
-                    <span className="label">Players</span>
-                    <span className="value">{room.currentPlayers} / {room.maxPlayers}</span>
-                  </div>
-                  <div className="info-item">
-                    <span className="label">Points to Win</span>
-                    <span className="value">{room.maxPoints} pts</span>
-                  </div>
-                  <div className="info-item">
-                    <span className="label">Lobby Host</span>
-                    <span className="value">{room.hostName || 'Unknown'}</span>
-                  </div>
-                </div>
-
-                <button 
-                  className="join-room-btn"
-                  onClick={() => handleJoinRoom(room)}
-                  disabled={room.currentPlayers >= room.maxPlayers || room.status === 'playing'}
-                >
-                  {room.currentPlayers >= room.maxPlayers ? (
-                    'Room Full'
-                  ) : room.status === 'playing' ? (
-                    'Game Started'
-                  ) : room.isPrivate ? (
-                    <>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{marginRight: '6px', display: 'inline-block', verticalAlign: 'middle'}}>
-                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                      </svg>
-                      Join with Code
-                    </>
-                  ) : (
-                    <>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{marginRight: '6px', display: 'inline-block', verticalAlign: 'middle'}}>
-                        <path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                      </svg>
-                      Join Room
-                    </>
-                  )}
-                </button>
-              </div>
-            ))
+              )
+            })
           )}
         </div>
       </div>
