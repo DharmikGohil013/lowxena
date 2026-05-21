@@ -1814,6 +1814,113 @@
   animation: spin 0.7s linear infinite;
 }
 
+/* Decorative suits inside Custom Match Modal */
+.cm-deco-suits {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  border-radius: 24px;
+  z-index: 0;
+}
+
+.cm-suit {
+  position: absolute;
+  font-size: 80px;
+  opacity: 0.025;
+  animation: cm-suit-bob 7s ease-in-out infinite;
+  user-select: none;
+}
+
+.cm-suit-1 { top: -20px; left: -10px; color: #a78bfa; animation-delay: 0s; }
+.cm-suit-2 { top: 120px; right: -25px; color: #f87171; animation-delay: 2s; }
+.cm-suit-3 { bottom: 80px; left: -30px; color: #fbbf24; animation-delay: 4s; }
+.cm-suit-4 { bottom: -20px; right: 10px; color: #34d399; animation-delay: 1s; }
+
+@keyframes cm-suit-bob {
+  0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
+  50% { transform: translateY(-8px) rotate(6deg) scale(1.05); }
+}
+
+/* Premium Dynamic Room Summary Ticket */
+.room-summary-ticket {
+  position: relative;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(99, 102, 241, 0.03) 100%);
+  border: 1px dashed rgba(139, 92, 246, 0.25);
+  border-radius: 16px;
+  padding: 14px 18px;
+  margin-top: 6px;
+  overflow: hidden;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: inset 0 0 15px rgba(139, 92, 246, 0.04);
+  transition: all 0.3s ease;
+}
+
+.room-summary-ticket:hover {
+  border-color: rgba(251, 191, 36, 0.4);
+  box-shadow: 
+    0 0 20px rgba(139, 92, 246, 0.08),
+    inset 0 0 15px rgba(251, 191, 36, 0.02);
+}
+
+.ticket-glow {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.ticket-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.ticket-main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ticket-title {
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: #fbbf24;
+  font-weight: 900;
+  text-transform: uppercase;
+  text-shadow: 0 0 8px rgba(251, 191, 36, 0.2);
+  font-family: 'Outfit', sans-serif;
+}
+
+.ticket-value {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #ffffff;
+  font-family: 'Outfit', sans-serif;
+  letter-spacing: 0.2px;
+}
+
+.ticket-suits {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.06);
+  letter-spacing: 4px;
+  font-weight: 900;
+  user-select: none;
+  font-family: 'Courier New', monospace;
+  transition: all 0.3s ease;
+}
+
+.room-summary-ticket:hover .ticket-suits {
+  color: rgba(251, 191, 36, 0.12);
+  text-shadow: 0 0 8px rgba(251, 191, 36, 0.3);
+}
+
 /* ============================
    Form Shared Styles
    ============================ */
@@ -2757,6 +2864,17 @@
   .cm-scroll-body { padding: 24px 20px 28px; }
   .custom-match-modal h2 { font-size: 22px; }
 
+  .visibility-cards-container {
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .visibility-card-btn {
+    width: 100%;
+    padding: 12px 14px;
+  }
+
   .toggle-container { flex-direction: column; }
   .code { font-size: 22px; letter-spacing: 3px; }
 
@@ -2882,6 +3000,28 @@
   .game-mode-modal,
   .custom-match-modal {
     border-radius: 16px;
+  }
+
+  .custom-chips-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  .chip-select-btn {
+    padding: 10px 4px !important;
+  }
+
+  .player-badges-row {
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    gap: 8px !important;
+  }
+
+  .player-badge-btn {
+    flex: unset !important;
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
   }
 
   .game-mode-card h3 { font-size: 13px; }

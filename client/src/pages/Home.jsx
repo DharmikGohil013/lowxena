@@ -917,6 +917,14 @@ function Home() {
       {showCustomMatchModal && (
         <div className="modal-overlay" onClick={() => setShowCustomMatchModal(false)}>
           <div className="custom-match-modal" onClick={(e) => e.stopPropagation()}>
+            {/* Decorative background suits */}
+            <div className="cm-deco-suits">
+              <span className="cm-suit cm-suit-1">♠</span>
+              <span className="cm-suit cm-suit-2">♥</span>
+              <span className="cm-suit cm-suit-3">♦</span>
+              <span className="cm-suit cm-suit-4">♣</span>
+            </div>
+            
             <div className="modal-close" onClick={() => setShowCustomMatchModal(false)}>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -1100,6 +1108,26 @@ function Home() {
                   <p className="room-code-hint">Share this code with players so they can join your private room</p>
                 </div>
               )}
+              {/* Dynamic Room Summary Card */}
+              <div className="room-summary-ticket">
+                <div className="ticket-glow"></div>
+                <div className="ticket-content">
+                  <div className="ticket-main">
+                    <span className="ticket-title">LOBBY PREVIEW</span>
+                    <span className="ticket-value">
+                      {customMatchConfig.maxPoints === 10 ? '⚡ Blitz' : 
+                       customMatchConfig.maxPoints === 20 ? '🔥 Quick' : 
+                       customMatchConfig.maxPoints === 30 ? '♠ Classic' : '🏆 Epic'}
+                      {' • '}
+                      {customMatchConfig.numPlayers === 2 ? '👥 Duel' : 
+                       customMatchConfig.numPlayers <= 4 ? '👥 Standard' : '👥 Party'} ({customMatchConfig.numPlayers} Players)
+                      {' • '}
+                      {customMatchConfig.isPrivate ? '🔒 Private' : '🌐 Public'}
+                    </span>
+                  </div>
+                  <div className="ticket-suits">♣ ♦ ♥ ♠</div>
+                </div>
+              </div>
 
               {/* Submit Button */}
               <button 
