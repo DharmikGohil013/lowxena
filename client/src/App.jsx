@@ -12,6 +12,7 @@ const RoomList = lazy(() => import('./pages/RoomList'))
 const RoomLobby = lazy(() => import('./pages/RoomLobby'))
 const PracticeGame = lazy(() => import('./pages/PracticeGame'))
 const QuickMatch = lazy(() => import('./pages/QuickMatch'))
+const About = lazy(() => import('./pages/About'))
 
 function SEOUpdater() {
   const location = useLocation()
@@ -49,6 +50,7 @@ function App() {
             <Route path="/rules" element={<Rules />} />
             <Route path="/rooms" element={<RoomList />} />
             <Route path="/room/:roomId" element={<RoomLobby />} />
+            <Route path="/about" element={<About />} />
           </Routes>
         </Suspense>
       </Router>

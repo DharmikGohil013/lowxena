@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google'
 import { 
-  Trophy, Medal, AlertTriangle, Gamepad2, DoorOpen
+  Trophy, Medal, AlertTriangle, Gamepad2, DoorOpen, Info
 } from 'lucide-react'
 import Loader from '../components/Loader'
 import { authAPI, gameAPI, userAPI } from '../services/api'
@@ -1398,6 +1398,14 @@ function Home() {
           </div>
         </div>
       )}
+
+      {/* Floating About Button */}
+      <div className="about-button-container">
+        <button className="home-about-btn" onClick={() => navigate('/about')} title="About LowXena">
+          <Info size={16} />
+          <span>About</span>
+        </button>
+      </div>
 
       {/* Footer */}
       <div className="home-footer">
