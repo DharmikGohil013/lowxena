@@ -424,6 +424,25 @@ function Home() {
         <div className="stars"></div>
         <div className="particles"></div>
         <div className="gradient-overlay"></div>
+        <div className="mesh-overlay"></div>
+        {/* Floating glow orbs */}
+        <div className="glow-orb glow-orb-1"></div>
+        <div className="glow-orb glow-orb-2"></div>
+        <div className="glow-orb glow-orb-3"></div>
+        {/* Floating card suits */}
+        <div className="floating-suits">
+          <span className="float-suit fs-1">♠</span>
+          <span className="float-suit fs-2">♥</span>
+          <span className="float-suit fs-3">♦</span>
+          <span className="float-suit fs-4">♣</span>
+          <span className="float-suit fs-5">♠</span>
+          <span className="float-suit fs-6">♥</span>
+          <span className="float-suit fs-7">♦</span>
+          <span className="float-suit fs-8">♣</span>
+          <span className="float-suit fs-9">♠</span>
+          <span className="float-suit fs-10">♣</span>
+        </div>
+        <div className="vignette-overlay"></div>
       </div>
 
       {/* Leaderboard Section - Top Left */}
