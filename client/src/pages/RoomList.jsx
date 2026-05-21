@@ -105,6 +105,14 @@ function RoomList() {
         <source src="/background.mp4" type="video/mp4" />
       </video>
 
+      {/* Decorative background suits */}
+      <div className="rl-deco-suits">
+        <span className="rl-suit rl-suit-1">♠</span>
+        <span className="rl-suit rl-suit-2">♥</span>
+        <span className="rl-suit rl-suit-3">♦</span>
+        <span className="rl-suit rl-suit-4">♣</span>
+      </div>
+
       <div className="room-list-content">
         <header className="room-list-header">
           <button className="back-btn" onClick={() => navigate('/')}>
@@ -186,18 +194,39 @@ function RoomList() {
               <p>Please wait while we fetch available rooms</p>
             </div>
           ) : filteredRooms.length === 0 ? (
-            <div className="no-rooms">
-              <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                <line x1="9" y1="9" x2="15" y2="15"></line>
-                <line x1="15" y1="9" x2="9" y2="15"></line>
-              </svg>
-              <h3>No rooms found</h3>
-              <p>Try adjusting your filters or create a new room</p>
+            <div className="no-rooms-card">
+              <div className="no-rooms-glow"></div>
+              <div className="no-rooms-content">
+                <div className="no-rooms-icon">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="9" y1="9" x2="15" y2="15"></line>
+                    <line x1="15" y1="9" x2="9" y2="15"></line>
+                  </svg>
+                </div>
+                <h3>No Active Lobbies</h3>
+                <p>There are currently no active rooms matching your filters. Take the lead and host a custom match for players to join!</p>
+                <button 
+                  className="create-room-direct-btn"
+                  onClick={() => navigate('/', { state: { openCreateRoom: true } })}
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="16"></line>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                  </svg>
+                  Create Custom Room
+                </button>
+              </div>
             </div>
           ) : (
             filteredRooms.map(room => (
               <div key={room.id} className="room-card">
+                <div className="card-shine"></div>
+                <div className="room-card-suit-watermark">
+                  {room.isPrivate ? '♠' : '♣'}
+                </div>
+                
                 <div className="room-header">
                   <div className="room-name">
                     {room.isPrivate && <span className="lock-icon">
@@ -210,24 +239,24 @@ function RoomList() {
                   </div>
                   <div className={`room-status ${room.status}`}>
                     {room.status === 'waiting' ? (
-                      <><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> Waiting</>
+                      <><span className="status-dot pulsing"></span> Waiting</>
                     ) : (
-                      <><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Playing</>
+                      <><span className="status-dot playing"></span> Playing</>
                     )}
                   </div>
                 </div>
 
                 <div className="room-info">
                   <div className="info-item">
-                    <span className="label">Players:</span>
-                    <span className="value">{room.currentPlayers}/{room.maxPlayers}</span>
+                    <span className="label">Players</span>
+                    <span className="value">{room.currentPlayers} / {room.maxPlayers}</span>
                   </div>
                   <div className="info-item">
-                    <span className="label">Max Points:</span>
-                    <span className="value">{room.maxPoints}</span>
+                    <span className="label">Points to Win</span>
+                    <span className="value">{room.maxPoints} pts</span>
                   </div>
                   <div className="info-item">
-                    <span className="label">Host:</span>
+                    <span className="label">Lobby Host</span>
                     <span className="value">{room.hostName || 'Unknown'}</span>
                   </div>
                 </div>
@@ -237,9 +266,26 @@ function RoomList() {
                   onClick={() => handleJoinRoom(room)}
                   disabled={room.currentPlayers >= room.maxPlayers || room.status === 'playing'}
                 >
-                  {room.currentPlayers >= room.maxPlayers ? 'Room Full' : 
-                   room.status === 'playing' ? 'Game Started' : 
-                   room.isPrivate ? 'Join with Code' : 'Join Room'}
+                  {room.currentPlayers >= room.maxPlayers ? (
+                    'Room Full'
+                  ) : room.status === 'playing' ? (
+                    'Game Started'
+                  ) : room.isPrivate ? (
+                    <>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{marginRight: '6px', display: 'inline-block', verticalAlign: 'middle'}}>
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                      </svg>
+                      Join with Code
+                    </>
+                  ) : (
+                    <>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{marginRight: '6px', display: 'inline-block', verticalAlign: 'middle'}}>
+                        <path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                      </svg>
+                      Join Room
+                    </>
+                  )}
                 </button>
               </div>
             ))

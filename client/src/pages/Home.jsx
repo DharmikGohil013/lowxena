@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google'
 import { 
   Trophy, Medal, AlertTriangle, Gamepad2, DoorOpen
@@ -12,6 +12,7 @@ import './Home.css'
 const GOOGLE_CLIENT_ID = "878079171404-6o87ieel3jiio8aeb0mfmu4a407gh02n.apps.googleusercontent.com";
 function Home() {
   const navigate = useNavigate()
+  const location = useLocation()
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [showLoginModal, setShowLoginModal] = useState(false)
   const [guestName, setGuestName] = useState('')
@@ -88,6 +89,15 @@ function Home() {
 
     checkUserRoom();
   }, [isLoggedIn]);
+
+  // Auto-open custom match modal if navigated from RoomList with openCreateRoom state
+  useEffect(() => {
+    if (location.state?.openCreateRoom) {
+      setShowCustomMatchModal(true)
+      // Clean up the location state so it doesn't reopen on subsequent refreshes
+      navigate(location.pathname, { replace: true, state: {} })
+    }
+  }, [location, navigate])
 
   // Fetch leaderboard
   useEffect(() => {
