@@ -51,6 +51,7 @@ function Home() {
   const [showRoomWarning, setShowRoomWarning] = useState(false)
   const [currentRoomInfo, setCurrentRoomInfo] = useState(null)
   const [profileTab, setProfileTab] = useState('info') // 'info' | 'stats' | 'avatar'
+  const [copiedCode, setCopiedCode] = useState(false)
 
   // Check for existing token on mount (auto-login)
   useEffect(() => {
@@ -935,9 +936,9 @@ function Home() {
             </div>
             
             <div className="custom-match-form">
-              {/* Max Points */}
+              {/* Max Points Selector */}
               <div className="form-group">
-                <label htmlFor="maxPoints">
+                <label>
                   <span className="label-icon">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <circle cx="12" cy="12" r="10"></circle>
@@ -946,31 +947,26 @@ function Home() {
                   </span>
                   Points to Win
                 </label>
-                <div className="range-container">
-                  <input
-                    type="range"
-                    id="maxPoints"
-                    min="10"
-                    max="40"
-                    step="5"
-                    value={customMatchConfig.maxPoints}
-                    onChange={(e) => setCustomMatchConfig({
-                      ...customMatchConfig,
-                      maxPoints: parseInt(e.target.value)
-                    })}
-                    className="range-slider"
-                  />
-                  <div className="range-value">{customMatchConfig.maxPoints}</div>
-                </div>
-                <div className="range-labels">
-                  <span>10</span>
-                  <span>40</span>
+                <div className="custom-chips-grid">
+                  {[10, 20, 30, 40].map((pts) => (
+                    <button
+                      key={pts}
+                      type="button"
+                      className={`chip-select-btn ${customMatchConfig.maxPoints === pts ? 'active' : ''}`}
+                      onClick={() => setCustomMatchConfig({ ...customMatchConfig, maxPoints: pts })}
+                    >
+                      <span className="chip-points">{pts}</span>
+                      <span className="chip-label">
+                        {pts === 10 ? '⚡ Blitz' : pts === 20 ? '🔥 Quick' : pts === 30 ? '♠ Classic' : '🏆 Epic'}
+                      </span>
+                    </button>
+                  ))}
                 </div>
               </div>
 
-              {/* Number of Players */}
+              {/* Number of Players Selector */}
               <div className="form-group">
-                <label htmlFor="numPlayers">
+                <label>
                   <span className="label-icon">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
@@ -981,29 +977,24 @@ function Home() {
                   </span>
                   Player Count
                 </label>
-                <div className="range-container">
-                  <input
-                    type="range"
-                    id="numPlayers"
-                    min="2"
-                    max="7"
-                    step="1"
-                    value={customMatchConfig.numPlayers}
-                    onChange={(e) => setCustomMatchConfig({
-                      ...customMatchConfig,
-                      numPlayers: parseInt(e.target.value)
-                    })}
-                    className="range-slider"
-                  />
-                  <div className="range-value">{customMatchConfig.numPlayers}</div>
-                </div>
-                <div className="range-labels">
-                  <span>2</span>
-                  <span>7</span>
+                <div className="player-badges-row">
+                  {[2, 3, 4, 5, 6, 7].map((num) => (
+                    <button
+                      key={num}
+                      type="button"
+                      className={`player-badge-btn ${customMatchConfig.numPlayers === num ? 'active' : ''}`}
+                      onClick={() => setCustomMatchConfig({ ...customMatchConfig, numPlayers: num })}
+                    >
+                      <span className="player-badge-num">{num}</span>
+                      <span className="player-badge-label">
+                        {num === 2 ? 'Duel' : num <= 4 ? 'Standard' : 'Party'}
+                      </span>
+                    </button>
+                  ))}
                 </div>
               </div>
 
-              {/* Private/Public Toggle */}
+              {/* Room Visibility Segment Cards */}
               <div className="form-group">
                 <label>
                   <span className="label-icon">
@@ -1014,32 +1005,58 @@ function Home() {
                   </span>
                   Room Visibility
                 </label>
-                <div className="toggle-container">
+                <div className="visibility-cards-container">
                   <button
-                    className={`toggle-btn ${!customMatchConfig.isPrivate ? 'active' : ''}`}
-                    onClick={() => handlePrivateToggle()}
+                    type="button"
+                    className={`visibility-card-btn ${!customMatchConfig.isPrivate ? 'active' : ''}`}
+                    onClick={() => setCustomMatchConfig({
+                      ...customMatchConfig,
+                      isPrivate: false,
+                      roomCode: ''
+                    })}
                   >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <circle cx="12" cy="12" r="10"></circle>
-                      <line x1="2" y1="12" x2="22" y2="12"></line>
-                      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-                    </svg>
-                    Public
+                    <div className="v-card-icon">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="2" y1="12" x2="22" y2="12"></line>
+                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                      </svg>
+                    </div>
+                    <div className="v-card-text">
+                      <h4>Public Lobby</h4>
+                      <p>Listed publicly. Anyone can join from search.</p>
+                    </div>
+                    <div className="v-card-check">✓</div>
                   </button>
+
                   <button
-                    className={`toggle-btn ${customMatchConfig.isPrivate ? 'active' : ''}`}
-                    onClick={() => handlePrivateToggle()}
+                    type="button"
+                    className={`visibility-card-btn ${customMatchConfig.isPrivate ? 'active' : ''}`}
+                    onClick={() => {
+                      const code = customMatchConfig.roomCode || generateRoomCode();
+                      setCustomMatchConfig({
+                        ...customMatchConfig,
+                        isPrivate: true,
+                        roomCode: code
+                      });
+                    }}
                   >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                      <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                    </svg>
-                    Private
+                    <div className="v-card-icon">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                      </svg>
+                    </div>
+                    <div className="v-card-text">
+                      <h4>Private Room</h4>
+                      <p>Hidden lobby. Require Room Code to enter.</p>
+                    </div>
+                    <div className="v-card-check">✓</div>
                   </button>
                 </div>
               </div>
 
-              {/* Room Code (only for private) */}
+              {/* Room Code Panel */}
               {customMatchConfig.isPrivate && (
                 <div className="form-group room-code-group">
                   <label>
@@ -1054,20 +1071,33 @@ function Home() {
                   <div className="room-code-display">
                     <span className="code">{customMatchConfig.roomCode}</span>
                     <button 
-                      className="copy-btn"
+                      className={`copy-btn ${copiedCode ? 'copied' : ''}`}
                       onClick={() => {
                         navigator.clipboard.writeText(customMatchConfig.roomCode);
-                        alert('Room code copied!');
+                        setCopiedCode(true);
+                        setTimeout(() => setCopiedCode(false), 2000);
                       }}
+                      type="button"
                     >
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                      </svg>
-                      Copy
+                      {copiedCode ? (
+                        <>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{color: '#34d399'}}>
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                          </svg>
+                          <span>Copied</span>
+                        </>
+                      ) : (
+                        <>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                          </svg>
+                          <span>Copy</span>
+                        </>
+                      )}
                     </button>
                   </div>
-                  <p className="room-code-hint">Share this code with players to join</p>
+                  <p className="room-code-hint">Share this code with players so they can join your private room</p>
                 </div>
               )}
 
@@ -1080,7 +1110,7 @@ function Home() {
                 {creatingRoom ? (
                   <>
                     <span className="spinner"></span>
-                    Creating...
+                    Creating room...
                   </>
                 ) : (
                   <>
