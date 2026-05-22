@@ -26,6 +26,7 @@ function Home() {
   const [userId, setUserId] = useState('')
   const [loading, setLoading] = useState(false)
   const [showProfileModal, setShowProfileModal] = useState(false)
+  const [showScorePopup, setShowScorePopup] = useState(false)
   const [profileData, setProfileData] = useState({
     name: '',
     username: '',
@@ -582,7 +583,11 @@ function Home() {
           <span className="login-text">Login</span>
         </div>
       ) : (
-        <div className="profile-section logged-in">
+        <div 
+          className="profile-section logged-in"
+          onMouseEnter={() => setShowScorePopup(true)}
+          onMouseLeave={() => setShowScorePopup(false)}
+        >
           <div className="profile-avatar" onClick={handleProfileClick} style={{ cursor: 'pointer' }}>
             {renderAvatar(playerPicture, 45, playerName)}
           </div>
@@ -592,9 +597,55 @@ function Home() {
               {userRankNum ? `Rank #${userRankNum}` : 'Unranked'} · {userStats.wins}W/{userStats.losses}L
             </span>
           </div>
+          <button 
+            className={`stats-toggle-btn ${showScorePopup ? 'active' : ''}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowScorePopup(!showScorePopup);
+            }}
+            title="Quick Stats"
+          >
+            <TrendingUp size={14} />
+          </button>
           <button className="logout-btn" onClick={handleLogout} title="Logout">
             <LogOut size={16} />
           </button>
+
+          {showScorePopup && (
+            <div className="profile-score-popup" onClick={(e) => e.stopPropagation()}>
+              <div className="popup-suits-bg">♠ ♥ ♦ ♣</div>
+              <div className="popup-header">
+                <Crown size={16} className="popup-header-icon" />
+                <span>Quick Stats</span>
+              </div>
+              <div className="popup-body">
+                <div className="popup-stat-row">
+                  <span className="popup-stat-label">Highest Score</span>
+                  <span className="popup-stat-val val-score">{userStats.highest_score || 0}</span>
+                </div>
+                <div className="popup-stat-row">
+                  <span className="popup-stat-label">Win Rate</span>
+                  <span className="popup-stat-val val-winrate">{userStats.win_rate || 0}%</span>
+                </div>
+                <div className="popup-stat-row">
+                  <span className="popup-stat-label">Total Games</span>
+                  <span className="popup-stat-val">{userStats.total_games || 0}</span>
+                </div>
+                <div className="popup-stat-row">
+                  <span className="popup-stat-label">Record</span>
+                  <span className="popup-stat-val val-record">{userStats.wins || 0}W / {userStats.losses || 0}L</span>
+                </div>
+                <div className="popup-winrate-bar-wrap">
+                  <div className="popup-winrate-bar">
+                    <div className="popup-winrate-bar-fill" style={{ width: `${userStats.win_rate || 0}%` }}></div>
+                  </div>
+                </div>
+              </div>
+              <div className="popup-footer" onClick={handleProfileClick}>
+                <span>Full Profile & Edit →</span>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
