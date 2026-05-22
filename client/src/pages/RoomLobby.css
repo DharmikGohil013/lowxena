@@ -1,5 +1,5 @@
 /* ==========================================================================
-   RoomLobby.css - Premium Cosmic Card Table Lobby Styling
+   RoomLobby.css - Premium Pop-Art / Neo-Brutalist Lobby Styling
    ========================================================================== */
 
 /* Room Lobby Container */
@@ -7,30 +7,29 @@
   position: relative;
   width: 100%;
   min-height: 100vh;
-  /* Deep radial card table gradient with subtle purple-navy cosmos hues */
-  background: radial-gradient(circle at center, #0f1c30 0%, #070d18 60%, #03060a 100%);
+  /* Premium off-white dot-grid overlay background */
+  background-color: #f4f4f6;
+  background-image: 
+    radial-gradient(rgba(0, 0, 0, 0.08) 1.5px, transparent 1.5px),
+    linear-gradient(to right, rgba(0, 0, 0, 0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.02) 1px, transparent 1px);
+  background-size: 24px 24px, 72px 72px, 72px 72px;
+  background-position: center;
   overflow-y: auto;
   padding: 40px 24px;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
+  color: #000000;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
 .video-background {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  z-index: 0;
-  opacity: 0.08;
-  mix-blend-mode: color-dodge;
-  pointer-events: none;
+  display: none; /* Hide starry video background in light pop-art mode */
 }
 
-/* Background floating suits */
+/* Background floating suits styled as neon watermarks */
 .rl-deco-suits {
   position: fixed;
   inset: 0;
@@ -42,15 +41,15 @@
 .rl-suit {
   position: absolute;
   font-size: 110px;
-  opacity: 0.022;
+  opacity: 0.05;
   animation: rl-suit-drift 12s ease-in-out infinite;
   user-select: none;
 }
 
-.rl-suit-1 { top: 8%; left: 6%; color: #8b5cf6; animation-delay: 0s; }
-.rl-suit-2 { top: 22%; right: 8%; color: #ec4899; animation-delay: 3s; }
-.rl-suit-3 { bottom: 18%; left: 8%; color: #ffd700; animation-delay: 6s; }
-.rl-suit-4 { bottom: 12%; right: 12%; color: #10b981; animation-delay: 1.5s; }
+.rl-suit-1 { top: 8%; left: 6%; color: #00e5ff; animation-delay: 0s; }
+.rl-suit-2 { top: 22%; right: 8%; color: #ff007f; animation-delay: 3s; }
+.rl-suit-3 { bottom: 18%; left: 8%; color: #ffe600; animation-delay: 6s; }
+.rl-suit-4 { bottom: 12%; right: 12%; color: #00ff66; animation-delay: 1.5s; }
 
 @keyframes rl-suit-drift {
   0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
@@ -75,12 +74,11 @@
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  background: rgba(255, 255, 255, 0.015);
-  border: 1px solid rgba(255, 215, 0, 0.15);
+  background: #ffffff;
+  border: 3px solid #000000;
   padding: 24px 32px;
-  border-radius: 24px;
-  backdrop-filter: blur(15px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  box-shadow: 6px 6px 0px #000000;
 }
 
 .back-btn {
@@ -88,40 +86,48 @@
   align-items: center;
   gap: 10px;
   padding: 12px 24px;
-  background: rgba(239, 68, 68, 0.08);
-  border: 1px solid rgba(239, 68, 68, 0.25);
-  color: #fca5a5;
-  border-radius: 14px;
+  background: #ffffff;
+  border: 3px solid #000000;
+  color: #000000;
+  border-radius: 12px;
   font-family: 'Outfit', sans-serif;
   font-size: 14px;
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 1.5px;
   cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 4px 4px 0px #000000;
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   white-space: nowrap;
 }
 
 .back-btn:hover:not(:disabled) {
-  transform: translateY(-3px);
-  background: rgba(239, 68, 68, 0.2);
-  border-color: rgba(239, 68, 68, 0.5);
-  box-shadow: 0 8px 24px rgba(239, 68, 68, 0.25);
+  transform: translate(-2px, -2px);
+  background: #ff007f; /* Hot pink on hover */
+  color: #ffffff;
+  box-shadow: 6px 6px 0px #000000;
+}
+
+.back-btn:active:not(:disabled) {
+  transform: translate(0, 0);
+  box-shadow: 2px 2px 0px #000000;
 }
 
 .back-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  background: rgba(107, 114, 128, 0.08);
-  border-color: rgba(107, 114, 128, 0.15);
-  color: #9ca3af;
+  background: #e2e8f0;
+  border-color: #000000;
+  color: #777777;
+  box-shadow: 2px 2px 0px #000000;
+  transform: none;
 }
 
 .back-btn .spinner {
   width: 16px;
   height: 16px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top-color: #fca5a5;
+  border: 2px solid rgba(0, 0, 0, 0.3);
+  border-top-color: #ff007f;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -142,25 +148,24 @@
   font-family: 'Outfit', sans-serif;
   font-size: 32px;
   font-weight: 900;
-  color: #ffffff;
+  color: #000000;
   letter-spacing: -0.5px;
-  text-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
 }
 
-/* Redesigned keycard room access display */
+/* Redesigned Pop-Art Keycard Room Access Display */
 .room-code-keycard {
   display: inline-flex;
   flex-direction: column;
   position: relative;
-  background: linear-gradient(135deg, #1e1b18 0%, #110e0c 100%);
-  border: 2px solid rgba(212, 175, 55, 0.4);
-  border-radius: 12px;
+  background: #ffffff;
+  border: 3px solid #000000;
+  border-radius: 14px;
   padding: 12px 20px 10px 20px;
   width: 200px;
   text-align: left;
   cursor: pointer;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), 0 0 15px rgba(212, 175, 55, 0.05);
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 4px 4px 0px #000000;
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   margin-top: 10px;
   user-select: none;
   overflow: hidden;
@@ -172,24 +177,32 @@
   top: 0;
   left: 0;
   width: 100%;
-  height: 4px;
-  background: linear-gradient(90deg, #d4af37, #f3e5ab, #d4af37);
+  height: 6px;
+  background: #ffe600; /* Yellow stripe */
+  border-bottom: 2px solid #000000;
 }
 
 .room-code-keycard:hover {
-  transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 12px 30px rgba(212, 175, 55, 0.25);
-  border-color: rgba(212, 175, 55, 0.7);
+  transform: translate(-3px, -3px) scale(1.02);
+  box-shadow: 7px 7px 0px #ffe600;
+  border-color: #000000;
+  background: #ffffff;
+}
+
+.room-code-keycard:active {
+  transform: translate(0, 0) scale(1);
+  box-shadow: 2px 2px 0px #000000;
 }
 
 .keycard-chip {
-  width: 28px;
-  height: 20px;
-  background: linear-gradient(135deg, #ffd700 0%, #b8860b 100%);
+  width: 32px;
+  height: 22px;
+  background: #ffe600;
+  border: 2px solid #000000;
   border-radius: 4px;
   margin-bottom: 6px;
   position: relative;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
+  box-shadow: 2px 2px 0px #000000;
 }
 
 .keycard-chip::after {
@@ -199,42 +212,41 @@
   left: 0;
   right: 0;
   bottom: 0;
-  border: 1px solid rgba(0, 0, 0, 0.25);
   background-image: 
-    linear-gradient(90deg, transparent 50%, rgba(0,0,0,0.15) 50%),
-    linear-gradient(0deg, transparent 50%, rgba(0,0,0,0.15) 50%);
+    linear-gradient(90deg, transparent 50%, #000000 50%),
+    linear-gradient(0deg, transparent 50%, #000000 50%);
   background-size: 6px 6px;
-  border-radius: 4px;
+  border-radius: 2px;
+  opacity: 0.15;
 }
 
 .keycard-label {
   font-family: 'Outfit', sans-serif;
-  font-size: 8px;
-  letter-spacing: 2px;
-  color: rgba(212, 175, 55, 0.7);
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: #666666;
   font-weight: 800;
-  margin-bottom: 1px;
+  margin-bottom: 2px;
 }
 
 .keycard-value {
   font-family: 'Outfit', sans-serif;
   font-size: 18px;
   font-weight: 900;
-  color: #f3e5ab;
-  letter-spacing: 2.5px;
-  text-shadow: 0 0 8px rgba(243, 229, 171, 0.3);
+  color: #000000;
+  letter-spacing: 2px;
 }
 
 .keycard-copy-icon {
   position: absolute;
   right: 16px;
   bottom: 12px;
-  color: rgba(212, 175, 55, 0.6);
-  transition: all 0.3s ease;
+  color: #000000;
+  transition: all 0.2s ease;
 }
 
 .room-code-keycard:hover .keycard-copy-icon {
-  color: #f3e5ab;
+  color: #ff007f;
   transform: scale(1.15);
 }
 
@@ -243,18 +255,18 @@
   top: -36px;
   left: 50%;
   transform: translateX(-50%);
-  background: #090e18;
-  border: 1px solid rgba(212, 175, 55, 0.35);
-  color: #f3e5ab;
+  background: #000000;
+  border: 2px solid #000000;
+  color: #ffffff;
   padding: 6px 12px;
-  border-radius: 8px;
+  border-radius: 6px;
   font-size: 11px;
   font-weight: 700;
   white-space: nowrap;
   opacity: 0;
   pointer-events: none;
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 3px 3px 0px #ffe600;
 }
 
 .room-code-keycard:hover .copy-tooltip {
@@ -272,25 +284,25 @@
 
 /* Settings Boarding Ticket style */
 .room-settings-panel {
-  background: linear-gradient(135deg, rgba(20, 32, 48, 0.45) 0%, rgba(10, 16, 24, 0.55) 100%);
-  border: 2px solid rgba(212, 175, 55, 0.25);
+  background: #ffffff;
+  border: 3px solid #000000;
   padding: 28px 24px;
-  border-radius: 20px;
-  backdrop-filter: blur(14px);
+  border-radius: 16px;
   position: relative;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4), inset 0 0 20px rgba(212, 175, 55, 0.05);
+  box-shadow: 6px 6px 0px #ff007f; /* Offset Pink shadow */
   height: fit-content;
   overflow: hidden;
 }
 
-/* Boarding receipt notched details */
+/* Vintage notched punch holes matching the body dot background overlay */
 .room-settings-panel::before,
 .room-settings-panel::after {
   content: '';
   position: absolute;
-  width: 22px;
-  height: 22px;
-  background: #070d18; /* Matches radial background depth */
+  width: 24px;
+  height: 24px;
+  background: #f4f4f6;
+  border: 3px solid #000000;
   border-radius: 50%;
   top: 50%;
   transform: translateY(-50%);
@@ -298,34 +310,31 @@
 }
 
 .room-settings-panel::before {
-  left: -12px;
-  border-right: 2px solid rgba(212, 175, 55, 0.25);
+  left: -14px;
 }
 
 .room-settings-panel::after {
-  right: -12px;
-  border-left: 2px solid rgba(212, 175, 55, 0.25);
+  right: -14px;
 }
 
 .room-settings-panel h3 {
-  margin: 0 0 24px 0;
+  margin: 0 0 20px 0;
   font-family: 'Outfit', sans-serif;
   font-size: 20px;
   font-weight: 900;
-  color: #ffd700;
+  color: #000000;
   text-transform: uppercase;
-  letter-spacing: 2px;
+  letter-spacing: 1.5px;
   text-align: center;
   position: relative;
-  text-shadow: 0 0 10px rgba(255, 215, 0, 0.25);
 }
 
 .room-settings-panel h3::after {
   content: '';
   display: block;
-  width: 50px;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, #ffd700, transparent);
+  width: 60px;
+  height: 3px;
+  background: #000000;
   margin: 8px auto 0 auto;
 }
 
@@ -334,8 +343,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 15px 8px;
-  border-bottom: 1px dashed rgba(212, 175, 55, 0.15);
-  transition: all 0.3s ease;
+  border-bottom: 2px dashed #000000;
+  transition: all 0.2s ease;
 }
 
 .setting-item:last-child {
@@ -343,42 +352,52 @@
 }
 
 .setting-item:hover {
-  background: rgba(212, 175, 55, 0.03);
+  background: rgba(0, 229, 255, 0.08); /* Cyan tint */
 }
 
 .setting-label {
   font-size: 13px;
-  color: rgba(226, 232, 240, 0.6);
-  font-weight: 600;
+  color: #4b5563;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.setting-icon-inline {
+  color: #000000;
+  flex-shrink: 0;
 }
 
 .setting-value {
   font-family: 'Outfit', sans-serif;
   font-size: 16px;
-  color: #ffd700;
-  font-weight: 800;
+  color: #000000;
+  font-weight: 900;
 }
 
 .setting-value.status-waiting {
-  color: #ffd700;
-  text-shadow: 0 0 8px rgba(255, 215, 0, 0.25);
+  color: #ff007f; /* Hot Pink */
 }
 
 .setting-value.status-playing {
-  color: #10b981;
-  text-shadow: 0 0 8px rgba(16, 185, 129, 0.25);
+  color: #00ff66; /* Lime Green */
+  background: #000000;
+  color: #00ff66;
+  padding: 2px 8px;
+  border-radius: 6px;
+  border: 2px solid #000000;
 }
 
 /* Players Panel */
 .players-panel {
-  background: rgba(255, 255, 255, 0.012);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #ffffff;
+  border: 3px solid #000000;
   padding: 28px;
-  border-radius: 24px;
-  backdrop-filter: blur(15px);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.03);
+  border-radius: 16px;
+  box-shadow: 6px 6px 0px #00e5ff; /* Offset Cyan shadow */
 }
 
 .players-panel h3 {
@@ -386,10 +405,10 @@
   font-family: 'Outfit', sans-serif;
   font-size: 22px;
   font-weight: 900;
-  color: #ffffff;
+  color: #000000;
   text-align: left;
   letter-spacing: 0.5px;
-  border-left: 4px solid #8b5cf6;
+  border-left: 5px solid #ff007f; /* Hot Pink left indicator */
   padding-left: 14px;
 }
 
@@ -399,23 +418,24 @@
   gap: 20px;
 }
 
-/* Playing Card styling */
+/* Pop-Art Dealt Playing Card styling */
 .player-card {
   position: relative;
   aspect-ratio: 2.5 / 3.4;
-  background: linear-gradient(135deg, #162235 0%, #0d1424 100%);
-  border: 2px solid rgba(255, 255, 255, 0.08);
-  border-radius: 18px;
+  background: #ffffff;
+  border: 3px solid #000000;
+  border-radius: 14px;
   padding: 22px 18px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
   text-align: center;
-  transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.05);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 4px 4px 0px #000000;
   overflow: hidden;
-  animation: dealCard 0.6s cubic-bezier(0.25, 1, 0.5, 1) both;
+  color: #000000;
+  animation: dealCard 0.4s cubic-bezier(0.25, 1, 0.5, 1) both;
 }
 
 @keyframes dealCard {
@@ -429,41 +449,41 @@
   }
 }
 
-/* Alternate slight tilt on cards to look like they are dealt naturally on the poker table! */
+/* Dealt natural card rotations */
 .players-list > div:nth-child(2n) .player-card {
-  transform: rotate(-1deg);
+  transform: rotate(-1.5deg);
 }
 
 .players-list > div:nth-child(3n) .player-card {
-  transform: rotate(1.5deg);
+  transform: rotate(1deg);
 }
 
-/* Refined Hover Tilt with pure CSS transitions */
+/* Bouncy hover transformations */
 .player-card:hover {
-  transform: translateY(-12px) rotate(0deg) scale(1.05) !important;
-  border-color: rgba(139, 92, 246, 0.45);
-  box-shadow: 0 22px 45px rgba(139, 92, 246, 0.22), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+  transform: translateY(-8px) rotate(0deg) scale(1.03) !important;
+  border-color: #000000;
+  box-shadow: 8px 8px 0px #ff007f; /* Hot Pink hover shadow */
   z-index: 5;
 }
 
+/* Host/Master distinct card styles */
 .player-card.host-card {
-  border-color: rgba(212, 175, 55, 0.35);
-  background: linear-gradient(135deg, #241d11 0%, #0d0905 100%);
-  box-shadow: 0 12px 28px rgba(212, 175, 55, 0.08), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  background: #ffe600; /* Vibrant Yellow background */
+  box-shadow: 4px 4px 0px #000000;
 }
 
 .player-card.host-card:hover {
-  border-color: rgba(212, 175, 55, 0.85);
-  box-shadow: 0 22px 48px rgba(212, 175, 55, 0.28), inset 0 1px 1px rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 8px 8px 0px #00e5ff !important; /* Cyan shadow for Master card */
 }
 
 .player-card.current-player {
-  border-color: rgba(139, 92, 246, 0.45);
-  box-shadow: 0 12px 28px rgba(139, 92, 246, 0.12), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  border-color: #000000;
+  outline: 2.5px dashed #ff007f;
+  outline-offset: -6px;
 }
 
 .player-card.current-player:hover {
-  border-color: #8b5cf6;
+  outline-color: #000000;
 }
 
 /* Shimmer shine effect */
@@ -476,7 +496,7 @@
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(255, 255, 255, 0.06) 50%,
+    rgba(255, 255, 255, 0.4) 50%,
     transparent 100%
   );
   transform: skewX(-25deg);
@@ -487,31 +507,31 @@
 
 .player-card:hover .card-shine {
   left: 150%;
-  transition: all 0.9s ease-out;
+  transition: all 0.7s ease-out;
 }
 
 /* Background Watermark Suit */
 .suit-watermark {
   position: absolute;
-  font-size: 150px;
+  font-size: 160px;
   right: -25px;
   bottom: -35px;
-  opacity: 0.025;
+  opacity: 0.08;
   user-select: none;
   pointer-events: none;
-  transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
   z-index: 1;
 }
 
 .player-card:hover .suit-watermark {
-  opacity: 0.055;
-  transform: scale(1.15) rotate(-8deg);
+  opacity: 0.15;
+  transform: scale(1.1) rotate(-10deg);
 }
 
-.watermark-0 { color: #f43f5e; } /* Hearts */
-.watermark-1 { color: #3b82f6; } /* Spades */
-.watermark-2 { color: #eab308; } /* Diamonds */
-.watermark-3 { color: #10b981; } /* Clubs */
+.watermark-0 { color: #ff007f; } /* Hearts */
+.watermark-1 { color: #00e5ff; } /* Spades */
+.watermark-2 { color: #ffe600; } /* Diamonds */
+.watermark-3 { color: #00ff66; } /* Clubs */
 
 /* Avatar styling */
 .player-avatar {
@@ -526,69 +546,71 @@
   height: 100%;
   border-radius: 50%;
   object-fit: cover;
-  border: 3px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
-  transition: all 0.3s ease;
+  border: 3px solid #000000;
+  box-shadow: 2px 2px 0px #000000;
+  transition: all 0.2s ease;
 }
 
 .player-card:hover .player-avatar img {
-  transform: scale(1.06);
-  border-color: rgba(255, 255, 255, 0.25);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+  transform: scale(1.05);
+  box-shadow: 4px 4px 0px #000000;
 }
 
 .avatar-placeholder {
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  background: #00e5ff; /* Cyan base */
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: 'Outfit', sans-serif;
   font-size: 28px;
   font-weight: 900;
-  color: white;
-  border: 3px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
-  transition: all 0.3s ease;
+  color: #000000;
+  border: 3px solid #000000;
+  box-shadow: 2px 2px 0px #000000;
+  transition: all 0.2s ease;
 }
 
 .player-card.host-card .avatar-placeholder {
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  background: #ffffff;
 }
 
 .player-card:hover .avatar-placeholder {
-  transform: scale(1.06);
-  border-color: rgba(255, 255, 255, 0.25);
+  transform: scale(1.05);
+  box-shadow: 4px 4px 0px #000000;
 }
 
-/* Master Badge 👑 */
+/* Master Badge Crown 👑 */
 .master-badge {
   position: absolute;
   top: -6px;
   right: -6px;
   width: 28px;
   height: 28px;
-  background: linear-gradient(135deg, #ffd700 0%, #b8860b 100%);
+  background: #ffe600;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
-  border: 2px solid #0f0b05;
-  box-shadow: 0 4px 10px rgba(212, 175, 55, 0.35);
-  animation: spinCrown 6s linear infinite;
+  border: 2px solid #000000;
+  box-shadow: 2px 2px 0px #000000;
+  animation: spinCrown 10s linear infinite;
   z-index: 4;
+}
+
+.crown-icon {
+  color: #000000;
 }
 
 @keyframes spinCrown {
   0% { transform: rotate(0deg) scale(1); }
-  50% { transform: rotate(180deg) scale(1.08); }
+  50% { transform: rotate(180deg) scale(1.05); }
   100% { transform: rotate(360deg) scale(1); }
 }
 
-/* Player Info text */
+/* Player Info Text */
 .player-info {
   display: flex;
   flex-direction: column;
@@ -601,8 +623,8 @@
 .player-name {
   font-family: 'Outfit', sans-serif;
   font-size: 16px;
-  font-weight: 800;
-  color: #f1f5f9;
+  font-weight: 900;
+  color: #000000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -618,87 +640,83 @@
 
 .you-label {
   font-size: 10px;
-  font-weight: 700;
-  color: #c4b5fd;
-  background: rgba(139, 92, 246, 0.2);
+  font-weight: 800;
+  color: #ffffff;
+  background: #ff007f;
   padding: 2px 8px;
-  border-radius: 8px;
-  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 6px;
+  border: 2px solid #000000;
   flex-shrink: 0;
+  box-shadow: 1px 1px 0px #000000;
 }
 
 .player-role {
   font-size: 11px;
-  color: rgba(226, 232, 240, 0.45);
-  font-weight: 600;
+  color: #4b5563;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
 }
 
 .player-card.host-card .player-name {
-  color: #ffd700;
-  text-shadow: 0 0 8px rgba(255, 215, 0, 0.15);
+  color: #000000;
 }
 
 .player-card.host-card .player-role {
-  color: #ffd700;
-  opacity: 0.8;
+  color: #000000;
 }
 
-/* Status Tokens */
+/* Status Badges */
 .player-status {
   font-family: 'Outfit', sans-serif;
   font-size: 10px;
-  font-weight: 800;
+  font-weight: 900;
   text-transform: uppercase;
-  letter-spacing: 1.5px;
-  padding: 6px 14px;
-  border-radius: 20px;
+  letter-spacing: 1px;
+  padding: 5px 12px;
+  border-radius: 8px;
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   margin-top: 6px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+  border: 2px solid #000000;
+  box-shadow: 2px 2px 0px #000000;
 }
 
 .player-status.ready {
-  background: rgba(16, 185, 129, 0.1);
-  color: #10b981;
-  border: 1.5px solid rgba(16, 185, 129, 0.45);
-  box-shadow: 0 0 12px rgba(16, 185, 129, 0.15);
-  animation: glowReady 2.5s infinite ease-in-out;
+  background: #00ff66; /* Lime Green */
+  color: #000000;
+  animation: glowReady 3s infinite ease-in-out;
 }
 
 @keyframes glowReady {
   0%, 100% {
-    box-shadow: 0 0 8px rgba(16, 185, 129, 0.15);
-    border-color: rgba(16, 185, 129, 0.4);
+    box-shadow: 2px 2px 0px #000000;
+    transform: scale(1);
   }
   50% {
-    box-shadow: 0 0 16px rgba(16, 185, 129, 0.35);
-    border-color: rgba(16, 185, 129, 0.7);
+    box-shadow: 3px 3px 0px #000000;
+    transform: scale(1.02);
   }
 }
 
 .player-status.not-ready {
-  background: rgba(245, 158, 11, 0.08);
-  color: #f59e0b;
-  border: 1.5px solid rgba(245, 158, 11, 0.4);
-  box-shadow: 0 0 12px rgba(245, 158, 11, 0.12);
+  background: #ffe600; /* Yellow */
+  color: #000000;
 }
 
 .stby-dot {
   width: 6px;
   height: 6px;
-  background-color: #f59e0b;
+  background-color: #000000;
   border-radius: 50%;
   display: inline-block;
   animation: blinkStby 1.5s infinite ease-in-out;
 }
 
 @keyframes blinkStby {
-  0%, 100% { opacity: 0.35; transform: scale(0.85); }
+  0%, 100% { opacity: 0.4; transform: scale(0.85); }
   50% { opacity: 1; transform: scale(1.15); }
 }
 
@@ -707,20 +725,21 @@
   position: absolute;
   top: 14px;
   right: 14px;
-  width: 26px;
-  height: 26px;
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.2);
+  width: 28px;
+  height: 28px;
+  background: #ff007f;
+  border: 2px solid #000000;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: #fca5a5;
+  color: #ffffff;
   opacity: 0;
-  transform: scale(0.85);
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transform: scale(0.8);
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   z-index: 4;
+  box-shadow: 2px 2px 0px #000000;
 }
 
 .player-card:hover .kick-btn {
@@ -729,11 +748,9 @@
 }
 
 .kick-btn:hover {
-  background: #ef4444;
-  border-color: #ef4444;
-  color: white;
+  background: #ff007f;
   transform: scale(1.15) rotate(90deg) !important;
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.45);
+  box-shadow: 3px 3px 0px #000000;
 }
 
 /* Lobby Actions Footer */
@@ -750,122 +767,103 @@
   align-items: center;
   justify-content: center;
   gap: 12px;
-  padding: 18px 42px;
-  border: none;
-  border-radius: 16px;
+  padding: 16px 36px;
+  border: 3px solid #000000;
+  border-radius: 12px;
   font-family: 'Outfit', sans-serif;
   font-size: 16px;
   font-weight: 900;
   text-transform: uppercase;
-  letter-spacing: 1.5px;
+  letter-spacing: 1px;
   cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   min-width: 260px;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+  box-shadow: 4px 4px 0px #000000;
+  color: #000000;
 }
 
 /* Hosts - Start game button with shimmering lights */
 .start-game-btn {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  color: white;
-  box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
-}
-
-.start-game-btn::after {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(
-    45deg,
-    transparent,
-    rgba(255, 255, 255, 0.12),
-    transparent
-  );
-  transform: rotate(45deg);
-  animation: shimmer 3.5s infinite;
-}
-
-@keyframes shimmer {
-  0% { transform: translateX(-100%) rotate(45deg); }
-  100% { transform: translateX(100%) rotate(45deg); }
+  background: #00ff66; /* Lime Green */
 }
 
 .start-game-btn:hover:not(:disabled) {
-  transform: translateY(-4px) scale(1.03);
-  box-shadow: 0 16px 36px rgba(16, 185, 129, 0.45);
+  transform: translate(-3px, -3px);
+  box-shadow: 7px 7px 0px #ff007f; /* Hot Pink hover shadow */
+}
+
+.start-game-btn:active:not(:disabled) {
+  transform: translate(0, 0);
+  box-shadow: 2px 2px 0px #000000;
 }
 
 .start-game-btn:disabled {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.25);
+  background: #e2e8f0;
+  border-color: #000000;
+  color: #777777;
   cursor: not-allowed;
-  opacity: 0.65;
-  box-shadow: none;
-  animation: none;
+  opacity: 0.7;
+  box-shadow: 2px 2px 0px #000000;
+  transform: none;
 }
 
-.start-game-btn:disabled::after {
-  display: none;
-}
-
-/* Members - Ready button with shimmering active effects */
+/* Members - Ready button with pop hover shadow */
 .ready-btn {
-  background: rgba(139, 92, 246, 0.08);
-  color: #c4b5fd;
-  border: 2px solid rgba(139, 92, 246, 0.25);
-  box-shadow: 0 10px 25px rgba(139, 92, 246, 0.12);
+  background: #ffe600; /* Yellow standard */
 }
 
 .ready-btn:hover:not(:disabled) {
-  transform: translateY(-4px) scale(1.03);
-  background: rgba(139, 92, 246, 0.16);
-  border-color: rgba(139, 92, 246, 0.55);
-  color: #ffffff;
-  box-shadow: 0 16px 36px rgba(139, 92, 246, 0.28);
+  transform: translate(-3px, -3px);
+  box-shadow: 7px 7px 0px #00e5ff; /* Cyan hover shadow */
+}
+
+.ready-btn:active:not(:disabled) {
+  transform: translate(0, 0);
+  box-shadow: 2px 2px 0px #000000;
 }
 
 .ready-btn.ready {
-  background: rgba(16, 185, 129, 0.1);
-  color: #34d399;
-  border-color: rgba(16, 185, 129, 0.45);
-  box-shadow: 0 10px 25px rgba(16, 185, 129, 0.18);
+  background: #00ff66; /* Lime Green ready */
 }
 
 .ready-btn.ready:hover:not(:disabled) {
-  background: rgba(16, 185, 129, 0.16);
-  border-color: #10b981;
-  color: #ffffff;
-  box-shadow: 0 16px 36px rgba(16, 185, 129, 0.32);
+  box-shadow: 7px 7px 0px #ff007f; /* Hot Pink shadow */
 }
 
 .ready-btn.loading {
-  opacity: 0.65;
+  opacity: 0.75;
   cursor: not-allowed;
+}
+
+.btn-spinner {
+  width: 18px;
+  height: 18px;
+  border: 3px solid rgba(0, 0, 0, 0.2);
+  border-top-color: #000000;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
 }
 
 /* Loading & Error Screens */
 .loading-card-spinner {
   width: 60px;
   height: 60px;
-  background: linear-gradient(135deg, #ffd700 0%, #b8860b 100%);
-  border-radius: 12px;
+  background: #ffe600;
+  border: 3px solid #000000;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 auto 20px auto;
-  box-shadow: 0 8px 24px rgba(212, 175, 55, 0.35);
+  box-shadow: 4px 4px 0px #000000;
   animation: cardFlip3D 2s infinite cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 .card-spin-icon {
   font-size: 32px;
-  color: #0f172a;
+  color: #000000;
 }
 
 @keyframes cardFlip3D {
@@ -881,35 +879,37 @@
   left: 50%;
   transform: translate(-50%, -50%);
   text-align: center;
-  background: linear-gradient(135deg, rgba(16, 28, 48, 0.8) 0%, rgba(8, 14, 24, 0.9) 100%);
-  border: 1px solid rgba(255, 215, 0, 0.2);
-  backdrop-filter: blur(20px);
+  background: #ffffff;
+  border: 3px solid #000000;
   padding: 48px 64px;
-  border-radius: 24px;
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  box-shadow: 8px 8px 0px #ffe600; /* Yellow offset shadow */
   z-index: 10;
   width: 90%;
   max-width: 480px;
-  animation: dealCard 0.5s ease-out;
+  animation: dealCard 0.4s ease-out;
+  color: #000000;
 }
 
 .loading-message {
   font-family: 'Outfit', sans-serif;
   font-size: 22px;
   font-weight: 900;
-  color: #ffffff;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
 }
 
-.error-icon-glow {
-  font-size: 54px;
-  margin-bottom: 18px;
+.error-alert-icon {
+  color: #ff007f;
   animation: pulseWarning 1.5s infinite ease-in-out;
 }
 
 @keyframes pulseWarning {
-  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.4)); }
-  50% { transform: scale(1.08); filter: drop-shadow(0 0 20px rgba(239, 68, 68, 0.8)); }
+  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 4px rgba(255, 0, 127, 0.2)); }
+  50% { transform: scale(1.08); filter: drop-shadow(0 0 10px rgba(255, 0, 127, 0.5)); }
+}
+
+.error-message {
+  box-shadow: 8px 8px 0px #ff007f; /* Pink offset shadow for error */
 }
 
 .error-message h2 {
@@ -917,29 +917,30 @@
   font-family: 'Outfit', sans-serif;
   font-size: 22px;
   font-weight: 900;
-  color: #ef4444;
+  color: #ff007f;
 }
 
 .error-message button {
   padding: 14px 32px;
-  background: rgba(239, 68, 68, 0.08);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  color: #fca5a5;
-  border-radius: 14px;
+  background: #ffffff;
+  border: 3px solid #000000;
+  color: #000000;
+  border-radius: 12px;
   font-family: 'Outfit', sans-serif;
   font-size: 15px;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 1px;
   cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 4px 4px 0px #000000;
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .error-message button:hover {
-  transform: translateY(-3px);
-  background: rgba(239, 68, 68, 0.2);
-  border-color: rgba(239, 68, 68, 0.55);
-  box-shadow: 0 8px 24px rgba(239, 68, 68, 0.25);
+  transform: translate(-2px, -2px);
+  background: #ff007f;
+  color: #ffffff;
+  box-shadow: 6px 6px 0px #000000;
 }
 
 /* ==========================================================================
@@ -953,8 +954,6 @@
   }
 
   .room-settings-panel {
-    /* Double cutouts on bottom instead of side in single column if needed, 
-       but keeping default is perfectly fine and beautiful! */
     max-width: 600px;
     width: 100%;
     margin: 0 auto;
@@ -1029,7 +1028,7 @@
   }
 
   .player-card {
-    aspect-ratio: 16 / 9; /* Flat horizontal landscape cards on mobile */
+    aspect-ratio: 16 / 9; /* Landscape rectangular card format under mobile */
     flex-direction: row;
     justify-content: flex-start;
     align-items: center;

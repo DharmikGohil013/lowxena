@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { gameAPI, authAPI } from '../services/api';
 import Loader from '../components/Loader';
 import { AvatarSVG, isAvatarSVG } from '../components/Avatars';
-import { ArrowLeft, Copy, Play, Check, X } from 'lucide-react';
+import { ArrowLeft, Copy, Play, Check, X, Crown, Award, Users, Lock, Globe, AlertTriangle } from 'lucide-react';
 import './RoomLobby.css';
 
 function RoomLobby() {
@@ -195,7 +195,9 @@ function RoomLobby() {
           <span className="rl-suit rl-suit-4">♣</span>
         </div>
         <div className="error-message">
-          <div className="error-icon-glow">⚠️</div>
+          <div className="error-icon-glow">
+            <AlertTriangle size={48} className="error-alert-icon" />
+          </div>
           <h2>{error}</h2>
           <button onClick={() => navigate('/rooms')}>Back to Rooms</button>
         </div>
@@ -258,19 +260,35 @@ function RoomLobby() {
           <div className="room-settings-panel">
             <h3>Room Settings</h3>
             <div className="setting-item">
-              <span className="setting-label">Max Points:</span>
+              <span className="setting-label">
+                <Award size={16} className="setting-icon-inline" />
+                Max Points:
+              </span>
               <span className="setting-value">{roomDetails?.maxPoints}</span>
             </div>
             <div className="setting-item">
-              <span className="setting-label">Max Players:</span>
+              <span className="setting-label">
+                <Users size={16} className="setting-icon-inline" />
+                Max Players:
+              </span>
               <span className="setting-value">{roomDetails?.players?.length || 0} / {roomDetails?.maxPlayers}</span>
             </div>
             <div className="setting-item">
-              <span className="setting-label">Room Type:</span>
+              <span className="setting-label">
+                {roomDetails?.isPrivate ? (
+                  <Lock size={16} className="setting-icon-inline" />
+                ) : (
+                  <Globe size={16} className="setting-icon-inline" />
+                )}
+                Room Type:
+              </span>
               <span className="setting-value">{roomDetails?.isPrivate ? 'Private' : 'Public'}</span>
             </div>
             <div className="setting-item">
-              <span className="setting-label">Status:</span>
+              <span className="setting-label">
+                <Play size={16} className="setting-icon-inline" />
+                Status:
+              </span>
               <span className={`setting-value status-${roomDetails?.status}`}>
                 {roomDetails?.status === 'waiting' ? 'Waiting for Players' : 'In Game'}
               </span>
@@ -305,7 +323,9 @@ function RoomLobby() {
                         </div>
                       )}
                       {isPlayerHost && (
-                        <div className="master-badge" title="Room Master">👑</div>
+                        <div className="master-badge" title="Room Master">
+                          <Crown size={14} className="crown-icon" />
+                        </div>
                       )}
                     </div>
                     <div className="player-info">
