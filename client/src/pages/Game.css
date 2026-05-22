@@ -155,7 +155,6 @@
 }
 
 .seat.active-turn {
-  transform: scale(1.08);
 }
 
 .seat-avatar {
@@ -194,6 +193,7 @@
 .seat.active-turn .seat-avatar {
   border-color: #ff007f; /* Hot pink turn border */
   box-shadow: 4px 4px 0px #000000;
+  transform: scale(1.12); /* Pop out the avatar instead! */
 }
 
 .seat-info {

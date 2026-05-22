@@ -847,39 +847,39 @@ function Game() {
     
     const positions = [
       // 2 players: 1 other player
-      [{ top: '15%', left: '50%', transform: 'translate(-50%, 0)' }],
+      [{ top: '5%', left: '50%', transform: 'translate(-50%, 0)' }],
       // 3 players: 2 other players  
       [
-        { top: '15%', left: '25%', transform: 'translate(-50%, 0)' },
-        { top: '15%', left: '75%', transform: 'translate(-50%, 0)' }
+        { top: '5%', left: '25%', transform: 'translate(-50%, 0)' },
+        { top: '5%', left: '75%', transform: 'translate(-50%, 0)' }
       ],
       // 4 players: 3 other players
       [
         { top: '40%', left: '8%', transform: 'translate(0, -50%)' },
-        { top: '15%', left: '50%', transform: 'translate(-50%, 0)' },
+        { top: '5%', left: '50%', transform: 'translate(-50%, 0)' },
         { top: '40%', right: '8%', transform: 'translate(0, -50%)' }
       ],
       // 5 players: 4 other players
       [
         { top: '40%', left: '8%', transform: 'translate(0, -50%)' },
-        { top: '15%', left: '35%', transform: 'translate(-50%, 0)' },
-        { top: '15%', right: '35%', transform: 'translate(50%, 0)' },
+        { top: '5%', left: '33%', transform: 'translate(-50%, 0)' },
+        { top: '5%', right: '33%', transform: 'translate(50%, 0)' },
         { top: '40%', right: '8%', transform: 'translate(0, -50%)' }
       ],
       // 6 players: 5 other players
       [
         { top: '50%', left: '6%', transform: 'translate(0, -50%)' },
-        { top: '20%', left: '22%', transform: 'translate(-50%, 0)' },
-        { top: '15%', left: '50%', transform: 'translate(-50%, 0)' },
-        { top: '20%', right: '22%', transform: 'translate(50%, 0)' },
+        { top: '7%', left: '22%', transform: 'translate(-50%, 0)' },
+        { top: '5%', left: '50%', transform: 'translate(-50%, 0)' },
+        { top: '7%', right: '22%', transform: 'translate(50%, 0)' },
         { top: '50%', right: '6%', transform: 'translate(0, -50%)' }
       ],
       // 7 players: 6 other players
       [
         { top: '55%', left: '5%', transform: 'translate(0, -50%)' },
         { top: '30%', left: '10%', transform: 'translate(0, -50%)' },
-        { top: '15%', left: '35%', transform: 'translate(-50%, 0)' },
-        { top: '15%', right: '35%', transform: 'translate(50%, 0)' },
+        { top: '5%', left: '33%', transform: 'translate(-50%, 0)' },
+        { top: '5%', right: '33%', transform: 'translate(50%, 0)' },
         { top: '30%', right: '10%', transform: 'translate(0, -50%)' },
         { top: '55%', right: '5%', transform: 'translate(0, -50%)' }
       ]
