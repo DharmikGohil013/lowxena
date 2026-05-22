@@ -1354,6 +1354,12 @@ function Game() {
               {showGameWin.winnerName === currentUser?.name ? 'You Win!' : `${showGameWin.winnerName} Wins!`}
             </h2>
             <p className="win-subtitle">Game Over</p>
+            <div className="multiplayer-coin-reward">
+              <span className="reward-icon-glow"><Coins size={18} className="spinning-coin" /></span>
+              <span className="reward-value">
+                +{showGameWin.winnerName === currentUser?.name ? 70 : 20} Coins
+              </span>
+            </div>
             <button className="win-btn" onClick={async () => {
               setShowGameWin(false)
               try { await gameAPI.endGame(roomId) } catch(e) {}
@@ -1372,6 +1378,10 @@ function Game() {
             <div className="loss-icon"><Skull size={48} /></div>
             <h2 className="overlay-title game-loss-title">You've Been Eliminated!</h2>
             <p className="loss-subtitle">Your score exceeded {roomDetails?.maxPoints || 40} points</p>
+            <div className="multiplayer-coin-reward loss-reward">
+              <span className="reward-icon-glow"><Coins size={18} className="spinning-coin" /></span>
+              <span className="reward-value">+20 Coins</span>
+            </div>
             <div className="loss-actions">
               <button className="loss-btn" onClick={() => setShowGameLoss(false)}>
                 Watch Game
