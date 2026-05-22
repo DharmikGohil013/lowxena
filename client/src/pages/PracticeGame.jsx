@@ -640,10 +640,46 @@ function PracticeGame() {
     }
     
     // Auto-advance after showing result
-    setTimeout(() => {
+    setTimeout(async () => {
       if (isGameOver) {
         setGameWinner(winner)
         setGamePhase('gameOver')
+        
+        // Save stats and award coins!
+        const userWon = winner?.id === currentUser?.id;
+        const userScore = newScores[currentUser?.id] || 0;
+        
+        if (authAPI.isAuthenticated()) {
+          setIsSavingStats(true);
+          try {
+            const res = await userAPI.updateStats({
+              won: userWon,
+              score: userScore,
+              duration: 0
+            });
+            if (res.success) {
+              const earned = 10 + (userWon ? 20 : 0);
+              setCoinsEarned(earned);
+              if (res.coins !== undefined) {
+                setUpdatedCoins(res.coins);
+              } else if (res.user?.coins !== undefined) {
+                setUpdatedCoins(res.user.coins);
+              }
+              
+              // Update local storage too so Home has it
+              const cachedUser = authAPI.getCurrentUser();
+              if (cachedUser) {
+                cachedUser.coins = (cachedUser.coins || 0) + earned;
+                localStorage.setItem('userData', JSON.stringify(cachedUser));
+              }
+            }
+          } catch (err) {
+            console.error('Failed to save practice stats:', err);
+            setSaveError('Failed to save coins to database.');
+          } finally {
+            setIsSavingStats(false);
+          }
+        }
       } else {
         startNewRound(newScores, newEliminated, roundNumber + 1)
       }
@@ -703,6 +739,10 @@ function PracticeGame() {
     setCurrentTip(null)
     setBotThinking(null)
     setBotAction(null)
+    setCoinsEarned(0)
+    setUpdatedCoins(null)
+    setIsSavingStats(false)
+    setSaveError(null)
   }
 
   // Get bot display info
@@ -1101,9 +1141,30 @@ function PracticeGame() {
                 ? 'You Win!' 
                 : `${gameWinner?.name || 'Unknown'} Wins!`}
             </h2>
-            {gameWinner?.id === currentUser?.id && (
+            {gameWinner?.id === currentUser?.id ? (
               <p className="win-subtitle">Great job! You mastered the practice round.</p>
+            ) : (
+              <p className="win-subtitle">Better luck next time! Keep practicing to earn more.</p>
             )}
+
+            {authAPI.isAuthenticated() && (
+              <div className="coin-reward-banner">
+                {isSavingStats ? (
+                  <span className="saving-coins-text animate-pulse">Securing your rewards...</span>
+                ) : saveError ? (
+                  <span className="coin-save-error">{saveError}</span>
+                ) : (
+                  <div className="coins-earned-display animate-pop">
+                    <span className="coin-gold-glow"><Coins size={20} className="spinning-coin" /></span>
+                    <span className="coins-earned-val">+{coinsEarned} Coins</span>
+                    {updatedCoins !== null && (
+                      <span className="total-coins-val">(Total: {updatedCoins})</span>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
             <div className="game-over-actions">
               <button className="win-btn" onClick={handleRestart}>
                 <RefreshCw size={16} /> Play Again

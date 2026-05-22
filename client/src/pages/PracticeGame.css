@@ -854,3 +854,102 @@
     font-size: 10px;
   }
 }
+
+/* ===== COIN REWARDS STYLING ===== */
+.coin-reward-banner {
+  background: #ffe600;
+  border: 3px solid #000000;
+  border-radius: 12px;
+  padding: 10px 24px;
+  margin: 16px 0;
+  box-shadow: -4px 4px 0px #000000;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 240px;
+}
+
+.saving-coins-text {
+  color: #000000;
+  font-weight: 900;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.coin-save-error {
+  color: #ef4444;
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.coins-earned-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #000000;
+  font-weight: 900;
+  font-size: 18px;
+}
+
+.coin-gold-glow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  background: #f59e0b;
+  border: 2px solid #000000;
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(251, 191, 36, 0.6);
+}
+
+.coin-gold-glow .spinning-coin {
+  color: #ffffff;
+  fill: #f59e0b;
+  animation: spin-coin 2s linear infinite;
+}
+
+.coins-earned-val {
+  color: #000000;
+  letter-spacing: 0.5px;
+  font-family: 'Outfit', sans-serif;
+  text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.5);
+}
+
+.total-coins-val {
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 12px;
+  font-weight: 800;
+  margin-left: 2px;
+}
+
+@keyframes spin-coin {
+  0% { transform: rotateY(0deg); }
+  100% { transform: rotateY(360deg); }
+}
+
+.animate-pop {
+  animation: coinPopScale 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+}
+
+@keyframes coinPopScale {
+  0% {
+    transform: scale(0.7);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-pulse {
+  animation: savingPulse 1.2s infinite ease-in-out;
+}
+
+@keyframes savingPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
