@@ -2,7 +2,10 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google'
 import { 
-  Trophy, Medal, AlertTriangle, Gamepad2, DoorOpen, Info
+  Trophy, Medal, AlertTriangle, Gamepad2, DoorOpen, Info,
+  LogIn, LogOut, User, BarChart2, Image as ImageIcon, X, Settings,
+  Plus, Search, Zap, Bot, Crown, Globe, Lock, Copy, Check, Play,
+  BookOpen, Users, Shield, Swords, TrendingUp, Star, Clock, Hash
 } from 'lucide-react'
 import Loader from '../components/Loader'
 import { authAPI, gameAPI, userAPI } from '../services/api'
@@ -530,9 +533,7 @@ function Home() {
       {!isLoggedIn ? (
         <div className="profile-section login-prompt" onClick={handleLoginClick}>
           <div className="login-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M13.8 12H3"/>
-            </svg>
+            <LogIn size={24} />
           </div>
           <span className="login-text">Login</span>
         </div>
@@ -548,9 +549,7 @@ function Home() {
             </span>
           </div>
           <button className="logout-btn" onClick={handleLogout} title="Logout">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>
-            </svg>
+            <LogOut size={16} />
           </button>
         </div>
       )}
@@ -560,10 +559,7 @@ function Home() {
         <div className="modal-overlay" onClick={() => setShowProfileModal(false)}>
           <div className="profile-modal-v2" onClick={(e) => e.stopPropagation()}>
             <div className="modal-close" onClick={() => setShowProfileModal(false)}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
+              <X size={24} />
             </div>
             
             {/* Profile Header */}
@@ -616,30 +612,21 @@ function Home() {
                 className={`pm-tab ${profileTab === 'info' ? 'active' : ''}`}
                 onClick={() => setProfileTab('info')}
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="12" cy="7" r="4"></circle>
-                </svg>
+                <User size={16} />
                 Edit Info
               </button>
               <button 
                 className={`pm-tab ${profileTab === 'stats' ? 'active' : ''}`}
                 onClick={() => setProfileTab('stats')}
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M18 20V10M12 20V4M6 20v-6"></path>
-                </svg>
+                <BarChart2 size={16} />
                 Stats
               </button>
               <button 
                 className={`pm-tab ${profileTab === 'avatar' ? 'active' : ''}`}
                 onClick={() => setProfileTab('avatar')}
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <circle cx="12" cy="10" r="3"></circle>
-                  <path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"></path>
-                </svg>
+                <ImageIcon size={16} />
                 Avatar
               </button>
             </div>
@@ -705,11 +692,7 @@ function Home() {
                   <div className="pm-stats-grid">
                     <div className="pm-stat-card">
                       <div className="pm-sc-icon" style={{background: 'rgba(139, 92, 246, 0.2)', color: '#a78bfa'}}>
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <rect x="2" y="6" width="20" height="12" rx="3"></rect>
-                          <circle cx="8" cy="12" r="2"></circle>
-                          <circle cx="16" cy="12" r="2"></circle>
-                        </svg>
+                        <Gamepad2 size={24} />
                       </div>
                       <div className="pm-sc-info">
                         <span className="pm-sc-value">{userStats.total_games}</span>
@@ -719,9 +702,7 @@ function Home() {
 
                     <div className="pm-stat-card">
                       <div className="pm-sc-icon" style={{background: 'rgba(16, 185, 129, 0.2)', color: '#34d399'}}>
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"></path>
-                        </svg>
+                        <Star size={24} />
                       </div>
                       <div className="pm-sc-info">
                         <span className="pm-sc-value pm-wins">{userStats.wins}</span>
@@ -731,11 +712,7 @@ function Home() {
 
                     <div className="pm-stat-card">
                       <div className="pm-sc-icon" style={{background: 'rgba(239, 68, 68, 0.2)', color: '#f87171'}}>
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <circle cx="12" cy="12" r="10"></circle>
-                          <line x1="15" y1="9" x2="9" y2="15"></line>
-                          <line x1="9" y1="9" x2="15" y2="15"></line>
-                        </svg>
+                        <X size={24} />
                       </div>
                       <div className="pm-sc-info">
                         <span className="pm-sc-value pm-losses">{userStats.losses}</span>
@@ -745,10 +722,7 @@ function Home() {
 
                     <div className="pm-stat-card">
                       <div className="pm-sc-icon" style={{background: 'rgba(251, 191, 36, 0.2)', color: '#fbbf24'}}>
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
-                          <polyline points="17 6 23 6 23 12"></polyline>
-                        </svg>
+                        <TrendingUp size={24} />
                       </div>
                       <div className="pm-sc-info">
                         <span className="pm-sc-value pm-highscore">{userStats.highest_score}</span>
@@ -758,9 +732,7 @@ function Home() {
 
                     <div className="pm-stat-card">
                       <div className="pm-sc-icon" style={{background: 'rgba(96, 165, 250, 0.2)', color: '#60a5fa'}}>
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M18 20V10M12 20V4M6 20v-6"></path>
-                        </svg>
+                        <BarChart2 size={24} />
                       </div>
                       <div className="pm-sc-info">
                         <span className="pm-sc-value pm-winrate">{userStats.win_rate}%</span>
@@ -770,9 +742,7 @@ function Home() {
 
                     <div className="pm-stat-card">
                       <div className="pm-sc-icon" style={{background: 'rgba(244, 114, 182, 0.2)', color: '#f472b6'}}>
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M6 9l6 6 6-6"></path>
-                        </svg>
+                        <Hash size={24} />
                       </div>
                       <div className="pm-sc-info">
                         <span className="pm-sc-value">{userRankNum || '—'}</span>
@@ -835,19 +805,11 @@ function Home() {
         <div className="modal-overlay" onClick={() => setShowGameModeModal(false)}>
           <div className="game-mode-modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-close" onClick={() => setShowGameModeModal(false)}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
+              <X size={24} />
             </div>
             <div className="modal-header">
               <div className="modal-title-icon">
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                  <rect x="2" y="6" width="20" height="12" rx="3"></rect>
-                  <circle cx="8" cy="12" r="2"></circle>
-                  <circle cx="16" cy="12" r="2"></circle>
-                  <path d="M8 10v4M6 12h4M14 11h4M14 13h4"></path>
-                </svg>
+                <Gamepad2 size={26} />
               </div>
               <h2>Select Game Mode</h2>
               <p className="modal-subtitle">Choose your preferred way to play LowXena</p>
@@ -862,10 +824,7 @@ function Home() {
                 <div className="card-shine"></div>
                 <div className="card-suit-watermark">♠</div>
                 <div className="mode-icon">
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M12 5v14M5 12h14"></path>
-                    <rect x="3" y="3" width="18" height="18" rx="3"></rect>
-                  </svg>
+                  <Plus size={22} />
                 </div>
                 <h3>Create Room</h3>
                 <p>Set up a private game with custom rules and invite players</p>
@@ -880,11 +839,7 @@ function Home() {
                 <div className="card-shine"></div>
                 <div className="card-suit-watermark">♦</div>
                 <div className="mode-icon">
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <circle cx="11" cy="11" r="7"></circle>
-                    <path d="M21 21l-4.35-4.35"></path>
-                    <path d="M8 11h6M11 8v6"></path>
-                  </svg>
+                  <Search size={22} />
                 </div>
                 <h3>Browse Rooms</h3>
                 <p>Find and join open games from available lobbies</p>
@@ -899,13 +854,7 @@ function Home() {
                 <div className="card-shine"></div>
                 <div className="card-suit-watermark">♣</div>
                 <div className="mode-icon">
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <rect x="4" y="8" width="16" height="12" rx="2"></rect>
-                    <path d="M9 8V6a3 3 0 0 1 6 0v2"></path>
-                    <circle cx="9" cy="14" r="1.5" fill="currentColor"></circle>
-                    <circle cx="15" cy="14" r="1.5" fill="currentColor"></circle>
-                    <path d="M10 17h4"></path>
-                  </svg>
+                  <Bot size={22} />
                 </div>
                 <h3>Practice Mode</h3>
                 <p>Train against computer opponents to improve your strategy</p>
@@ -920,9 +869,7 @@ function Home() {
                 <div className="card-shine"></div>
                 <div className="card-suit-watermark">♥</div>
                 <div className="mode-icon">
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-                  </svg>
+                  <Zap size={22} />
                 </div>
                 <h3>Quick Match</h3>
                 <p>Get matched with players instantly and start playing</p>
@@ -946,18 +893,12 @@ function Home() {
             </div>
             
             <div className="modal-close" onClick={() => setShowCustomMatchModal(false)}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
+              <X size={24} />
             </div>
             <div className="cm-scroll-body">
             <div className="cm-header">
               <div className="cm-header-icon">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="12" cy="12" r="3"></circle>
-                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-                </svg>
+                <Settings size={28} />
               </div>
               <h2>Room Configuration</h2>
               <p className="modal-subtitle">Set up your game preferences</p>
@@ -968,10 +909,7 @@ function Home() {
               <div className="form-group">
                 <label>
                   <span className="label-icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <circle cx="12" cy="12" r="10"></circle>
-                      <path d="M12 8v4l3 3"></path>
-                    </svg>
+                    <Clock size={18} />
                   </span>
                   Points to Win
                 </label>
@@ -996,12 +934,7 @@ function Home() {
               <div className="form-group">
                 <label>
                   <span className="label-icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                      <circle cx="9" cy="7" r="4"></circle>
-                      <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                      <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                    </svg>
+                    <Users size={18} />
                   </span>
                   Player Count
                 </label>
@@ -1026,10 +959,7 @@ function Home() {
               <div className="form-group">
                 <label>
                   <span className="label-icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                      <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                    </svg>
+                    <Shield size={18} />
                   </span>
                   Room Visibility
                 </label>
@@ -1044,11 +974,7 @@ function Home() {
                     })}
                   >
                     <div className="v-card-icon">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="2" y1="12" x2="22" y2="12"></line>
-                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-                      </svg>
+                      <Globe size={20} />
                     </div>
                     <div className="v-card-text">
                       <h4>Public Lobby</h4>
@@ -1070,10 +996,7 @@ function Home() {
                     }}
                   >
                     <div className="v-card-icon">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                      </svg>
+                      <Lock size={20} />
                     </div>
                     <div className="v-card-text">
                       <h4>Private Room</h4>
@@ -1089,10 +1012,7 @@ function Home() {
                 <div className="form-group room-code-group">
                   <label>
                     <span className="label-icon">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <rect x="2" y="4" width="20" height="16" rx="2"></rect>
-                        <path d="M7 15h0M2 9.5h20"></path>
-                      </svg>
+                      <Hash size={18} />
                     </span>
                     Room Code
                   </label>
@@ -1109,17 +1029,12 @@ function Home() {
                     >
                       {copiedCode ? (
                         <>
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{color: '#34d399'}}>
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                          </svg>
+                          <Check size={14} style={{color: '#34d399'}} />
                           <span>Copied</span>
                         </>
                       ) : (
                         <>
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                          </svg>
+                          <Copy size={14} />
                           <span>Copy</span>
                         </>
                       )}
@@ -1162,9 +1077,7 @@ function Home() {
                   </>
                 ) : (
                   <>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                    </svg>
+                    <Play size={20} />
                     Create Room
                   </>
                 )}
@@ -1188,10 +1101,7 @@ function Home() {
             </div>
             
             <div className="modal-close" onClick={() => { setShowLoginModal(false); setLoginError(''); }}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
+              <X size={20} />
             </div>
 
             {/* Header */}
@@ -1240,10 +1150,7 @@ function Home() {
                   {/* Guest Login Section */}
                   <div className="lm-guest-section">
                     <div className="lm-input-wrap">
-                      <svg className="lm-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="12" cy="7" r="4"></circle>
-                      </svg>
+                      <User className="lm-input-icon" size={16} />
                       <input
                         type="text"
                         className="lm-guest-input"
@@ -1275,29 +1182,26 @@ function Home() {
           <p className="hero-tagline">Where the Lowest Wins.</p>
           <div className="hero-chips">
             <span className="hero-chip">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+              <Users size={14} />
               2-7 Players
             </span>
             <span className="hero-chip">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+              <Zap size={14} />
               Quick Rounds
             </span>
             <span className="hero-chip">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"></path></svg>
+              <Star size={14} />
               Free to Play
             </span>
           </div>
           <div className="hero-actions">
             <button className="hero-play-btn" onClick={handlePlay}>
               <span className="hero-btn-glow"></span>
-              <span className="hero-play-icon">▶</span>
+              <span className="hero-play-icon"><Play size={18} fill="currentColor" /></span>
               <span>PLAY NOW</span>
             </button>
             <button className="hero-rules-btn" onClick={() => navigate('/rules')}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-              </svg>
+              <BookOpen size={18} />
               <span>RULES</span>
             </button>
           </div>
@@ -1347,10 +1251,7 @@ function Home() {
         <div className="modal-overlay" onClick={() => setShowLeaderboardModal(false)}>
           <div className="leaderboard-modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-close" onClick={() => setShowLeaderboardModal(false)}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
+              <X size={24} />
             </div>
             <h2><Trophy size={20} style={{display:'inline', verticalAlign:'-3px', marginRight:'6px'}} /> Full Leaderboard</h2>
             <p className="lb-modal-subtitle">{totalPlayers} total players</p>
