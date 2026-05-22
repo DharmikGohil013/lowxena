@@ -4,7 +4,7 @@ import { gameAPI } from '../services/api'
 import { getCardImage, getCardBack } from '../utils/cardImages'
 import { 
   Package, Target, Crown, BarChart3, Settings, DoorOpen, Trophy, Skull, Hourglass, StopCircle,
-  BookOpen, X
+  BookOpen, X, Flame, Zap, AlertTriangle
 } from 'lucide-react'
 import Loader from '../components/Loader'
 import { AvatarSVG, isAvatarSVG } from '../components/Avatars'
