@@ -5,7 +5,7 @@ import {
   Trophy, Medal, AlertTriangle, Gamepad2, DoorOpen, Info,
   LogIn, LogOut, User, BarChart2, Image as ImageIcon, X, Settings,
   Plus, Search, Zap, Bot, Crown, Globe, Lock, Copy, Check, Play,
-  BookOpen, Users, Shield, Swords, TrendingUp, Star, Clock, Hash
+  BookOpen, Users, Shield, Swords, TrendingUp, Star, Clock, Hash, Sparkles
 } from 'lucide-react'
 import Loader from '../components/Loader'
 import { authAPI, gameAPI, userAPI } from '../services/api'
@@ -56,6 +56,26 @@ function Home() {
   const [currentRoomInfo, setCurrentRoomInfo] = useState(null)
   const [profileTab, setProfileTab] = useState('info') // 'info' | 'stats' | 'avatar'
   const [copiedCode, setCopiedCode] = useState(false)
+  const [customSeed, setCustomSeed] = useState('')
+
+  const handleCustomSeedChange = (e) => {
+    const seed = e.target.value;
+    setCustomSeed(seed);
+    setProfileData(prev => ({
+      ...prev,
+      avatar_url: `avatar-adventurer-${seed}`
+    }));
+  };
+
+  const handleRandomizeSeed = () => {
+    const randomSeeds = ['Knight', 'Hero', 'Wizard', 'Shadow', 'Dragon', 'Ranger', 'Spectre', 'Rogue', 'Hunter', 'Paladin', 'Mage', 'Fighter', 'Warlock', 'Ninja', 'Felix', 'Aneka', 'Jack', 'Aria', 'Luna', 'Kiki', 'Leo', 'Buster', 'Finn', 'Max'];
+    const randomSeed = randomSeeds[Math.floor(Math.random() * randomSeeds.length)] + Math.floor(Math.random() * 1000);
+    setCustomSeed(randomSeed);
+    setProfileData(prev => ({
+      ...prev,
+      avatar_url: `avatar-adventurer-${randomSeed}`
+    }));
+  };
 
   // Check for existing token on mount (auto-login)
   useEffect(() => {
@@ -333,17 +353,41 @@ function Home() {
     });
     setProfileTab('info');
     
+    // Set initial custom seed
+    let initialCustomSeed = '';
+    const initialAvatarUrl = playerPicture;
+    if (initialAvatarUrl && initialAvatarUrl.startsWith('avatar-adventurer-')) {
+      initialCustomSeed = initialAvatarUrl.replace('avatar-adventurer-', '');
+    } else if (initialAvatarUrl && initialAvatarUrl.startsWith('avatar-')) {
+      initialCustomSeed = initialAvatarUrl.replace('avatar-', '');
+    } else {
+      initialCustomSeed = playerName;
+    }
+    setCustomSeed(initialCustomSeed);
+    
     // Fetch latest profile data from server
     try {
       const response = await userAPI.getProfile();
       if (response.success) {
+        const finalAvatarUrl = response.user.avatar_url || playerPicture;
         setProfileData({
           name: response.user.name || playerName,
           username: response.user.username || '',
           email: response.user.email || playerEmail,
           birthdate: response.user.birthdate || '',
-          avatar_url: response.user.avatar_url || playerPicture
+          avatar_url: finalAvatarUrl
         });
+        
+        let finalCustomSeed = '';
+        if (finalAvatarUrl && finalAvatarUrl.startsWith('avatar-adventurer-')) {
+          finalCustomSeed = finalAvatarUrl.replace('avatar-adventurer-', '');
+        } else if (finalAvatarUrl && finalAvatarUrl.startsWith('avatar-')) {
+          finalCustomSeed = finalAvatarUrl.replace('avatar-', '');
+        } else {
+          finalCustomSeed = response.user.name || playerName;
+        }
+        setCustomSeed(finalCustomSeed);
+        
         if (response.stats) setUserStats(response.stats);
         if (response.rank) setUserRankNum(response.rank);
       }
@@ -786,6 +830,40 @@ function Home() {
                       </div>
                     ))}
                   </div>
+                  
+                  <div className="pm-avatar-custom-section">
+                    <div className="pm-avatar-divider">
+                      <span>OR CREATE A CUSTOM ADVENTURER</span>
+                    </div>
+                    <div className="pm-custom-avatar-generator">
+                      <div className="pm-custom-avatar-preview">
+                        <AvatarSVG avatarId={`avatar-adventurer-${customSeed || 'Felix'}`} size={70} />
+                      </div>
+                      <div className="pm-custom-avatar-controls">
+                        <span className="pm-custom-avatar-label">Adventurer Seed Name</span>
+                        <div className="pm-custom-avatar-input-wrapper">
+                          <input 
+                            type="text" 
+                            className="pm-custom-avatar-input"
+                            placeholder="Type a name to generate..."
+                            value={customSeed}
+                            onChange={handleCustomSeedChange}
+                          />
+                          <button 
+                            type="button" 
+                            className="pm-custom-avatar-random-btn"
+                            onClick={handleRandomizeSeed}
+                          >
+                            <Sparkles size={14} /> Random
+                          </button>
+                        </div>
+                        <p className="pm-custom-avatar-hint">
+                          Any name dynamically styles a completely unique custom adventurer look!
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
                   <button 
                     className="save-profile-btn" 
                     onClick={handleSaveProfile}

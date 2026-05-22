@@ -1,6 +1,17 @@
 import { User, UserStat } from '../models/index.js';
 
-const VALID_AVATARS = ['avatar-warrior', 'avatar-mage', 'avatar-rogue', 'avatar-knight', 'avatar-ranger'];
+const VALID_AVATARS = [
+  'avatar-adventurer-Felix',
+  'avatar-adventurer-Aneka',
+  'avatar-adventurer-Jack',
+  'avatar-adventurer-Aria',
+  'avatar-adventurer-Max',
+  'avatar-adventurer-Luna',
+  'avatar-adventurer-Kiki',
+  'avatar-adventurer-Leo',
+  'avatar-adventurer-Buster',
+  'avatar-adventurer-Finn'
+];
 
 /**
  * Get user profile with stats

@@ -10,6 +10,8 @@
     "preview": "node ./node_modules/vite/bin/vite.js preview"
   },
   "dependencies": {
+    "@dicebear/collection": "^9.4.2",
+    "@dicebear/core": "^9.4.2",
     "@react-oauth/google": "^0.13.4",
     "axios": "^1.13.2",
     "jwt-decode": "^4.0.0",
