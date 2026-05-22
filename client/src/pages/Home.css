@@ -2463,30 +2463,45 @@
    ============================ */
 .home-footer {
   position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 20;
   text-align: center;
-  padding: 10px 0;
-  font-size: 12px;
-  color: rgba(255,255,255,0.25);
-  letter-spacing: 0.3px;
-  pointer-events: none;
+  padding: 6px 20px;
+  font-size: 11px;
+  background: #ffffff;
+  border: 2px solid #000000;
+  border-radius: 50px;
+  box-shadow: 3px 3px 0px #000000;
+  font-family: 'Outfit', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  pointer-events: auto;
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-.home-footer span { pointer-events: auto; }
+.home-footer:hover {
+  transform: translateX(-50%) translate(-1px, -1px);
+  box-shadow: 4px 4px 0px #ff007f; /* Pink shadow on hover */
+}
+
+.home-footer span { 
+  color: #000000;
+  font-weight: 800;
+}
 
 .home-footer a {
-  color: rgba(251,191,36,0.5);
+  color: #ff007f; /* Hot pink creator link */
   text-decoration: none;
-  font-weight: 600;
-  transition: color 0.2s ease;
+  font-weight: 900;
+  margin-left: 2px;
+  transition: color 0.15s ease;
 }
 
 .home-footer a:hover {
-  color: #fbbf24;
-  text-decoration: underline;
+  color: #00e5ff; /* Cyan on hover */
+  text-decoration: none;
 }
 
 /* ============================================================
@@ -2850,8 +2865,13 @@
   /* Footer */
   .home-footer {
     position: relative;
+    bottom: auto;
+    left: auto;
+    transform: none;
     order: 4;
-    padding: 16px 0 8px;
+    padding: 8px 20px;
+    margin: 24px auto 16px;
+    display: inline-block;
   }
 
   /* Hide some floating elements on mobile for performance */
