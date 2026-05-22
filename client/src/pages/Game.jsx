@@ -75,6 +75,8 @@ function Game() {
     roundHistory: [],      // array of round results for Game End summary
     gameEndedByHost: false, // flag when host manually ends the game
     gameEndSummary: null,   // { roundWinners, overallWinner, finalScores }
+    cursedNumber: null,     // dynamic cursed card rank for the round
+    lastCursedPlay: null,   // synced alert when someone drops a cursed card
   })
   const [countdown, setCountdown] = useState(30)
   const [showScoreboard, setShowScoreboard] = useState(false)
@@ -88,6 +90,38 @@ function Game() {
   const [showGameLoss, setShowGameLoss] = useState(false)      // current user got eliminated
   const [lastSeenRoundTimestamp, setLastSeenRoundTimestamp] = useState(null) // prevent re-showing same round result
   const navigate = useNavigate()
+
+  // Cursed Card Twist states & timers
+  const [lastSeenCursedRound, setLastSeenCursedRound] = useState(0)
+  const [showCursedPop, setShowCursedPop] = useState(false)
+  const [lastSeenCursedPlayTimestamp, setLastSeenCursedPlayTimestamp] = useState(null)
+  const [cursedPlayToast, setCursedPlayToast] = useState(null)
+
+  // Trigger Cursed Card round start announcement
+  useEffect(() => {
+    if (gameState.gameStarted && gameState.cursedNumber && gameState.roundNumber !== lastSeenCursedRound) {
+      setLastSeenCursedRound(gameState.roundNumber)
+      setShowCursedPop(true)
+      const timer = setTimeout(() => {
+        setShowCursedPop(false)
+      }, 4000)
+      return () => clearTimeout(timer)
+    }
+  }, [gameState.gameStarted, gameState.cursedNumber, gameState.roundNumber, lastSeenCursedRound])
+
+  // Trigger Synced Cursed Card Drop alert toast
+  useEffect(() => {
+    if (gameState.lastCursedPlay && gameState.lastCursedPlay.timestamp) {
+      if (gameState.lastCursedPlay.timestamp !== lastSeenCursedPlayTimestamp) {
+        setLastSeenCursedPlayTimestamp(gameState.lastCursedPlay.timestamp)
+        setCursedPlayToast(gameState.lastCursedPlay)
+        const timer = setTimeout(() => {
+          setCursedPlayToast(null)
+        }, 3000)
+        return () => clearTimeout(timer)
+      }
+    }
+  }, [gameState.lastCursedPlay, lastSeenCursedPlayTimestamp])
   const roomId = searchParams.get('roomId')
 
   useEffect(() => {
@@ -146,6 +180,8 @@ function Game() {
           roundHistory: data.gameState.roundHistory || prev.roundHistory || [],
           gameEndedByHost: data.gameState.gameEndedByHost ?? prev.gameEndedByHost,
           gameEndSummary: data.gameState.gameEndSummary || prev.gameEndSummary,
+          cursedNumber: data.gameState.cursedNumber || null,
+          lastCursedPlay: data.gameState.lastCursedPlay || null,
           gameStarted: true,
           isShuffling: data.gameState.isShuffling ?? false,
           isDealing: data.gameState.isDealing ?? false
@@ -245,6 +281,8 @@ function Game() {
         const initialScores = {}
         roomDetails.players.forEach(p => { initialScores[p.id] = 0 })
         
+        const randomCursed = VALUES[Math.floor(Math.random() * VALUES.length)]
+        
         const newState = {
           deck: remainingDeck,
           playerHands: newPlayerHands,
@@ -263,6 +301,8 @@ function Game() {
           gameOver: false,
           gameWinner: null,
           roundResult: null,
+          cursedNumber: randomCursed,
+          lastCursedPlay: null,
         }
         
         setGameState(prev => ({ ...prev, ...newState }))
@@ -458,11 +498,16 @@ function Game() {
 
     // Compare all active players' hand points
     const activePlayers = getActivePlayers()
-    const playerScoresThisRound = activePlayers.map(p => ({
-      id: p.id,
-      name: p.name,
-      handPoints: calculateHandPoints(gameState.playerHands[p.id] || [])
-    }))
+    const playerScoresThisRound = activePlayers.map(p => {
+      const hand = gameState.playerHands[p.id] || []
+      const hasCursedCard = hand.some(c => c.value === gameState.cursedNumber)
+      return {
+        id: p.id,
+        name: p.name,
+        handPoints: hasCursedCard ? (roomDetails.maxPoints || 40) : calculateHandPoints(hand),
+        hasCursedCard
+      }
+    })
 
     // Find the lowest points (the round winner)
     const minPoints = Math.min(...playerScoresThisRound.map(p => p.handPoints))
@@ -609,6 +654,8 @@ function Game() {
       setGameState(prev => ({ ...prev, isDealing: true, isShuffling: false }))
 
       setTimeout(async () => {
+        const randomCursed = VALUES[Math.floor(Math.random() * VALUES.length)]
+
         const newState = {
           deck: remainingDeck,
           playerHands: newPlayerHands,
@@ -627,6 +674,8 @@ function Game() {
           gameOver: false,
           gameWinner: null,
           roundResult: null,  // Clear round result for all players
+          cursedNumber: randomCursed,
+          lastCursedPlay: null,
         }
 
         setGameState(newState)
@@ -665,11 +714,22 @@ function Game() {
 
     const updatedPlayed = [...gameState.playedCards, ...cardsToPlay]
 
-    if (cardsToPlay.length > 1) {
+    const isCursed = card.value === gameState.cursedNumber
+
+    if (cardsToPlay.length > 1 || isCursed) {
       const stateOverride = {
         ...gameState,
         playerHands: updatedHands,
-        playedCards: updatedPlayed
+        playedCards: updatedPlayed,
+        mustPickup: false,
+        hasPlayedCard: false,
+        ...(isCursed && {
+          lastCursedPlay: {
+            playerName: currentUser.name,
+            cardValue: card.value,
+            timestamp: Date.now()
+          }
+        })
       }
       setSelectedCard(null)
       setDraggingCard(null)
@@ -953,6 +1013,13 @@ function Game() {
           </div>
         )}
 
+        {gameState.gameStarted && gameState.cursedNumber && (
+          <div className="cursed-indicator-badge animate-pulse" title="Cursed card rank for this round! Play to skip, hold to lose!">
+            <span className="cursed-badge-icon">☠️</span>
+            <span className="cursed-badge-text">CURSED: <strong className="cursed-glowing-number">{gameState.cursedNumber}</strong></span>
+          </div>
+        )}
+
         {isHost() && gameState.gameStarted && !gameState.gameOver && (
           <button 
             className="control-btn end-game-btn"
@@ -1111,21 +1178,29 @@ function Game() {
             </div>
           </div>
           <div className="my-cards-fan">
-            {myCards?.map((card, i) => (
-              <div 
-                key={card.id} 
-                className={`hand-card ${selectedCard?.id === card.id ? 'selected' : ''} ${draggingCard?.id === card.id ? 'dragging' : ''} ${!isMyTurn() ? 'not-my-turn' : ''}`}
-                style={{ '--i': i, '--total': myCards.length }}
-                draggable={isMyTurn()}
-                onDragStart={(e) => handleDragStart(e, card)}
-                onDragEnd={handleDragEnd}
-                onClick={() => handleCardClick(card)}
-              >
-                <div className="playing-card svg-card">
-                  <img src={getCardImage(card)} alt={`${card.value} of ${card.suit}`} className="card-svg-img" draggable="false" />
+            {myCards?.map((card, i) => {
+              const isCardCursed = card.value === gameState.cursedNumber;
+              return (
+                <div 
+                  key={card.id} 
+                  className={`hand-card ${selectedCard?.id === card.id ? 'selected' : ''} ${draggingCard?.id === card.id ? 'dragging' : ''} ${!isMyTurn() ? 'not-my-turn' : ''} ${isCardCursed ? 'cursed-card' : ''}`}
+                  style={{ '--i': i, '--total': myCards.length }}
+                  draggable={isMyTurn()}
+                  onDragStart={(e) => handleDragStart(e, card)}
+                  onDragEnd={handleDragEnd}
+                  onClick={() => handleCardClick(card)}
+                >
+                  <div className="playing-card svg-card">
+                    <img src={getCardImage(card)} alt={`${card.value} of ${card.suit}`} className="card-svg-img" draggable="false" />
+                    {isCardCursed && (
+                      <div className="cursed-card-indicator" title="Cursed card! Play to drop & skip without draw penalty!">
+                        <span>💀</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            )) || (
+              );
+            }) || (
               [...Array(7)].map((_, i) => (
                 <div key={i} className="hand-card" style={{ '--i': i, '--total': 7 }}>
                   <div className="card-back"><img src={getCardBack()} alt="Card Back" className="card-svg-img" /></div>
@@ -1237,10 +1312,11 @@ function Game() {
             </div>
             <div className="round-scores-list">
               {gameState.roundResult.playerScores?.map(p => (
-                <div key={p.id} className={`round-score-item ${p.id === gameState.roundResult.winner?.id ? 'round-winner-row' : ''}`}>
+                <div key={p.id} className={`round-score-item ${p.id === gameState.roundResult.winner?.id ? 'round-winner-row' : ''} ${p.hasCursedCard ? 'round-cursed-row' : ''}`}>
                   <span className="round-score-name">
                     {p.name}
                     {p.id === gameState.roundResult.winner?.id && <> <Trophy size={14} /></>}
+                    {p.hasCursedCard && <span className="cursed-row-badge" title="Held the Cursed Card at round end!">💀 CURSED</span>}
                   </span>
                   <span className="round-score-hand">Hand: {p.handPoints} pts</span>
                   <span className="round-score-total">Total: {gameState.roundResult.newCumulativeScores?.[p.id] || 0} pts</span>
@@ -1353,6 +1429,49 @@ function Game() {
             }}>
               Back to Lobby
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Cursed Card Round Announcement Overlay */}
+      {showCursedPop && gameState.cursedNumber && (
+        <div className="overlay-screen cursed-announcement-overlay">
+          <div className="overlay-content cursed-announcement-content">
+            <div className="cursed-danger-badge animate-pulse">⚠️ TWIST ACTIVE ⚠️</div>
+            <h2 className="overlay-title cursed-title-neon">CURSED CARD ACTIVE!</h2>
+            <div className="cursed-glowing-card-container">
+              <div className="cursed-glowing-card-felt">
+                <div className="playing-card svg-card cursed-popup-card">
+                  <img 
+                    src={`/cards/${gameState.cursedNumber === 'A' ? 'ace' : gameState.cursedNumber === 'J' ? 'jack' : gameState.cursedNumber === 'Q' ? 'queen' : gameState.cursedNumber === 'K' ? 'king' : gameState.cursedNumber}_of_spades.svg`} 
+                    alt={`Cursed card ${gameState.cursedNumber}`} 
+                    className="card-svg-img" 
+                    draggable="false" 
+                  />
+                  <div className="cursed-popup-skull">💀</div>
+                </div>
+              </div>
+            </div>
+            <div className="cursed-desc">
+              Rank <strong className="cursed-highlight">{gameState.cursedNumber}</strong> is cursed this round!
+            </div>
+            <div className="cursed-instructions">
+              <div className="cursed-inst-row">⚡ Play it singly for a <strong>DIRECT DROP & skip turn</strong> (No draw penalty!)</div>
+              <div className="cursed-inst-row font-red animate-pulse">☠️ Holding it at the round end triggers <strong>INSTANT LOSS (+Max Points)</strong>!</div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Synced Cursed Card Drop alert toast */}
+      {cursedPlayToast && (
+        <div className="cursed-play-toast">
+          <div className="cursed-toast-content">
+            <span className="cursed-toast-icon">🔥</span>
+            <span className="cursed-toast-text">
+              <strong>{cursedPlayToast.playerName}</strong> dropped Cursed Card <strong>{cursedPlayToast.cardValue}</strong>! Skip turn with <strong>NO penalty</strong>!
+            </span>
+            <span className="cursed-toast-icon">🔥</span>
           </div>
         </div>
       )}
