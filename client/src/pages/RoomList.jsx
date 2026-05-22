@@ -2,6 +2,10 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { gameAPI, authAPI } from '../services/api'
 import Loader from '../components/Loader'
+import { 
+  Search, Zap, Plus, RefreshCw, Users, Lock, Globe, ArrowLeft,
+  AlertTriangle, Crown, Hash, LogIn, X
+} from 'lucide-react'
 import './RoomList.css'
 
 function RoomList() {
@@ -151,42 +155,26 @@ function RoomList() {
       <div className="room-list-content">
         <header className="room-list-header">
           <button className="back-btn" onClick={() => navigate('/')}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M19 12H5"></path>
-              <polyline points="12 19 5 12 12 5"></polyline>
-            </svg>
+            <ArrowLeft size={18} />
             Back
           </button>
           
           <div className="header-title">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="11" cy="11" r="8"></circle>
-              <path d="m21 21-4.35-4.35"></path>
-            </svg>
+            <Search size={24} />
             <h1>Find a Room</h1>
           </div>
           
           <div className="header-actions">
             <button className="quick-join-header-btn" onClick={handleQuickJoin}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-              </svg>
+              <Zap size={16} />
               Quick Join
             </button>
             <button className="host-match-header-btn" onClick={() => navigate('/', { state: { openCreateRoom: true } })}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="12" y1="8" x2="12" y2="16"></line>
-                <line x1="8" y1="12" x2="16" y2="12"></line>
-              </svg>
+              <Plus size={16} />
               Host Match
             </button>
             <button className="refresh-btn" onClick={fetchRooms}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <polyline points="23 4 23 10 17 10"></polyline>
-                <polyline points="1 20 1 14 7 14"></polyline>
-                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
-              </svg>
+              <RefreshCw size={16} />
               Refresh
             </button>
           </div>
@@ -197,12 +185,7 @@ function RoomList() {
           <div className="lobby-stat-card players-online">
             <div className="stat-glow"></div>
             <div className="stat-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                <circle cx="9" cy="7" r="4"></circle>
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-              </svg>
+              <Users size={20} />
             </div>
             <div className="stat-info">
               <span className="stat-label">Players Online</span>
@@ -214,10 +197,7 @@ function RoomList() {
           <div className="lobby-stat-card open-lobbies">
             <div className="stat-glow"></div>
             <div className="stat-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                <line x1="9" y1="3" x2="9" y2="21"></line>
-              </svg>
+              <Hash size={20} />
             </div>
             <div className="stat-info">
               <span className="stat-label">Open Lobbies</span>
@@ -229,10 +209,7 @@ function RoomList() {
           <div className="lobby-stat-card private-rooms">
             <div className="stat-glow"></div>
             <div className="stat-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-              </svg>
+              <Lock size={20} />
             </div>
             <div className="stat-info">
               <span className="stat-label">Private Rooms</span>
@@ -244,11 +221,7 @@ function RoomList() {
           <div className="lobby-stat-card match-rate">
             <div className="stat-glow"></div>
             <div className="stat-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <polygon points="12 2 2 22 22 22"></polygon>
-                <line x1="12" y1="13" x2="12" y2="17"></line>
-                <line x1="12" y1="9" x2="12" y2="9"></line>
-              </svg>
+              <AlertTriangle size={20} />
             </div>
             <div className="stat-info">
               <span className="stat-label">Match Start Rate</span>
@@ -263,10 +236,7 @@ function RoomList() {
         <div className="filters-section">
           <div className="filters-top-row">
             <div className="search-bar">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="11" cy="11" r="8"></circle>
-                <path d="m21 21-4.35-4.35"></path>
-              </svg>
+              <Search size={20} />
               <input 
                 type="text"
                 placeholder="Search by room name or host..."
@@ -306,20 +276,14 @@ function RoomList() {
                   className={`filter-btn ${filter === 'public' ? 'active' : ''}`}
                   onClick={() => setFilter('public')}
                 >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <line x1="2" y1="12" x2="22" y2="12"></line>
-                  </svg>
+                  <Globe size={14} />
                   Public ({rooms.filter(r => !r.isPrivate).length})
                 </button>
                 <button 
                   className={`filter-btn ${filter === 'private' ? 'active' : ''}`}
                   onClick={() => setFilter('private')}
                 >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                  </svg>
+                  <Lock size={14} />
                   Private ({rooms.filter(r => r.isPrivate).length})
                 </button>
               </div>
@@ -378,11 +342,7 @@ function RoomList() {
                     className="create-room-direct-btn"
                     onClick={() => navigate('/', { state: { openCreateRoom: true } })}
                   >
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <circle cx="12" cy="12" r="10"></circle>
-                      <line x1="12" y1="8" x2="12" y2="16"></line>
-                      <line x1="8" y1="12" x2="16" y2="12"></line>
-                    </svg>
+                    <Plus size={18} />
                     Host Custom Match
                   </button>
                   
@@ -390,9 +350,7 @@ function RoomList() {
                     className="practice-mode-direct-btn"
                     onClick={() => navigate('/practice')}
                   >
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                    </svg>
+                    <Zap size={18} />
                     Play vs AI (Practice)
                   </button>
                   
@@ -406,10 +364,7 @@ function RoomList() {
                         setSortBy('newest');
                       }}
                     >
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
-                        <polyline points="3 3 3 8 8 8"></polyline>
-                      </svg>
+                      <RefreshCw size={16} />
                       Reset Filters
                     </button>
                   )}
@@ -429,10 +384,7 @@ function RoomList() {
                   <div className="room-header">
                     <div className="room-name">
                       {room.isPrivate && <span className="lock-icon">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                        </svg>
+                      <Lock size={14} className="lock-icon" />
                       </span>}
                       <h3>{room.roomName}</h3>
                     </div>
@@ -520,10 +472,7 @@ function RoomList() {
         <div className="modal-overlay" onClick={() => setShowJoinModal(false)}>
           <div className="join-modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-close" onClick={() => setShowJoinModal(false)}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
+              <X size={24} />
             </div>
             <h2>Enter Room Code</h2>
             <p>This room is private. Enter the 6-digit code to join.</p>
