@@ -4,7 +4,7 @@ import { gameAPI, authAPI } from '../services/api'
 import Loader from '../components/Loader'
 import { 
   Search, Zap, Plus, RefreshCw, Users, Lock, Globe, ArrowLeft,
-  AlertTriangle, Crown, Hash, LogIn, X
+  AlertTriangle, Crown, Hash, X, Trophy, LogIn
 } from 'lucide-react'
 import './RoomList.css'
 
@@ -416,9 +416,7 @@ function RoomList() {
                     <div className="info-item">
                       <span className="label">Points to Win</span>
                       <span className="value game-chip-pts">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" style={{marginRight: '4px'}}>
-                          <polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5"></polygon>
-                        </svg>
+                        <Trophy size={12} style={{marginRight: '4px', display:'inline', verticalAlign:'-1px'}} />
                         {room.maxPoints} pts
                       </span>
                     </div>
@@ -426,9 +424,7 @@ function RoomList() {
                     <div className="info-item host-info-item">
                       <span className="label">Lobby Host</span>
                       <span className="value host-name-badge">
-                        <svg className="crown-icon" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M2 22h20v-2H2v2zm2-4h16V9l-4 4-4-6-4 6-4-4v9z"/>
-                        </svg>
+                        <Crown size={12} style={{marginRight: '4px', display:'inline', verticalAlign:'-1px'}} />
                         {room.hostName || 'Unknown'}
                       </span>
                     </div>
@@ -445,17 +441,12 @@ function RoomList() {
                       'Game Started'
                     ) : room.isPrivate ? (
                       <>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{marginRight: '6px', display: 'inline-block', verticalAlign: 'middle'}}>
-                          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                        </svg>
+                        <Lock size={14} style={{marginRight: '6px', display: 'inline-block', verticalAlign: 'middle'}} />
                         Join with Code
                       </>
                     ) : (
                       <>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{marginRight: '6px', display: 'inline-block', verticalAlign: 'middle'}}>
-                          <path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                        </svg>
+                        <LogIn size={14} style={{marginRight: '6px', display: 'inline-block', verticalAlign: 'middle'}} />
                         Join Room
                       </>
                     )}

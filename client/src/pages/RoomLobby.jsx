@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { gameAPI, authAPI } from '../services/api';
 import Loader from '../components/Loader';
 import { AvatarSVG, isAvatarSVG } from '../components/Avatars';
+import { ArrowLeft, Copy, Play, Check, X } from 'lucide-react';
 import './RoomLobby.css';
 
 function RoomLobby() {
@@ -233,9 +234,7 @@ function RoomLobby() {
               </>
             ) : (
               <>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M19 12H5M12 19l-7-7 7-7"/>
-                </svg>
+                <ArrowLeft size={20} />
                 Leave Room
               </>
             )}
@@ -247,10 +246,7 @@ function RoomLobby() {
                 <span className="keycard-chip"></span>
                 <span className="keycard-label">ACCESS KEY</span>
                 <span className="keycard-value">{roomDetails.roomCode}</span>
-                <svg className="keycard-copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                </svg>
+                <Copy className="keycard-copy-icon" size={16} />
                 <span className="copy-tooltip">Copy Access Key</span>
               </div>
             )}
@@ -323,10 +319,10 @@ function RoomLobby() {
                       {!isPlayerHost && (
                         <div className={`player-status ${player.isReady ? 'ready' : 'not-ready'}`}>
                           {player.isReady ? (
-                            <><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"></polyline></svg> Ready</>
-                          ) : (
-                            <><span className="stby-dot"></span> STBY</>
-                          )}
+                          <><Check size={12} /> Ready</>
+                        ) : (
+                          <><span className="stby-dot"></span> STBY</>
+                        )}
                         </div>
                       )}
                     </div>
@@ -336,10 +332,7 @@ function RoomLobby() {
                         onClick={() => handleKickPlayer(player.id)}
                         title="Kick Player"
                       >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <line x1="18" y1="6" x2="6" y2="18"></line>
-                          <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
+                        <X size={16} />
                       </button>
                     )}
                   </div>
@@ -354,15 +347,13 @@ function RoomLobby() {
           {isHost() ? (
             <>
               {roomDetails?.players?.length < 2 ? (
-                <button 
-                  className="start-game-btn disabled" 
-                  disabled
-                >
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M8 5v14l11-7z"/>
-                  </svg>
-                  Waiting for Players...
-                </button>
+                  <button 
+                    className="start-game-btn disabled" 
+                    disabled
+                  >
+                    <Play size={20} fill="currentColor" />
+                    Waiting for Players...
+                  </button>
               ) : (() => {
                 const nonHostPlayers = roomDetails.players.filter(p => p.id !== roomDetails.hostId);
                 const allReady = nonHostPlayers.every(p => p.isReady);
@@ -371,9 +362,7 @@ function RoomLobby() {
                     className="start-game-btn" 
                     onClick={handleStartGame}
                   >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M8 5v14l11-7z"/>
-                    </svg>
+                    <Play size={20} fill="currentColor" />
                     Start Game
                   </button>
                 ) : (
@@ -381,9 +370,7 @@ function RoomLobby() {
                     className="start-game-btn disabled" 
                     disabled
                   >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M8 5v14l11-7z"/>
-                    </svg>
+                    <Play size={20} fill="currentColor" />
                     Waiting for Players to Ready...
                   </button>
                 );
@@ -407,9 +394,7 @@ function RoomLobby() {
                       </>
                     ) : isReady ? (
                       <>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                          <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg>
+                        <Check size={20} />
                         Ready
                       </>
                     ) : (

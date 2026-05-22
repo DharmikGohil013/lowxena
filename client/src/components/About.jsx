@@ -1,3 +1,4 @@
+import { Gamepad2, Swords, Trophy, Zap, Heart } from 'lucide-react'
 import './About.css'
 
 function About() {
@@ -19,7 +20,7 @@ function About() {
 
           {/* Card 1: What is LowXena */}
           <div className="about-card">
-            <div className="card-icon card-icon-game">🃏</div>
+            <div className="card-icon card-icon-game"><Gamepad2 size={36} /></div>
             <h3>What is LowXena?</h3>
             <p>
               LowXena is a hilarious, fast-paced online card game built for laughs and quick fun.
@@ -30,7 +31,7 @@ function About() {
 
           {/* Card 2: Game Modes */}
           <div className="about-card">
-            <div className="card-icon card-icon-modes">⚔️</div>
+            <div className="card-icon card-icon-modes"><Swords size={36} /></div>
             <h3>Solo & Multiplayer Modes</h3>
             <p>
               Go head-to-head with friends in real-time multiplayer rooms, or sharpen your skills
@@ -41,7 +42,7 @@ function About() {
 
           {/* Card 3: Rewards System */}
           <div className="about-card">
-            <div className="card-icon card-icon-rewards">🏆</div>
+            <div className="card-icon card-icon-rewards"><Trophy size={36} /></div>
             <h3>Rewards That Actually Stay</h3>
             <p>
               Earn in-game rewards as you play — and keep them forever with our{' '}
@@ -52,7 +53,7 @@ function About() {
 
           {/* Card 4: Quick & Casual */}
           <div className="about-card">
-            <div className="card-icon card-icon-quick">⚡</div>
+            <div className="card-icon card-icon-quick"><Zap size={36} /></div>
             <h3>Quick, Casual, No Strings</h3>
             <p>
               No downloads. No installs. No 3-hour gaming marathons required. LowXena runs right
@@ -92,7 +93,7 @@ function About() {
             </a>
           </div>
           <p className="about-dev-heart">
-            Made with <span>❤️</span> by Dharmik Gohil —{' '}
+            Made with <Heart size={14} style={{display:'inline', verticalAlign:'-2px', color:'#ef4444'}} /> by Dharmik Gohil —{' '}
             <a
               href="https://dharmikgohil.art"
               target="_blank"
