@@ -70,13 +70,12 @@ function Game() {
     hasPlayedCard: false,  // current player played a card this turn
     gameOver: false,
     gameWinner: null,      // player object who won the whole game
-    // Synced round result - visible to ALL players
     roundResult: null,     // { winner, playerScores, newCumulativeScores, newlyEliminated, roundNumber, timestamp }
     roundHistory: [],      // array of round results for Game End summary
     gameEndedByHost: false, // flag when host manually ends the game
     gameEndSummary: null,   // { roundWinners, overallWinner, finalScores }
     cursedNumber: null,     // dynamic cursed card rank for the round
-    lastCursedPlay: null,   // synced alert when someone drops a cursed card
+    lastCursedPlay: null,   // tracks latest cursed card drop event
   })
   const [countdown, setCountdown] = useState(30)
   const [showScoreboard, setShowScoreboard] = useState(false)
@@ -102,12 +101,18 @@ function Game() {
     if (gameState.gameStarted && gameState.cursedNumber && gameState.roundNumber !== lastSeenCursedRound) {
       setLastSeenCursedRound(gameState.roundNumber)
       setShowCursedPop(true)
-      const timer = setTimeout(() => {
-        setShowCursedPop(false)
-      }, 4000)
-      return () => clearTimeout(timer)
     }
   }, [gameState.gameStarted, gameState.cursedNumber, gameState.roundNumber, lastSeenCursedRound])
+
+  // Independent close timer for the popup - avoids getting prematurely cleared on gameState poll updates
+  useEffect(() => {
+    if (showCursedPop) {
+      const timer = setTimeout(() => {
+        setShowCursedPop(false)
+      }, 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [showCursedPop])
 
   // Trigger Synced Cursed Card Drop alert toast
   useEffect(() => {
@@ -115,13 +120,19 @@ function Game() {
       if (gameState.lastCursedPlay.timestamp !== lastSeenCursedPlayTimestamp) {
         setLastSeenCursedPlayTimestamp(gameState.lastCursedPlay.timestamp)
         setCursedPlayToast(gameState.lastCursedPlay)
-        const timer = setTimeout(() => {
-          setCursedPlayToast(null)
-        }, 3000)
-        return () => clearTimeout(timer)
       }
     }
   }, [gameState.lastCursedPlay, lastSeenCursedPlayTimestamp])
+
+  // Independent timer for drop toast
+  useEffect(() => {
+    if (cursedPlayToast) {
+      const timer = setTimeout(() => {
+        setCursedPlayToast(null)
+      }, 4000)
+      return () => clearTimeout(timer)
+    }
+  }, [cursedPlayToast])
   const roomId = searchParams.get('roomId')
 
   useEffect(() => {
@@ -1437,7 +1448,9 @@ function Game() {
       {showCursedPop && gameState.cursedNumber && (
         <div className="overlay-screen cursed-announcement-overlay">
           <div className="overlay-content cursed-announcement-content">
-            <div className="cursed-danger-badge animate-pulse">⚠️ TWIST ACTIVE ⚠️</div>
+            <div className="cursed-danger-badge animate-pulse">
+              <AlertTriangle size={18} /> TWIST ACTIVE <AlertTriangle size={18} />
+            </div>
             <h2 className="overlay-title cursed-title-neon">CURSED CARD ACTIVE!</h2>
             <div className="cursed-glowing-card-container">
               <div className="cursed-glowing-card-felt">
@@ -1448,7 +1461,9 @@ function Game() {
                     className="card-svg-img" 
                     draggable="false" 
                   />
-                  <div className="cursed-popup-skull">💀</div>
+                  <div className="cursed-popup-skull">
+                    <Skull size={44} className="cursed-popup-skull-svg" />
+                  </div>
                 </div>
               </div>
             </div>
@@ -1456,9 +1471,16 @@ function Game() {
               Rank <strong className="cursed-highlight">{gameState.cursedNumber}</strong> is cursed this round!
             </div>
             <div className="cursed-instructions">
-              <div className="cursed-inst-row">⚡ Play it singly for a <strong>DIRECT DROP & skip turn</strong> (No draw penalty!)</div>
-              <div className="cursed-inst-row font-red animate-pulse">☠️ Holding it at the round end triggers <strong>INSTANT LOSS (+Max Points)</strong>!</div>
+              <div className="cursed-inst-row">
+                <Zap size={16} className="pop-icon-yellow" /> Play it singly for a <strong>DIRECT DROP & skip turn</strong> (No draw penalty!)
+              </div>
+              <div className="cursed-inst-row font-red animate-pulse">
+                <Skull size={16} className="pop-icon-pink" /> Holding it at the round end triggers <strong>INSTANT LOSS (+Max Points)</strong>!
+              </div>
             </div>
+            <button className="cursed-close-btn" onClick={() => setShowCursedPop(false)}>
+              <X size={16} /> GOT IT!
+            </button>
           </div>
         </div>
       )}
@@ -1467,11 +1489,11 @@ function Game() {
       {cursedPlayToast && (
         <div className="cursed-play-toast">
           <div className="cursed-toast-content">
-            <span className="cursed-toast-icon">🔥</span>
+            <span className="cursed-toast-icon"><Flame size={20} className="pop-icon-pink" /></span>
             <span className="cursed-toast-text">
               <strong>{cursedPlayToast.playerName}</strong> dropped Cursed Card <strong>{cursedPlayToast.cardValue}</strong>! Skip turn with <strong>NO penalty</strong>!
             </span>
-            <span className="cursed-toast-icon">🔥</span>
+            <span className="cursed-toast-icon"><Flame size={20} className="pop-icon-pink" /></span>
           </div>
         </div>
       )}
