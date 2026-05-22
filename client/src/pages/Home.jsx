@@ -1265,8 +1265,10 @@ function Home() {
       {/* Hero Section - Centered */}
       <div className="hero-section">
         <div className="hero-glow-orb"></div>
-        <div className="hero-card">
-          <h1 className="hero-title">LowXena</h1>
+          <div className="hero-logo-wrapper">
+            <img src="/logo.png" alt="LowXena Logo" className="hero-logo-img" />
+          </div>
+          <h1 className="hero-title-hidden" style={{ position: 'absolute', width: '1px', height: '1px', padding: 0, margin: '-1px', overflow: 'hidden', clip: 'rect(0, 0, 0, 0)', border: 0 }}>LowXena</h1>
           <p className="hero-tagline">Where the Lowest Wins.</p>
           <div className="hero-chips">
             <span className="hero-chip chip-users">
