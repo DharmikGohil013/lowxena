@@ -1265,6 +1265,7 @@ function Home() {
       {/* Hero Section - Centered */}
       <div className="hero-section">
         <div className="hero-glow-orb"></div>
+        <div className="hero-card">
           <div className="hero-logo-wrapper">
             <img src="/logo.png" alt="LowXena Logo" className="hero-logo-img" />
           </div>
