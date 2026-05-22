@@ -883,11 +883,11 @@ function Home() {
         <div className="modal-overlay" onClick={() => setShowGameModeModal(false)}>
           <div className="game-mode-modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-close" onClick={() => setShowGameModeModal(false)}>
-              <X size={24} />
+              <X size={20} />
             </div>
             <div className="modal-header">
               <div className="modal-title-icon">
-                <Gamepad2 size={26} />
+                <Gamepad2 size={20} />
               </div>
               <h2>Select Game Mode</h2>
               <p className="modal-subtitle">Choose your preferred way to play LowXena</p>
@@ -902,7 +902,7 @@ function Home() {
                 <div className="card-shine"></div>
                 <div className="card-suit-watermark">♠</div>
                 <div className="mode-icon">
-                  <Plus size={22} />
+                  <Plus size={18} />
                 </div>
                 <h3>Create Room</h3>
                 <p>Set up a private game with custom rules and invite players</p>
@@ -917,7 +917,7 @@ function Home() {
                 <div className="card-shine"></div>
                 <div className="card-suit-watermark">♦</div>
                 <div className="mode-icon">
-                  <Search size={22} />
+                  <Search size={18} />
                 </div>
                 <h3>Browse Rooms</h3>
                 <p>Find and join open games from available lobbies</p>
@@ -932,7 +932,7 @@ function Home() {
                 <div className="card-shine"></div>
                 <div className="card-suit-watermark">♣</div>
                 <div className="mode-icon">
-                  <Bot size={22} />
+                  <Bot size={18} />
                 </div>
                 <h3>Practice Mode</h3>
                 <p>Train against computer opponents to improve your strategy</p>
@@ -947,7 +947,7 @@ function Home() {
                 <div className="card-shine"></div>
                 <div className="card-suit-watermark">♥</div>
                 <div className="mode-icon">
-                  <Zap size={22} />
+                  <Zap size={18} />
                 </div>
                 <h3>Quick Match</h3>
                 <p>Get matched with players instantly and start playing</p>
