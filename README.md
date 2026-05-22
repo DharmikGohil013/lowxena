@@ -1,5 +1,6 @@
 # 🎮 LowXena Game
-
+Style: modern flat design with 
+bright pop-art colors — electric yellow, hot pink, cyan blue, and white.
 A modern full-stack gaming platform with React frontend and Node.js backend powered by Supabase PostgreSQL.
 
 ## 🚀 Features

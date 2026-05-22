@@ -16,7 +16,7 @@
   background-size: 24px 24px, 72px 72px, 72px 72px;
   background-position: center;
   overflow-y: auto;
-  padding: 40px 24px;
+  padding: 32px 24px; /* Slightly reduced padding */
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -40,8 +40,8 @@
 
 .rl-suit {
   position: absolute;
-  font-size: 110px;
-  opacity: 0.05;
+  font-size: 90px; /* Reduced from 110px */
+  opacity: 0.04; /* Slightly softer */
   animation: rl-suit-drift 12s ease-in-out infinite;
   user-select: none;
 }
@@ -53,7 +53,7 @@
 
 @keyframes rl-suit-drift {
   0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
-  50% { transform: translateY(-20px) rotate(10deg) scale(1.08); }
+  50% { transform: translateY(-15px) rotate(10deg) scale(1.05); }
 }
 
 /* Room Lobby Content wrapper */
@@ -61,11 +61,11 @@
   position: relative;
   z-index: 2;
   width: 100%;
-  max-width: 1200px;
+  max-width: 1100px; /* Reduced width slightly to tighten layout */
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 30px;
+  gap: 24px; /* Reduced gap */
 }
 
 /* Header Section */
@@ -76,27 +76,27 @@
   gap: 20px;
   background: #ffffff;
   border: 3px solid #000000;
-  padding: 24px 32px;
-  border-radius: 16px;
-  box-shadow: 6px 6px 0px #000000;
+  padding: 16px 24px; /* Reduced padding for compact feel */
+  border-radius: 14px;
+  box-shadow: 4px 4px 0px #000000;
 }
 
 .back-btn {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 24px;
+  gap: 8px;
+  padding: 10px 18px; /* Compact padding */
   background: #ffffff;
   border: 3px solid #000000;
   color: #000000;
-  border-radius: 12px;
+  border-radius: 10px;
   font-family: 'Outfit', sans-serif;
-  font-size: 14px;
+  font-size: 13px; /* Slightly smaller */
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 1.5px;
+  letter-spacing: 1px;
   cursor: pointer;
-  box-shadow: 4px 4px 0px #000000;
+  box-shadow: 3px 3px 0px #000000;
   transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   white-space: nowrap;
 }
@@ -105,7 +105,7 @@
   transform: translate(-2px, -2px);
   background: #ff007f; /* Hot pink on hover */
   color: #ffffff;
-  box-shadow: 6px 6px 0px #000000;
+  box-shadow: 5px 5px 0px #000000;
 }
 
 .back-btn:active:not(:disabled) {
@@ -124,8 +124,8 @@
 }
 
 .back-btn .spinner {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   border: 2px solid rgba(0, 0, 0, 0.3);
   border-top-color: #ff007f;
   border-radius: 50%;
@@ -146,7 +146,7 @@
 .room-title h1 {
   margin: 0;
   font-family: 'Outfit', sans-serif;
-  font-size: 32px;
+  font-size: 26px; /* Reduced from 32px for cleaner look */
   font-weight: 900;
   color: #000000;
   letter-spacing: -0.5px;
@@ -159,14 +159,14 @@
   position: relative;
   background: #ffffff;
   border: 3px solid #000000;
-  border-radius: 14px;
-  padding: 12px 20px 10px 20px;
-  width: 200px;
+  border-radius: 12px;
+  padding: 10px 16px 8px 16px; /* Reduced padding */
+  width: 170px; /* Reduced from 200px */
   text-align: left;
   cursor: pointer;
-  box-shadow: 4px 4px 0px #000000;
+  box-shadow: 3px 3px 0px #000000;
   transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  margin-top: 10px;
+  margin-top: 8px;
   user-select: none;
   overflow: hidden;
 }
@@ -184,7 +184,7 @@
 
 .room-code-keycard:hover {
   transform: translate(-3px, -3px) scale(1.02);
-  box-shadow: 7px 7px 0px #ffe600;
+  box-shadow: 6px 6px 0px #ffe600;
   border-color: #000000;
   background: #ffffff;
 }
@@ -195,12 +195,12 @@
 }
 
 .keycard-chip {
-  width: 32px;
-  height: 22px;
+  width: 30px;
+  height: 20px;
   background: #ffe600;
   border: 2px solid #000000;
   border-radius: 4px;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   position: relative;
   box-shadow: 2px 2px 0px #000000;
 }
@@ -222,16 +222,16 @@
 
 .keycard-label {
   font-family: 'Outfit', sans-serif;
-  font-size: 9px;
+  font-size: 8px;
   letter-spacing: 1.5px;
-  color: #666666;
+  color: #555555;
   font-weight: 800;
-  margin-bottom: 2px;
+  margin-bottom: 1px;
 }
 
 .keycard-value {
   font-family: 'Outfit', sans-serif;
-  font-size: 18px;
+  font-size: 16px; /* Reduced size */
   font-weight: 900;
   color: #000000;
   letter-spacing: 2px;
@@ -239,15 +239,15 @@
 
 .keycard-copy-icon {
   position: absolute;
-  right: 16px;
-  bottom: 12px;
+  right: 14px;
+  bottom: 10px;
   color: #000000;
   transition: all 0.2s ease;
 }
 
 .room-code-keycard:hover .keycard-copy-icon {
   color: #ff007f;
-  transform: scale(1.15);
+  transform: scale(1.1);
 }
 
 .copy-tooltip {
@@ -277,8 +277,8 @@
 /* Lobby Main Grid */
 .lobby-main {
   display: grid;
-  grid-template-columns: 340px 1fr;
-  gap: 28px;
+  grid-template-columns: 280px 1fr; /* Narrower settings sidebar (from 340px) */
+  gap: 20px; /* Tighter spacing */
   margin-bottom: 10px;
 }
 
@@ -286,10 +286,10 @@
 .room-settings-panel {
   background: #ffffff;
   border: 3px solid #000000;
-  padding: 28px 24px;
-  border-radius: 16px;
+  padding: 20px 18px; /* Thinner padding */
+  border-radius: 14px;
   position: relative;
-  box-shadow: 6px 6px 0px #ff007f; /* Offset Pink shadow */
+  box-shadow: 4px 4px 0px #ff007f; /* Thinner shadow */
   height: fit-content;
   overflow: hidden;
 }
@@ -299,8 +299,8 @@
 .room-settings-panel::after {
   content: '';
   position: absolute;
-  width: 24px;
-  height: 24px;
+  width: 20px; /* Smaller cutouts */
+  height: 20px;
   background: #f4f4f6;
   border: 3px solid #000000;
   border-radius: 50%;
@@ -310,17 +310,17 @@
 }
 
 .room-settings-panel::before {
-  left: -14px;
+  left: -12px;
 }
 
 .room-settings-panel::after {
-  right: -14px;
+  right: -12px;
 }
 
 .room-settings-panel h3 {
-  margin: 0 0 20px 0;
+  margin: 0 0 16px 0;
   font-family: 'Outfit', sans-serif;
-  font-size: 20px;
+  font-size: 18px; /* Tighter heading */
   font-weight: 900;
   color: #000000;
   text-transform: uppercase;
@@ -332,17 +332,17 @@
 .room-settings-panel h3::after {
   content: '';
   display: block;
-  width: 60px;
+  width: 50px;
   height: 3px;
   background: #000000;
-  margin: 8px auto 0 auto;
+  margin: 6px auto 0 auto;
 }
 
 .setting-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px 8px;
+  padding: 12px 6px; /* Tighter heights */
   border-bottom: 2px dashed #000000;
   transition: all 0.2s ease;
 }
@@ -356,7 +356,7 @@
 }
 
 .setting-label {
-  font-size: 13px;
+  font-size: 12px; /* Smaller labels */
   color: #4b5563;
   font-weight: 800;
   text-transform: uppercase;
@@ -373,7 +373,7 @@
 
 .setting-value {
   font-family: 'Outfit', sans-serif;
-  font-size: 16px;
+  font-size: 14px; /* Reduced from 16px */
   color: #000000;
   font-weight: 900;
 }
@@ -383,65 +383,68 @@
 }
 
 .setting-value.status-playing {
-  color: #00ff66; /* Lime Green */
   background: #000000;
   color: #00ff66;
   padding: 2px 8px;
   border-radius: 6px;
   border: 2px solid #000000;
+  font-size: 12px;
 }
 
 /* Players Panel */
 .players-panel {
   background: #ffffff;
   border: 3px solid #000000;
-  padding: 28px;
-  border-radius: 16px;
-  box-shadow: 6px 6px 0px #00e5ff; /* Offset Cyan shadow */
+  padding: 20px; /* Reduced padding */
+  border-radius: 14px;
+  box-shadow: 4px 4px 0px #00e5ff;
 }
 
 .players-panel h3 {
-  margin: 0 0 26px 0;
+  margin: 0 0 20px 0;
   font-family: 'Outfit', sans-serif;
-  font-size: 22px;
+  font-size: 18px; /* Slightly smaller title */
   font-weight: 900;
   color: #000000;
   text-align: left;
   letter-spacing: 0.5px;
-  border-left: 5px solid #ff007f; /* Hot Pink left indicator */
-  padding-left: 14px;
+  border-left: 4px solid #ff007f;
+  padding-left: 10px;
 }
 
 .players-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* Tightened columns */
+  gap: 16px;
 }
 
-/* Pop-Art Dealt Playing Card styling */
+/* Pop-Art Dealt Playing Card styling (COMPACT RESCALE) */
 .player-card {
   position: relative;
-  aspect-ratio: 2.5 / 3.4;
+  aspect-ratio: 2.3 / 3.1; /* Adjusted ratio to look beautiful when smaller */
   background: #ffffff;
   border: 3px solid #000000;
-  border-radius: 14px;
-  padding: 22px 18px;
+  border-radius: 12px;
+  padding: 16px 12px; /* Tighter padding */
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
   text-align: center;
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  box-shadow: 4px 4px 0px #000000;
+  box-shadow: 3px 3px 0px #000000;
   overflow: hidden;
   color: #000000;
   animation: dealCard 0.4s cubic-bezier(0.25, 1, 0.5, 1) both;
+  max-width: 170px; /* Prevent stretched humongous single cards! */
+  margin: 0 auto;
+  width: 100%;
 }
 
 @keyframes dealCard {
   0% {
     opacity: 0;
-    transform: translateY(80px) rotate(-10deg) scale(0.85);
+    transform: translateY(60px) rotate(-10deg) scale(0.85);
   }
   100% {
     opacity: 1;
@@ -460,26 +463,26 @@
 
 /* Bouncy hover transformations */
 .player-card:hover {
-  transform: translateY(-8px) rotate(0deg) scale(1.03) !important;
+  transform: translateY(-6px) rotate(0deg) scale(1.03) !important;
   border-color: #000000;
-  box-shadow: 8px 8px 0px #ff007f; /* Hot Pink hover shadow */
+  box-shadow: 6px 6px 0px #ff007f; /* Hot Pink hover shadow */
   z-index: 5;
 }
 
 /* Host/Master distinct card styles */
 .player-card.host-card {
   background: #ffe600; /* Vibrant Yellow background */
-  box-shadow: 4px 4px 0px #000000;
+  box-shadow: 3px 3px 0px #000000;
 }
 
 .player-card.host-card:hover {
-  box-shadow: 8px 8px 0px #00e5ff !important; /* Cyan shadow for Master card */
+  box-shadow: 6px 6px 0px #00e5ff !important;
 }
 
 .player-card.current-player {
   border-color: #000000;
   outline: 2.5px dashed #ff007f;
-  outline-offset: -6px;
+  outline-offset: -5px;
 }
 
 .player-card.current-player:hover {
@@ -513,9 +516,9 @@
 /* Background Watermark Suit */
 .suit-watermark {
   position: absolute;
-  font-size: 160px;
-  right: -25px;
-  bottom: -35px;
+  font-size: 130px; /* Reduced from 160px */
+  right: -20px;
+  bottom: -30px;
   opacity: 0.08;
   user-select: none;
   pointer-events: none;
@@ -536,8 +539,8 @@
 /* Avatar styling */
 .player-avatar {
   position: relative;
-  width: 72px;
-  height: 72px;
+  width: 60px; /* Reduced from 72px for compact aesthetic */
+  height: 60px;
   z-index: 2;
 }
 
@@ -546,14 +549,14 @@
   height: 100%;
   border-radius: 50%;
   object-fit: cover;
-  border: 3px solid #000000;
+  border: 2.5px solid #000000;
   box-shadow: 2px 2px 0px #000000;
   transition: all 0.2s ease;
 }
 
 .player-card:hover .player-avatar img {
   transform: scale(1.05);
-  box-shadow: 4px 4px 0px #000000;
+  box-shadow: 3px 3px 0px #000000;
 }
 
 .avatar-placeholder {
@@ -565,10 +568,10 @@
   align-items: center;
   justify-content: center;
   font-family: 'Outfit', sans-serif;
-  font-size: 28px;
+  font-size: 24px; /* Reduced size */
   font-weight: 900;
   color: #000000;
-  border: 3px solid #000000;
+  border: 2.5px solid #000000;
   box-shadow: 2px 2px 0px #000000;
   transition: all 0.2s ease;
 }
@@ -579,23 +582,23 @@
 
 .player-card:hover .avatar-placeholder {
   transform: scale(1.05);
-  box-shadow: 4px 4px 0px #000000;
+  box-shadow: 3px 3px 0px #000000;
 }
 
 /* Master Badge Crown 👑 */
 .master-badge {
   position: absolute;
-  top: -6px;
-  right: -6px;
-  width: 28px;
-  height: 28px;
+  top: -5px;
+  right: -5px;
+  width: 24px; /* Smaller badge */
+  height: 24px;
   background: #ffe600;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   border: 2px solid #000000;
-  box-shadow: 2px 2px 0px #000000;
+  box-shadow: 1.5px 1.5px 0px #000000;
   animation: spinCrown 10s linear infinite;
   z-index: 4;
 }
@@ -615,20 +618,20 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 4px; /* Reduced gap */
   width: 100%;
   z-index: 2;
 }
 
 .player-name {
   font-family: 'Outfit', sans-serif;
-  font-size: 16px;
+  font-size: 14px; /* Reduced size */
   font-weight: 900;
   color: #000000;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 4px;
   max-width: 100%;
 }
 
@@ -639,19 +642,19 @@
 }
 
 .you-label {
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 800;
   color: #ffffff;
   background: #ff007f;
-  padding: 2px 8px;
-  border-radius: 6px;
+  padding: 1px 6px;
+  border-radius: 5px;
   border: 2px solid #000000;
   flex-shrink: 0;
   box-shadow: 1px 1px 0px #000000;
 }
 
 .player-role {
-  font-size: 11px;
+  font-size: 10px; /* Reduced size */
   color: #4b5563;
   font-weight: 800;
   text-transform: uppercase;
@@ -669,19 +672,19 @@
 /* Status Badges */
 .player-status {
   font-family: 'Outfit', sans-serif;
-  font-size: 10px;
+  font-size: 9px; /* Reduced size */
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 1px;
-  padding: 5px 12px;
-  border-radius: 8px;
+  padding: 4px 10px; /* Tighter padding */
+  border-radius: 6px;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   transition: all 0.2s ease;
-  margin-top: 6px;
+  margin-top: 4px;
   border: 2px solid #000000;
-  box-shadow: 2px 2px 0px #000000;
+  box-shadow: 1.5px 1.5px 0px #000000;
 }
 
 .player-status.ready {
@@ -692,11 +695,11 @@
 
 @keyframes glowReady {
   0%, 100% {
-    box-shadow: 2px 2px 0px #000000;
+    box-shadow: 1.5px 1.5px 0px #000000;
     transform: scale(1);
   }
   50% {
-    box-shadow: 3px 3px 0px #000000;
+    box-shadow: 2px 2px 0px #000000;
     transform: scale(1.02);
   }
 }
@@ -707,8 +710,8 @@
 }
 
 .stby-dot {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
   background-color: #000000;
   border-radius: 50%;
   display: inline-block;
@@ -723,10 +726,10 @@
 /* Kick Player Button */
 .kick-btn {
   position: absolute;
-  top: 14px;
-  right: 14px;
-  width: 28px;
-  height: 28px;
+  top: 10px;
+  right: 10px;
+  width: 24px; /* Reduced from 28px */
+  height: 24px;
   background: #ff007f;
   border: 2px solid #000000;
   border-radius: 50%;
@@ -739,7 +742,7 @@
   transform: scale(0.8);
   transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   z-index: 4;
-  box-shadow: 2px 2px 0px #000000;
+  box-shadow: 1.5px 1.5px 0px #000000;
 }
 
 .player-card:hover .kick-btn {
@@ -750,14 +753,14 @@
 .kick-btn:hover {
   background: #ff007f;
   transform: scale(1.15) rotate(90deg) !important;
-  box-shadow: 3px 3px 0px #000000;
+  box-shadow: 2px 2px 0px #000000;
 }
 
 /* Lobby Actions Footer */
 .lobby-actions {
   display: flex;
   justify-content: center;
-  gap: 20px;
+  gap: 16px;
   margin-top: 10px;
 }
 
@@ -766,21 +769,21 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  padding: 16px 36px;
+  gap: 10px;
+  padding: 14px 28px; /* Tighter actions padding */
   border: 3px solid #000000;
-  border-radius: 12px;
+  border-radius: 10px;
   font-family: 'Outfit', sans-serif;
-  font-size: 16px;
+  font-size: 15px; /* Slightly smaller button text */
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 1px;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  min-width: 260px;
+  min-width: 220px; /* Reduced from 260px */
   position: relative;
   overflow: hidden;
-  box-shadow: 4px 4px 0px #000000;
+  box-shadow: 3px 3px 0px #000000;
   color: #000000;
 }
 
@@ -790,8 +793,8 @@
 }
 
 .start-game-btn:hover:not(:disabled) {
-  transform: translate(-3px, -3px);
-  box-shadow: 7px 7px 0px #ff007f; /* Hot Pink hover shadow */
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0px #ff007f; /* Hot Pink hover shadow */
 }
 
 .start-game-btn:active:not(:disabled) {
@@ -815,8 +818,8 @@
 }
 
 .ready-btn:hover:not(:disabled) {
-  transform: translate(-3px, -3px);
-  box-shadow: 7px 7px 0px #00e5ff; /* Cyan hover shadow */
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0px #00e5ff; /* Cyan hover shadow */
 }
 
 .ready-btn:active:not(:disabled) {
@@ -829,7 +832,7 @@
 }
 
 .ready-btn.ready:hover:not(:disabled) {
-  box-shadow: 7px 7px 0px #ff007f; /* Hot Pink shadow */
+  box-shadow: 5px 5px 0px #ff007f; /* Hot Pink shadow */
 }
 
 .ready-btn.loading {
@@ -838,9 +841,9 @@
 }
 
 .btn-spinner {
-  width: 18px;
-  height: 18px;
-  border: 3px solid rgba(0, 0, 0, 0.2);
+  width: 16px;
+  height: 16px;
+  border: 2.5px solid rgba(0, 0, 0, 0.2);
   border-top-color: #000000;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
@@ -848,21 +851,21 @@
 
 /* Loading & Error Screens */
 .loading-card-spinner {
-  width: 60px;
-  height: 60px;
+  width: 50px; /* Smaller spinner */
+  height: 50px;
   background: #ffe600;
   border: 3px solid #000000;
   border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 20px auto;
-  box-shadow: 4px 4px 0px #000000;
+  margin: 0 auto 16px auto;
+  box-shadow: 3px 3px 0px #000000;
   animation: cardFlip3D 2s infinite cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 .card-spin-icon {
-  font-size: 32px;
+  font-size: 26px;
   color: #000000;
 }
 
@@ -881,19 +884,19 @@
   text-align: center;
   background: #ffffff;
   border: 3px solid #000000;
-  padding: 48px 64px;
-  border-radius: 16px;
-  box-shadow: 8px 8px 0px #ffe600; /* Yellow offset shadow */
+  padding: 40px 52px; /* Tighter padding */
+  border-radius: 14px;
+  box-shadow: 6px 6px 0px #ffe600; /* Tighter yellow offset shadow */
   z-index: 10;
   width: 90%;
-  max-width: 480px;
+  max-width: 440px;
   animation: dealCard 0.4s ease-out;
   color: #000000;
 }
 
 .loading-message {
   font-family: 'Outfit', sans-serif;
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 900;
   letter-spacing: 0.5px;
 }
@@ -909,30 +912,30 @@
 }
 
 .error-message {
-  box-shadow: 8px 8px 0px #ff007f; /* Pink offset shadow for error */
+  box-shadow: 6px 6px 0px #ff007f; /* Pink offset shadow for error */
 }
 
 .error-message h2 {
-  margin: 0 0 24px 0;
+  margin: 0 0 20px 0;
   font-family: 'Outfit', sans-serif;
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 900;
   color: #ff007f;
 }
 
 .error-message button {
-  padding: 14px 32px;
+  padding: 12px 28px;
   background: #ffffff;
   border: 3px solid #000000;
   color: #000000;
-  border-radius: 12px;
+  border-radius: 10px;
   font-family: 'Outfit', sans-serif;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 1px;
   cursor: pointer;
-  box-shadow: 4px 4px 0px #000000;
+  box-shadow: 3px 3px 0px #000000;
   transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
@@ -940,7 +943,7 @@
   transform: translate(-2px, -2px);
   background: #ff007f;
   color: #ffffff;
-  box-shadow: 6px 6px 0px #000000;
+  box-shadow: 5px 5px 0px #000000;
 }
 
 /* ==========================================================================
@@ -950,7 +953,7 @@
 @media (max-width: 1024px) {
   .lobby-main {
     grid-template-columns: 1fr;
-    gap: 28px;
+    gap: 20px;
   }
 
   .room-settings-panel {
@@ -969,8 +972,8 @@
     flex-direction: column;
     align-items: center;
     text-align: center;
-    padding: 20px;
-    gap: 16px;
+    padding: 16px;
+    gap: 12px;
   }
 
   .room-title {
@@ -979,44 +982,45 @@
   }
 
   .room-title h1 {
-    font-size: 24px;
+    font-size: 22px;
   }
 
   .room-code-keycard {
     width: 100%;
-    max-width: 220px;
+    max-width: 200px;
   }
 
   .players-list {
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 14px;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 12px;
   }
 
   .player-card {
-    padding: 16px 12px;
+    padding: 12px 8px;
+    max-width: 140px;
   }
 
   .player-avatar {
-    width: 64px;
-    height: 64px;
+    width: 50px;
+    height: 50px;
   }
 
   .avatar-placeholder {
-    font-size: 24px;
+    font-size: 20px;
   }
 
   .lobby-actions {
     flex-direction: column;
     align-items: center;
     width: 100%;
-    gap: 14px;
+    gap: 12px;
   }
 
   .start-game-btn,
   .ready-btn {
     width: 100%;
-    max-width: 320px;
-    padding: 16px 24px;
+    max-width: 300px;
+    padding: 14px 20px;
   }
 }
 
@@ -1032,10 +1036,11 @@
     flex-direction: row;
     justify-content: flex-start;
     align-items: center;
-    gap: 16px;
+    gap: 14px;
     text-align: left;
-    padding: 14px 18px;
-    height: 96px;
+    padding: 12px 16px;
+    height: 84px;
+    max-width: 100%;
   }
 
   .players-list > div .player-card {
@@ -1043,18 +1048,18 @@
   }
 
   .suit-watermark {
-    font-size: 80px;
+    font-size: 70px;
     right: -10px;
     bottom: -15px;
   }
 
   .player-avatar {
-    width: 50px;
-    height: 50px;
+    width: 44px;
+    height: 44px;
   }
 
   .avatar-placeholder {
-    font-size: 20px;
+    font-size: 18px;
   }
 
   .player-info {
@@ -1070,12 +1075,12 @@
     opacity: 1;
     transform: scale(1);
     top: auto;
-    bottom: 12px;
-    right: 12px;
+    bottom: 10px;
+    right: 10px;
   }
 
   .loading-message,
   .error-message {
-    padding: 32px 24px;
+    padding: 28px 20px;
   }
 }
