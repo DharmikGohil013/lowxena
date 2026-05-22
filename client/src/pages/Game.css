@@ -315,6 +315,47 @@
   align-items: center;
   justify-content: center;
   gap: 50px;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  overflow: hidden;
+}
+
+.table-surface:hover {
+  transform: scale(1.02);
+  box-shadow: 10px 10px 0px #000000, 14px 14px 0px #ff007f; /* Spectacular double pop shadow! */
+}
+
+/* Halftone halftone pop-art dot grid felt texture */
+.table-felt {
+  position: absolute;
+  inset: 0;
+  border-radius: 32px;
+  background-color: #ffffff;
+  background-image: 
+    radial-gradient(#00e5ff 15%, transparent 16%),
+    radial-gradient(#ff007f 15%, transparent 16%);
+  background-size: 20px 20px;
+  background-position: 0 0, 10px 10px;
+  opacity: 0.08; /* Super clean subtle card felt pattern */
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Center premium watermark text banner */
+.table-surface::after {
+  content: 'LOWXENA';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-6deg);
+  font-family: 'Outfit', sans-serif;
+  font-size: min(46px, 8vw);
+  font-weight: 900;
+  color: #f4f4f6;
+  -webkit-text-stroke: 2.5px rgba(0, 0, 0, 0.07);
+  letter-spacing: 6px;
+  pointer-events: none;
+  z-index: 1;
+  user-select: none;
 }
 
 /* Dash accents on the pop-art felt */
@@ -323,7 +364,7 @@
   position: absolute;
   inset: 14px;
   border-radius: 24px;
-  border: 3px dashed #00e5ff; /* Neon cyan dashed tracker */
+  border: 3.5px dashed #00e5ff; /* Neon cyan dashed tracker */
   pointer-events: none;
   z-index: 1;
 }
@@ -336,6 +377,11 @@
   flex-direction: column;
   align-items: center;
   gap: 12px;
+  transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.deck-area:hover {
+  transform: translateY(-2px);
 }
 
 .deck-stack {
@@ -349,7 +395,7 @@
   position: absolute;
   top: 0;
   left: 0;
-  transition: transform 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 /* Physical stack shift in flat style */
@@ -370,6 +416,7 @@
   border: 3px solid #000000;
   box-shadow: 2px 2px 0px #000000;
   white-space: nowrap;
+  transition: all 0.2s ease;
 }
 
 /* ---------- Played Cards Pile Area ---------- */
@@ -385,9 +432,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   cursor: pointer;
   overflow: visible;
+}
+
+.played-area:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px #000000, 8px 8px 0px #00e5ff;
 }
 
 .play-placeholder {
@@ -399,24 +451,35 @@
   letter-spacing: 1px;
 }
 
-/* Drop hover glowing states */
+/* Drop hover glowing states with custom target pulses */
 .played-area.can-drop {
   border-color: #ff007f;
-  background: rgba(255, 0, 127, 0.05);
+  background: rgba(255, 0, 127, 0.04);
   box-shadow: 6px 6px 0px #000000;
+  animation: targetPulse 1.2s ease-in-out infinite alternate;
 }
 
 .played-area.drop-hover {
   border-color: #ff007f;
   background: #ffe600;
-  transform: translate(-3px, -3px) scale(1.03);
-  box-shadow: 7px 7px 0px #000000;
+  transform: translate(-4px, -4px) scale(1.05);
+  box-shadow: 8px 8px 0px #000000, 10px 10px 0px #ff007f;
 }
 
 .played-card {
   position: absolute;
-  transition: transform .25s ease;
-  filter: drop-shadow(2px 2px 0px #000000);
+  transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  filter: drop-shadow(3px 3px 0px #000000);
+}
+
+.played-card:hover {
+  transform: scale(1.1) rotate(0deg) !important;
+  z-index: 50 !important;
+}
+
+@keyframes targetPulse {
+  0% { transform: scale(1); border-color: #ff007f; }
+  100% { transform: scale(1.03); border-color: #00e5ff; }
 }
 
 /* ---------- Card Visuals & Outlines ---------- */
