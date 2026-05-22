@@ -1253,9 +1253,7 @@ function Game() {
             <p className="win-subtitle">Game Over</p>
             <button className="win-btn" onClick={async () => {
               setShowGameWin(false)
-              if (isHost()) {
-                try { await gameAPI.endGame(roomId) } catch(e) {}
-              }
+              try { await gameAPI.endGame(roomId) } catch(e) {}
               navigate(`/room/${roomId}`)
             }}>
               Back to Lobby
@@ -1334,9 +1332,7 @@ function Game() {
             )}
             <button className="win-btn" onClick={async () => {
               setShowGameEndSummary(false)
-              if (isHost()) {
-                try { await gameAPI.endGame(roomId) } catch(e) {}
-              }
+              try { await gameAPI.endGame(roomId) } catch(e) {}
               navigate(`/room/${roomId}`)
             }}>
               Back to Lobby

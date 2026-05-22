@@ -334,8 +334,18 @@ export const endGame = async (req, res) => {
       return res.status(404).json({ error: 'Room not found' });
     }
 
-    if (room.host_id !== userId) {
-      return res.status(403).json({ error: 'Only the host can end the game' });
+    // Verify caller is a member of the room
+    const isMember = room.members.some(m => m.user_id === userId);
+    if (!isMember) {
+      return res.status(403).json({ error: 'You are not a member of this room' });
+    }
+
+    const isHostCaller = room.host_id === userId;
+    const isGameOver = room.game_state && room.game_state.gameOver === true;
+
+    // Allow host to end at any time, but guests can only end if the game is naturally over
+    if (!isHostCaller && !isGameOver) {
+      return res.status(403).json({ error: 'Only the host can end the game while it is active' });
     }
 
     room.status = 'waiting';
