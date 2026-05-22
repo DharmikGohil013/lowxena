@@ -2639,6 +2639,14 @@
   flex-shrink: 0;
 }
 
+.lb-player-name-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+  flex: 1;
+}
+
 /* ============================
    Footer
    ============================ */
@@ -2718,15 +2726,15 @@
   }
 }
 
-/* ---- Laptop (1025px – 1440px) ---- */
-@media (min-width: 1025px) and (max-width: 1440px) {
+/* ---- Laptop (1151px – 1440px) ---- */
+@media (min-width: 1151px) and (max-width: 1440px) {
   .leaderboard-section {
     width: 300px;
   }
 }
 
-/* ---- Tablet (769px – 1024px) ---- */
-@media (max-width: 1024px) {
+/* ---- Small Laptop / Tablet Side-by-Side (1151px – 1300px) ---- */
+@media (min-width: 1151px) and (max-width: 1300px) {
   .leaderboard-section {
     width: 260px;
     top: 20px;
@@ -2773,8 +2781,8 @@
   }
 }
 
-/* ---- Mobile (≤ 768px) ---- */
-@media (max-width: 768px) {
+/* ---- Tablet & Mobile Flow (≤ 1150px) ---- */
+@media (max-width: 1150px) {
   .home-container {
     overflow-y: auto;
     overflow-x: hidden;
@@ -3042,7 +3050,39 @@
   .leaderboard-modal {
     width: 95%;
     max-width: 100%;
-    padding: 20px;
+    padding: 16px 12px;
+  }
+
+  .lb-col-rank {
+    width: 38px;
+  }
+
+  .lb-col-stat {
+    width: 46px;
+    font-size: 11px;
+  }
+
+  .lb-modal-header-row {
+    padding: 6px 8px;
+  }
+
+  .lb-modal-header-row .lb-col-stat {
+    font-size: 9px;
+  }
+
+  .lb-modal-item {
+    font-size: 12px;
+    padding: 8px 8px;
+    gap: 4px;
+  }
+
+  .lb-col-player {
+    gap: 6px;
+  }
+
+  .lb-avatar-mini {
+    width: 24px;
+    height: 24px;
   }
 
   /* Footer */
@@ -3165,6 +3205,12 @@
   .floating-suits { display: none; }
   .glow-orb-2, .glow-orb-3 { display: none; }
   .glow-orb-1 { width: 200px; height: 200px; filter: blur(60px); }
+
+  .home-footer {
+    font-size: 10px;
+    padding: 6px 16px;
+    margin: 16px auto 12px;
+  }
 }
 
 /* ---- Extra Small (≤ 360px) ---- */
@@ -3191,6 +3237,14 @@
   .pm-avatar-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
+  }
+
+  .home-footer {
+    font-size: 9px;
+    padding: 5px 12px;
+    margin: 12px auto 8px;
+    border-width: 1.5px;
+    box-shadow: 2px 2px 0px #000000;
   }
 }
 

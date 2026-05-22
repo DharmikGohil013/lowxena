@@ -1360,7 +1360,9 @@ function Home() {
                   </span>
                   <span className="lb-col-player">
                     <span className="lb-avatar-mini">{renderAvatar(player.avatar_url, 28, player.name)}</span>
-                    {player.user_id === userId ? 'You' : (player.name || 'Anonymous')}
+                    <span className="lb-player-name-text">
+                      {player.user_id === userId ? 'You' : (player.name || 'Anonymous')}
+                    </span>
                   </span>
                   <span className="lb-col-stat">{player.wins}</span>
                   <span className="lb-col-stat">{player.win_rate}%</span>
@@ -1375,7 +1377,7 @@ function Home() {
                     <span className="lb-col-rank">#{currentUserRank.rank}</span>
                     <span className="lb-col-player">
                       <span className="lb-avatar-mini">{renderAvatar(playerPicture, 28, playerName)}</span>
-                      You
+                      <span className="lb-player-name-text">You</span>
                     </span>
                     <span className="lb-col-stat">{currentUserRank.wins}</span>
                     <span className="lb-col-stat">{currentUserRank.win_rate}%</span>
