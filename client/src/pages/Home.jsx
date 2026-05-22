@@ -5,7 +5,7 @@ import {
   Trophy, Medal, AlertTriangle, Gamepad2, DoorOpen, Info,
   LogIn, LogOut, User, BarChart2, Image as ImageIcon, X, Settings,
   Plus, Search, Zap, Bot, Crown, Globe, Lock, Copy, Check, Play,
-  BookOpen, Users, Shield, Swords, TrendingUp, Star, Clock, Hash, Sparkles
+  BookOpen, Users, Shield, Swords, TrendingUp, Star, Clock, Hash, Sparkles, Flame
 } from 'lucide-react'
 import Loader from '../components/Loader'
 import { authAPI, gameAPI, userAPI } from '../services/api'
@@ -1001,7 +1001,10 @@ function Home() {
                     >
                       <span className="chip-points">{pts}</span>
                       <span className="chip-label">
-                        {pts === 10 ? '⚡ Blitz' : pts === 20 ? '🔥 Quick' : pts === 30 ? '♠ Classic' : '🏆 Epic'}
+                        {pts === 10 && <><Zap size={13} /> <span>Blitz</span></>}
+                        {pts === 20 && <><Flame size={13} /> <span>Quick</span></>}
+                        {pts === 30 && <><Sparkles size={13} /> <span>Classic</span></>}
+                        {pts === 40 && <><Trophy size={13} /> <span>Epic</span></>}
                       </span>
                     </button>
                   ))}
@@ -1058,7 +1061,7 @@ function Home() {
                       <h4>Public Lobby</h4>
                       <p>Listed publicly. Anyone can join from search.</p>
                     </div>
-                    <div className="v-card-check">✓</div>
+                    <div className="v-card-check"><Check size={16} /></div>
                   </button>
 
                   <button
@@ -1080,7 +1083,7 @@ function Home() {
                       <h4>Private Room</h4>
                       <p>Hidden lobby. Require Room Code to enter.</p>
                     </div>
-                    <div className="v-card-check">✓</div>
+                    <div className="v-card-check"><Check size={16} /></div>
                   </button>
                 </div>
               </div>
@@ -1127,16 +1130,23 @@ function Home() {
                 <div className="ticket-content">
                   <div className="ticket-main">
                     <span className="ticket-title">LOBBY PREVIEW</span>
-                    <span className="ticket-value">
-                      {customMatchConfig.maxPoints === 10 ? '⚡ Blitz' : 
-                       customMatchConfig.maxPoints === 20 ? '🔥 Quick' : 
-                       customMatchConfig.maxPoints === 30 ? '♠ Classic' : '🏆 Epic'}
-                      {' • '}
-                      {customMatchConfig.numPlayers === 2 ? '👥 Duel' : 
-                       customMatchConfig.numPlayers <= 4 ? '👥 Standard' : '👥 Party'} ({customMatchConfig.numPlayers} Players)
-                      {' • '}
-                      {customMatchConfig.isPrivate ? '🔒 Private' : '🌐 Public'}
-                    </span>
+                    <div className="ticket-value">
+                      <span className="ticket-value-item">
+                        {customMatchConfig.maxPoints === 10 && <><Zap size={14} /> <span>Blitz</span></>}
+                        {customMatchConfig.maxPoints === 20 && <><Flame size={14} /> <span>Quick</span></>}
+                        {customMatchConfig.maxPoints === 30 && <><Sparkles size={14} /> <span>Classic</span></>}
+                        {customMatchConfig.maxPoints === 40 && <><Trophy size={14} /> <span>Epic</span></>}
+                      </span>
+                      <span className="ticket-value-divider">•</span>
+                      <span className="ticket-value-item">
+                        <Users size={14} /> <span>{customMatchConfig.numPlayers === 2 ? 'Duel' : 
+                         customMatchConfig.numPlayers <= 4 ? 'Standard' : 'Party'} ({customMatchConfig.numPlayers} Players)</span>
+                      </span>
+                      <span className="ticket-value-divider">•</span>
+                      <span className="ticket-value-item">
+                        {customMatchConfig.isPrivate ? <><Lock size={14} /> <span>Private</span></> : <><Globe size={14} /> <span>Public</span></>}
+                      </span>
+                    </div>
                   </div>
                   <div className="ticket-suits">♣ ♦ ♥ ♠</div>
                 </div>

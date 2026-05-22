@@ -1367,6 +1367,9 @@
   font-weight: 900;
   letter-spacing: 0.5px;
   transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 /* Individual Active Colors for points selection to create high-contrast guides */
@@ -1587,10 +1590,10 @@
   position: absolute;
   top: 14px;
   right: 14px;
-  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: transparent;
-  line-height: 1;
-  font-weight: 900;
   transition: all 0.2s ease;
   user-select: none;
 }
@@ -1858,6 +1861,22 @@
   color: #000000;
   font-family: 'Outfit', sans-serif;
   letter-spacing: 0.2px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.ticket-value-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ticket-value-divider {
+  color: #ff007f;
+  font-weight: 900;
 }
 
 .ticket-suits {
