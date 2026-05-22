@@ -735,16 +735,11 @@
    ============================ */
 .login-modal-v2 {
   position: relative;
-  background: linear-gradient(145deg, rgba(10,10,26,0.97) 0%, rgba(20,15,40,0.97) 100%);
-  backdrop-filter: blur(30px);
-  -webkit-backdrop-filter: blur(30px);
+  background: #ffffff;
   padding: 0;
   border-radius: 24px;
-  border: 1px solid rgba(139,92,246,0.2);
-  box-shadow:
-    0 30px 80px rgba(0,0,0,0.6),
-    0 0 60px rgba(139,92,246,0.08),
-    inset 0 1px 0 rgba(255,255,255,0.05);
+  border: 4px solid #000000;
+  box-shadow: 12px 12px 0px #ffe600;
   width: 420px;
   max-width: 95vw;
   animation: modal-pop 0.4s cubic-bezier(0.16, 1, 0.3, 1);
@@ -760,6 +755,7 @@
   position: absolute;
   top: 14px;
   right: 14px;
+  z-index: 10;
 }
 
 /* Decorative suits */
@@ -773,14 +769,13 @@
 .lm-suit {
   position: absolute;
   font-size: 50px;
-  opacity: 0.04;
   animation: lm-suit-bob 6s ease-in-out infinite;
 }
 
-.lm-suit-1 { top: -8px; left: -8px; color: #a78bfa; animation-delay: 0s; }
-.lm-suit-2 { top: 10px; right: -5px; color: #f87171; animation-delay: 1.5s; }
-.lm-suit-3 { bottom: 40px; left: 10px; color: #fbbf24; animation-delay: 3s; }
-.lm-suit-4 { bottom: -5px; right: 20px; color: #34d399; animation-delay: 4.5s; }
+.lm-suit-1 { top: -8px; left: -8px; color: #ff007f; opacity: 0.08; animation-delay: 0s; }
+.lm-suit-2 { top: 10px; right: -5px; color: #00e5ff; opacity: 0.08; animation-delay: 1.5s; }
+.lm-suit-3 { bottom: 40px; left: 10px; color: #ffe600; opacity: 0.08; animation-delay: 3s; }
+.lm-suit-4 { bottom: -5px; right: 20px; color: #000000; opacity: 0.08; animation-delay: 4.5s; }
 
 @keyframes lm-suit-bob {
   0%, 100% { transform: translateY(0) rotate(0deg); }
@@ -791,39 +786,39 @@
 .lm-header {
   text-align: center;
   padding: 32px 28px 18px;
-  background: linear-gradient(180deg, rgba(139,92,246,0.06) 0%, transparent 100%);
-  border-bottom: 1px solid rgba(255,255,255,0.04);
+  background: #ffe600;
+  border-bottom: 3.5px solid #000000;
+  color: #000000;
 }
 
 .lm-icon-wrap {
   width: 56px;
   height: 56px;
   border-radius: 16px;
-  background: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(99,102,241,0.08));
-  border: 1.5px solid rgba(139,92,246,0.2);
+  background: #00e5ff;
+  border: 2.5px solid #000000;
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 auto 14px;
-  color: #a78bfa;
-  box-shadow: 0 0 24px rgba(139,92,246,0.1);
+  color: #000000;
+  box-shadow: 3.5px 3.5px 0px #000000;
 }
 
 .lm-header h2 {
   margin: 0 0 4px;
-  font-size: 24px;
-  font-weight: 800;
+  font-size: 26px;
+  font-weight: 900;
   font-family: 'Outfit', 'Inter', sans-serif;
-  background: linear-gradient(135deg, #e0d4fc 0%, #a78bfa 50%, #c4b5fd 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #000000;
+  text-transform: uppercase;
 }
 
 .lm-header p {
   margin: 0;
   font-size: 13px;
-  color: rgba(255,255,255,0.35);
+  color: #000000;
+  font-weight: 700;
   letter-spacing: 0.3px;
 }
 
@@ -857,16 +852,16 @@
 
 .lm-divider-line {
   flex: 1;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  height: 2.5px;
+  background: #000000;
 }
 
 .lm-divider span {
   font-size: 11px;
-  color: rgba(255,255,255,0.25);
+  color: #000000;
   text-transform: uppercase;
   letter-spacing: 2px;
-  font-weight: 600;
+  font-weight: 900;
 }
 
 /* Guest */
@@ -887,77 +882,79 @@
   left: 14px;
   top: 50%;
   transform: translateY(-50%);
-  color: rgba(255,255,255,0.25);
+  color: #000000;
   pointer-events: none;
 }
 
 .lm-guest-input {
   width: 100%;
   padding: 13px 16px 13px 40px;
-  border-radius: 14px;
-  border: 1.5px solid rgba(255,255,255,0.08);
-  background: rgba(255,255,255,0.04);
-  color: #fff;
+  border-radius: 12px;
+  border: 2.5px solid #000000;
+  background: #ffffff;
+  color: #000000;
   font-size: 14px;
+  font-weight: 700;
   outline: none;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   box-sizing: border-box;
   font-family: inherit;
 }
 
-.lm-guest-input::placeholder { color: rgba(255,255,255,0.2); }
+.lm-guest-input::placeholder { color: rgba(0,0,0,0.45); }
 .lm-guest-input:focus {
-  border-color: rgba(139,92,246,0.4);
-  background: rgba(255,255,255,0.06);
-  box-shadow: 0 0 20px rgba(139,92,246,0.08);
+  border-color: #ff007f;
+  background: #ffffff;
+  box-shadow: 4px 4px 0px #000000;
 }
 
 .lm-guest-btn {
   position: relative;
   width: 100%;
   padding: 14px 24px;
-  border: none;
-  border-radius: 14px;
-  background: linear-gradient(135deg, #7c3aed 0%, #6366f1 50%, #8b5cf6 100%);
-  color: #fff;
-  font-size: 15px;
-  font-weight: 700;
+  border: 3px solid #000000;
+  border-radius: 12px;
+  background: #00e5ff;
+  color: #000000;
+  font-size: 16px;
+  font-weight: 900;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   letter-spacing: 0.5px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
   overflow: hidden;
-  box-shadow: 0 4px 18px rgba(124,58,237,0.3);
+  box-shadow: 4px 4px 0px #000000;
+  text-transform: uppercase;
 }
 
 .lm-btn-glow {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%);
-  pointer-events: none;
+  display: none;
 }
 
 .lm-guest-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(124,58,237,0.45);
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px #ff007f;
+  background: #00e5ff;
 }
 
 .lm-guest-btn:active {
-  transform: translateY(0);
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px #ff007f;
 }
 
 /* Login error */
 .login-error {
-  background: rgba(239,68,68,0.1);
-  border: 1px solid rgba(239,68,68,0.2);
-  color: #fca5a5;
+  background: rgba(239,68,68,0.15);
+  border: 2.5px solid #ef4444;
+  color: #dc2626;
   padding: 10px 16px;
   border-radius: 12px;
   font-size: 13px;
-  margin: 0 24px 0;
+  font-weight: 800;
+  margin: 18px 24px 0;
   text-align: center;
   display: flex;
   align-items: center;
@@ -970,10 +967,10 @@
    Game Mode Modal
    ============================ */
 .game-mode-modal {
-  background: #12121c;
+  background: #ffffff;
   padding: 30px 30px 32px;
   border-radius: 24px;
-  border: 4px solid #ffffff;
+  border: 4px solid #000000;
   box-shadow: 12px 12px 0px #ff007f;
   width: 580px;
   max-width: 92vw;
@@ -1008,19 +1005,17 @@
   font-size: 28px;
   font-weight: 900;
   font-family: 'Outfit', 'Inter', sans-serif;
-  color: #ffe600;
-  text-shadow: 2.5px 2.5px 0px #000000;
+  color: #000000;
   text-transform: uppercase;
   letter-spacing: 1px;
 }
 
 .modal-subtitle {
   margin: 0;
-  color: #ffffff;
+  color: #222222;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 800;
   letter-spacing: 0.2px;
-  opacity: 0.85;
 }
 
 /* Game mode grid */
@@ -2347,11 +2342,11 @@
    Full Leaderboard Modal
    ============================ */
 .leaderboard-modal {
-  background: #12121c;
+  background: #ffffff;
   padding: 28px;
   border-radius: 24px;
-  border: 4px solid #ffffff;
-  box-shadow: 12px 12px 0px #ff007f;
+  border: 4px solid #000000;
+  box-shadow: 12px 12px 0px #00e5ff;
   width: 90%;
   max-width: 620px;
   max-height: 85vh;
@@ -2361,19 +2356,17 @@
 }
 
 .leaderboard-modal h2 {
-  color: #ffe600;
+  color: #000000;
   font-size: 24px;
   margin: 0 0 4px 0;
   text-align: center;
   font-family: 'Outfit', 'Inter', sans-serif;
   text-transform: uppercase;
   font-weight: 900;
-  text-shadow: 2px 2px 0px #000000;
-  -webkit-text-stroke: 1px #000000;
 }
 
 .lb-modal-subtitle {
-  color: #ffffff;
+  color: #222222;
   text-align: center;
   font-size: 12px;
   font-weight: 700;
@@ -2716,7 +2709,8 @@
     max-width: 100%;
     padding: 18px 16px 20px;
     border-radius: 18px;
-    border: 3px solid #ffffff;
+    border: 3px solid #000000;
+    background: #ffffff;
     box-shadow: 6px 6px 0px #ff007f;
   }
 

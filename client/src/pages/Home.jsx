@@ -708,7 +708,7 @@ function Home() {
                       type="email"
                       value={profileData.email}
                       disabled
-                      style={{ backgroundColor: '#1a1a2e', cursor: 'not-allowed', opacity: 0.6 }}
+                      style={{ backgroundColor: '#f3f4f6', cursor: 'not-allowed', color: '#777777', border: '2.5px solid #000000', opacity: 0.85 }}
                     />
                   </div>
                   <div className="form-group">
