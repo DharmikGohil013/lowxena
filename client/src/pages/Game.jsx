@@ -275,6 +275,22 @@ function Game() {
     }, 2000)
   }, [roomDetails?.players?.length, currentUser?.id, gameState.gameStarted])
 
+  // When the game ends naturally, the host automatically calls gameAPI.endGame(roomId) after a short delay
+  // to reset the room's status on the backend to 'waiting', allowing all players to safely navigate back to the lobby.
+  useEffect(() => {
+    if (gameState.gameOver && !gameState.gameEndedByHost && isHost() && roomId) {
+      const resetRoomTimer = setTimeout(async () => {
+        try {
+          await gameAPI.endGame(roomId)
+        } catch (e) {
+          console.error('Error auto-resetting room to lobby:', e)
+        }
+      }, 5000) // 5 second delay to ensure all players' clients have fetched the gameWinner and gameOver state
+
+      return () => clearTimeout(resetRoomTimer)
+    }
+  }, [gameState.gameOver, gameState.gameEndedByHost, roomId, roomDetails?.hostId, currentUser?.id])
+
   // Countdown timer effect
   useEffect(() => {
     if (!gameState.gameStarted || !roomDetails?.players || gameState.gameOver) return
@@ -1177,8 +1193,11 @@ function Game() {
               }}>
                 <DoorOpen size={16} /> Leave Game
               </button>
-              <button className="settings-item" onClick={() => {
+              <button className="settings-item" onClick={async () => {
                 setShowSettings(false)
+                if (isHost()) {
+                  try { await gameAPI.endGame(roomId) } catch(e) {}
+                }
                 navigate(`/room/${roomId}`)
               }}>
                 ← Back to Lobby
@@ -1232,8 +1251,11 @@ function Game() {
               {showGameWin.winnerName === currentUser?.name ? 'You Win!' : `${showGameWin.winnerName} Wins!`}
             </h2>
             <p className="win-subtitle">Game Over</p>
-            <button className="win-btn" onClick={() => {
+            <button className="win-btn" onClick={async () => {
               setShowGameWin(false)
+              if (isHost()) {
+                try { await gameAPI.endGame(roomId) } catch(e) {}
+              }
               navigate(`/room/${roomId}`)
             }}>
               Back to Lobby
@@ -1253,9 +1275,10 @@ function Game() {
               <button className="loss-btn" onClick={() => setShowGameLoss(false)}>
                 Watch Game
               </button>
-              <button className="loss-btn loss-btn-leave" onClick={() => {
+              <button className="loss-btn loss-btn-leave" onClick={async () => {
                 setShowGameLoss(false)
-                navigate(`/room/${roomId}`)
+                try { await gameAPI.leaveRoom(roomId) } catch(e) {}
+                navigate('/rooms')
               }}>
                 Leave
               </button>
@@ -1309,8 +1332,11 @@ function Game() {
                   ))}
               </div>
             )}
-            <button className="win-btn" onClick={() => {
+            <button className="win-btn" onClick={async () => {
               setShowGameEndSummary(false)
+              if (isHost()) {
+                try { await gameAPI.endGame(roomId) } catch(e) {}
+              }
               navigate(`/room/${roomId}`)
             }}>
               Back to Lobby
