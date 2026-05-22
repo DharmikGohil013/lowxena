@@ -1259,15 +1259,15 @@ function Home() {
           <h1 className="hero-title">LowXena</h1>
           <p className="hero-tagline">Where the Lowest Wins.</p>
           <div className="hero-chips">
-            <span className="hero-chip">
+            <span className="hero-chip chip-users">
               <Users size={14} />
               2-7 Players
             </span>
-            <span className="hero-chip">
+            <span className="hero-chip chip-zap">
               <Zap size={14} />
               Quick Rounds
             </span>
-            <span className="hero-chip">
+            <span className="hero-chip chip-star">
               <Star size={14} />
               Free to Play
             </span>
