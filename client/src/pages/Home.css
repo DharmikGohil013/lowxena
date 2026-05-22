@@ -1229,13 +1229,11 @@
    Custom Match Modal
    ============================ */
 .custom-match-modal {
-  background: linear-gradient(145deg, rgba(10,10,26,0.97) 0%, rgba(20,15,40,0.97) 100%);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+  background: #ffffff;
   padding: 0;
   border-radius: 24px;
-  border: 1px solid rgba(139,92,246,0.2);
-  box-shadow: 0 25px 60px rgba(0,0,0,0.6), 0 0 40px rgba(139,92,246,0.06);
+  border: 4px solid #000000;
+  box-shadow: 12px 12px 0px #ffe600;
   min-width: 480px;
   max-width: 580px;
   max-height: 85vh;
@@ -1269,22 +1267,22 @@
   width: 52px;
   height: 52px;
   border-radius: 16px;
-  background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+  background: #00e5ff;
+  border: 2.5px solid #000000;
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 auto 14px;
-  color: white;
-  box-shadow: 0 6px 20px rgba(139,92,246,0.35);
+  color: #000000;
+  box-shadow: 4px 4px 0px #000000;
 }
 
 .custom-match-modal h2 {
-  color: #fde68a;
+  color: #000000;
   font-size: 26px;
   font-weight: 900;
   font-family: 'Outfit', 'Inter', sans-serif;
   margin: 0 0 4px 0;
-  text-shadow: 0 2px 12px rgba(251,191,36,0.3);
 }
 
 /* Form elements */
@@ -1301,9 +1299,10 @@
 }
 
 .custom-match-form .form-group label {
-  color: #c4b5fd;
+  color: #000000;
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 900;
+  text-transform: uppercase;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -1316,8 +1315,9 @@
   width: 30px;
   height: 30px;
   border-radius: 8px;
-  background: rgba(139,92,246,0.1);
-  color: #a78bfa;
+  background: #f3f4f6;
+  border: 1.5px solid #000000;
+  color: #000000;
   flex-shrink: 0;
 }
 
@@ -1330,59 +1330,58 @@
 }
 
 .chip-select-btn {
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #ffffff;
+  border: 2.5px solid #000000;
   border-radius: 12px;
   padding: 12px 6px;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.2s ease;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 4px;
+  box-shadow: 3px 3px 0px #000000;
 }
 
 .chip-select-btn:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(139, 92, 246, 0.25);
-  transform: translateY(-2px);
+  background: #ffffff;
+  border-color: #ff007f;
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0px #ff007f;
 }
 
 .chip-select-btn .chip-points {
   font-size: 17px;
   font-weight: 900;
-  color: #ffffff;
+  color: #000000;
   line-height: 1;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   font-family: 'Outfit', sans-serif;
 }
 
 .chip-select-btn .chip-label {
   font-size: 8.5px;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.4);
-  font-weight: 700;
+  color: #374151;
+  font-weight: 900;
   letter-spacing: 0.4px;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 
 .chip-select-btn.active {
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.22) 0%, rgba(109, 40, 217, 0.1) 100%);
-  border-color: rgba(139, 92, 246, 0.55);
-  box-shadow: 
-    0 8px 20px rgba(139, 92, 246, 0.22),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  transform: translateY(-2px) scale(1.02);
+  background: #ffe600;
+  border-color: #000000;
+  box-shadow: 4px 4px 0px #000000;
+  transform: translate(-1px, -1px);
 }
 
 .chip-select-btn.active .chip-points {
-  color: #c4b5fd;
-  text-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+  color: #000000;
 }
 
 .chip-select-btn.active .chip-label {
-  color: #a78bfa;
+  color: #ff007f;
 }
 
 /* Circular Player Count Selector Badges */
@@ -1399,61 +1398,59 @@
   max-width: 62px;
   min-width: 44px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #ffffff;
+  border: 2.5px solid #000000;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.2s ease;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  box-shadow: 3px 3px 0px #000000;
 }
 
 .player-badge-btn:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(16, 185, 129, 0.25);
-  transform: translateY(-3px) scale(1.06);
+  background: #ffffff;
+  border-color: #00e5ff;
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0px #00e5ff;
 }
 
 .player-badge-btn .player-badge-num {
   font-size: 17px;
   font-weight: 900;
-  color: #ffffff;
+  color: #000000;
   line-height: 1;
   margin-bottom: 2px;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   font-family: 'Outfit', sans-serif;
 }
 
 .player-badge-btn .player-badge-label {
   font-size: 7.5px;
-  font-weight: 700;
+  font-weight: 900;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.35);
+  color: #4b5563;
   letter-spacing: 0.2px;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 
 .player-badge-btn.active {
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.22) 0%, rgba(5, 150, 105, 0.1) 100%);
-  border-color: rgba(16, 185, 129, 0.55);
-  box-shadow: 
-    0 8px 20px rgba(16, 185, 129, 0.22),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  transform: translateY(-3px) scale(1.04);
+  background: #00e5ff;
+  border-color: #000000;
+  box-shadow: 4px 4px 0px #000000;
+  transform: translate(-1px, -1px);
 }
 
 .player-badge-btn.active .player-badge-num {
-  color: #6ee7b7;
-  text-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+  color: #000000;
 }
 
 .player-badge-btn.active .player-badge-label {
-  color: #34d399;
+  color: #ff007f;
 }
 
-/* Visibility Segment Card Panels */
-.visibility-cards-container {
+/* Visibility Segment Car.visibility-cards-container {
   display: flex;
   gap: 12px;
   width: 100%;
@@ -1461,8 +1458,8 @@
 
 .visibility-card-btn {
   flex: 1;
-  background: rgba(255, 255, 255, 0.015);
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: #ffffff;
+  border: 2.5px solid #000000;
   border-radius: 16px;
   padding: 16px 14px;
   text-align: left;
@@ -1470,16 +1467,17 @@
   align-items: center;
   gap: 12px;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.2s ease;
   position: relative;
   overflow: hidden;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  box-shadow: 3px 3px 0px #000000;
 }
 
 .visibility-card-btn:hover {
-  background: rgba(255, 255, 255, 0.03);
-  border-color: rgba(251, 191, 36, 0.22);
-  transform: translateY(-2px);
+  background: #ffffff;
+  border-color: #ffe600;
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0px #ffe600;
 }
 
 .v-card-icon {
@@ -1489,15 +1487,15 @@
   width: 38px;
   height: 38px;
   border-radius: 11px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  color: rgba(255, 255, 255, 0.5);
-  transition: all 0.3s ease;
+  background: #f3f4f6;
+  border: 1.5px solid #000000;
+  color: #000000;
+  transition: all 0.2s ease;
   flex-shrink: 0;
 }
 
 .visibility-card-btn:hover .v-card-icon {
-  color: rgba(255, 255, 255, 0.85);
+  color: #ff007f;
 }
 
 .v-card-text {
@@ -1509,9 +1507,9 @@
 .v-card-text h4 {
   margin: 0;
   font-size: 13.5px;
-  font-weight: 750;
-  color: #e2e8f0;
-  transition: all 0.3s ease;
+  font-weight: 900;
+  color: #000000;
+  transition: all 0.2s ease;
   font-family: 'Outfit', sans-serif;
   line-height: 1.2;
 }
@@ -1519,9 +1517,10 @@
 .v-card-text p {
   margin: 0;
   font-size: 10px;
-  color: rgba(255, 255, 255, 0.38);
+  color: #4b5563;
   line-height: 1.35;
   font-family: 'Inter', sans-serif;
+  font-weight: 700;
 }
 
 .v-card-check {
@@ -1532,52 +1531,49 @@
   color: transparent;
   line-height: 1;
   font-weight: 900;
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: all 0.2s ease;
   user-select: none;
 }
 
 .visibility-card-btn.active {
-  background: linear-gradient(135deg, rgba(251, 191, 36, 0.06) 0%, rgba(245, 158, 11, 0.02) 100%);
-  border-color: rgba(251, 191, 36, 0.45);
-  box-shadow: 
-    0 10px 25px rgba(251, 191, 36, 0.07),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  transform: translateY(-2px);
+  background: #ffe600;
+  border-color: #000000;
+  box-shadow: 4px 4px 0px #000000;
+  transform: translate(-1px, -1px);
 }
 
 .visibility-card-btn.active .v-card-icon {
-  background: rgba(251, 191, 36, 0.16);
-  border-color: rgba(251, 191, 36, 0.35);
-  color: #fbbf24;
-  box-shadow: 0 0 15px rgba(251, 191, 36, 0.18);
+  background: #ff007f;
+  border-color: #000000;
+  color: #ffffff;
+  box-shadow: 2px 2px 0px #000000;
 }
 
 .visibility-card-btn.active .v-card-text h4 {
-  color: #fde68a;
-  text-shadow: 0 0 10px rgba(251, 191, 36, 0.2);
+  color: #000000;
 }
 
 .visibility-card-btn.active .v-card-check {
-  color: #fbbf24;
+  color: #ff007f;
   transform: scale(1.15);
-  text-shadow: 0 0 12px rgba(251, 191, 36, 0.6);
 }
 
 .room-code-group {
-  background: rgba(139,92,246,0.06);
+  background: #f3f4f6;
   padding: 18px;
   border-radius: 14px;
-  border: 1px solid rgba(139,92,246,0.15);
+  border: 2.5px solid #000000;
+  box-shadow: 3px 3px 0px #000000;
 }
 
 .room-code-display {
   display: flex;
   align-items: center;
   gap: 12px;
-  background: rgba(10,10,26,0.8);
+  background: #ffffff;
   padding: 14px 18px;
   border-radius: 12px;
-  border: 1.5px solid rgba(251,191,36,0.35);
+  border: 2.5px solid #000000;
 }
 
 .code {
@@ -1587,10 +1583,8 @@
   letter-spacing: 4px;
   text-align: center;
   font-family: 'Outfit', 'Courier New', monospace;
-  background: linear-gradient(135deg, #fde68a 0%, #fbbf24 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #000000;
+}lip: text;
 }
 
 .copy-btn {
