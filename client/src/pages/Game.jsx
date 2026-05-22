@@ -1026,7 +1026,7 @@ function Game() {
 
         {gameState.gameStarted && gameState.cursedNumber && (
           <div className="cursed-indicator-badge animate-pulse" title="Cursed card rank for this round! Play to skip, hold to lose!">
-            <span className="cursed-badge-icon">☠️</span>
+            <Skull size={14} className="cursed-badge-icon-svg" />
             <span className="cursed-badge-text">CURSED: <strong className="cursed-glowing-number">{gameState.cursedNumber}</strong></span>
           </div>
         )}
@@ -1205,7 +1205,7 @@ function Game() {
                     <img src={getCardImage(card)} alt={`${card.value} of ${card.suit}`} className="card-svg-img" draggable="false" />
                     {isCardCursed && (
                       <div className="cursed-card-indicator" title="Cursed card! Play to drop & skip without draw penalty!">
-                        <span>💀</span>
+                        <Skull size={20} className="cursed-hand-card-skull-svg" />
                       </div>
                     )}
                   </div>
@@ -1327,7 +1327,7 @@ function Game() {
                   <span className="round-score-name">
                     {p.name}
                     {p.id === gameState.roundResult.winner?.id && <> <Trophy size={14} /></>}
-                    {p.hasCursedCard && <span className="cursed-row-badge" title="Held the Cursed Card at round end!">💀 CURSED</span>}
+                    {p.hasCursedCard && <span className="cursed-row-badge" title="Held the Cursed Card at round end!"><Skull size={12} className="inline-skull-svg" /> CURSED</span>}
                   </span>
                   <span className="round-score-hand">Hand: {p.handPoints} pts</span>
                   <span className="round-score-total">Total: {gameState.roundResult.newCumulativeScores?.[p.id] || 0} pts</span>

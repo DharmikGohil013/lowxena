@@ -1690,12 +1690,12 @@
 .cursed-indicator-badge {
   display: flex;
   align-items: center;
-  gap: 6px;
-  background: #ff007f; /* Vibrant hot pink */
+  gap: 8px;
+  background: #ff007f; /* Pop-art Hot Pink */
   border: 3px solid #000000;
   padding: 6px 12px;
-  border-radius: 12px;
-  box-shadow: 3px 3px 0px #000000;
+  border-radius: 4px; /* Flat Neubrutalism Card */
+  box-shadow: 4px 4px 0px #000000;
   font-family: 'Outfit', sans-serif;
   font-size: 13px;
   font-weight: 900;
@@ -1705,8 +1705,8 @@
   height: 40px;
 }
 
-.cursed-badge-icon {
-  font-size: 14px;
+.cursed-badge-icon-svg {
+  color: #ffe600; /* Pop-art Electric Yellow */
 }
 
 .cursed-badge-text {
@@ -1716,43 +1716,47 @@
 }
 
 .cursed-glowing-number {
-  background: #ffe600; /* Pop-art yellow background */
+  background: #ffe600; /* Pop-art Electric Yellow */
   color: #000000;
   border: 2px solid #000000;
-  border-radius: 4px;
+  border-radius: 0px;
   padding: 1px 6px;
   font-size: 14px;
   font-weight: 900;
-  box-shadow: 1px 1px 0px #000000;
+  box-shadow: 2px 2px 0px #000000;
   display: inline-block;
   min-width: 20px;
   text-align: center;
 }
 
-/* Pulsing warning overlay for the start of the round */
+/* Neubrutalist Popup Overlay */
 .cursed-announcement-overlay {
-  background: rgba(13, 10, 24, 0.95) !important; /* Dark violet glassmorphism background */
-  backdrop-filter: blur(12px) !important;
+  background: rgba(0, 0, 0, 0.85) !important;
+  backdrop-filter: blur(4px) !important;
 }
 
 .cursed-announcement-content {
-  background: #18142c !important; /* Premium dark purple theme */
-  border: 4px solid #b026ff !important; /* Electric violet border */
-  box-shadow: 0px 0px 30px rgba(176, 38, 255, 0.4), 8px 8px 0px #000000 !important;
-  color: #ffffff !important;
+  background: #ffffff !important;
+  border: 4px solid #000000 !important;
+  box-shadow: 8px 8px 0px #000000 !important;
+  color: #000000 !important;
   max-width: 440px !important;
   padding: 30px !important;
+  border-radius: 4px !important;
+  text-align: center;
+  font-family: 'Outfit', sans-serif;
 }
 
 .cursed-danger-badge {
-  background: #ffe600;
+  background: #ffe600; /* Electric Yellow */
   color: #000000;
-  border: 2px solid #000000;
+  border: 3px solid #000000;
   box-shadow: 3px 3px 0px #000000;
-  display: inline-block;
-  padding: 4px 14px;
-  border-radius: 8px;
-  font-family: 'Outfit', sans-serif;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 4px;
   font-weight: 900;
   font-size: 12px;
   text-transform: uppercase;
@@ -1761,12 +1765,13 @@
 
 .cursed-title-neon {
   font-family: 'Outfit', sans-serif;
-  font-size: 26px !important;
+  font-size: 28px !important;
   font-weight: 900;
-  color: #b026ff !important; /* Neon Purple */
-  text-shadow: 0 0 10px rgba(176, 38, 255, 0.6);
+  color: #ff007f !important; /* Hot Pink */
   text-transform: uppercase;
   margin: 10px 0 20px;
+  text-shadow: 3px 3px 0px #ffe600; /* Flat Pop-Art shadow overlay */
+  -webkit-text-stroke: 1px #000000;
 }
 
 .cursed-glowing-card-container {
@@ -1776,14 +1781,14 @@
 }
 
 .cursed-glowing-card-felt {
-  background: #0d0a18;
+  background: #00e5ff; /* Cyan Blue */
   border: 3px solid #000000;
-  border-radius: 16px;
-  box-shadow: inset 0 0 20px rgba(176, 38, 255, 0.3);
+  border-radius: 4px;
   padding: 24px 36px;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 4px 4px 0px #000000;
 }
 
 .cursed-popup-card {
@@ -1791,8 +1796,9 @@
   height: 132px !important;
   position: relative;
   animation: cursedHeartbeat 1.5s ease-in-out infinite;
-  box-shadow: 0 0 20px rgba(176, 38, 255, 0.8), 4px 4px 0px #000000 !important;
-  border-radius: 8px;
+  box-shadow: 6px 6px 0px #000000 !important;
+  border: 3px solid #000000 !important;
+  border-radius: 4px !important;
   background: #ffffff;
 }
 
@@ -1801,66 +1807,127 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 32px;
-  background: rgba(13, 10, 24, 0.85);
-  border: 2px solid #b026ff;
-  width: 46px;
-  height: 46px;
+  background: #ffe600; /* Electric Yellow */
+  border: 3px solid #000000;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 10px rgba(176, 38, 255, 0.6);
+  box-shadow: 3px 3px 0px #000000;
+}
+
+.cursed-popup-skull-svg {
+  color: #000000;
 }
 
 .cursed-desc {
-  font-size: 15px;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.85);
+  font-size: 16px;
+  font-weight: 900;
+  color: #000000;
   margin-bottom: 20px;
+  text-transform: uppercase;
 }
 
 .cursed-highlight {
-  color: #ffe600;
-  font-size: 20px;
+  color: #ff007f; /* Hot Pink */
+  background: #ffe600; /* Electric Yellow block */
+  border: 2px solid #000000;
+  padding: 2px 8px;
+  font-size: 22px;
   font-weight: 900;
-  text-shadow: 0 0 5px rgba(255, 230, 0, 0.4);
+  box-shadow: 2px 2px 0px #000000;
+  display: inline-block;
 }
 
 .cursed-instructions {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  background: rgba(13, 10, 24, 0.6);
-  border: 2px solid #000000;
-  border-radius: 12px;
-  padding: 14px;
-  text-align: left;
+  gap: 12px;
+  margin-bottom: 24px;
 }
 
 .cursed-inst-row {
-  font-size: 12px;
-  font-weight: 800;
-  line-height: 1.4;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 3px solid #000000;
+  padding: 12px 14px;
+  font-size: 13px;
+  font-weight: 900;
+  text-align: left;
+  border-radius: 4px;
+  color: #000000;
+  box-shadow: 4px 4px 0px #000000;
 }
 
-.cursed-inst-row strong {
-  color: #00e5ff; /* Cyan active highlight */
+.cursed-inst-row:first-child {
+  background: #ffe600; /* Electric Yellow */
+}
+
+.cursed-inst-row:first-child strong {
+  color: #ff007f;
 }
 
 .cursed-inst-row.font-red {
-  color: #ff007f;
+  background: #ff007f; /* Hot Pink */
+  color: #ffffff;
 }
 
 .cursed-inst-row.font-red strong {
-  color: #ff007f;
-  text-shadow: 0 0 5px rgba(255, 0, 127, 0.4);
+  color: #ffe600;
 }
 
-/* Synced floating toast */
+.pop-icon-yellow {
+  color: #ffe600;
+  filter: drop-shadow(1px 1px 0px #000000);
+}
+
+.pop-icon-pink {
+  color: #ff007f;
+  filter: drop-shadow(1px 1px 0px #000000);
+}
+
+.cursed-inst-row.font-red .pop-icon-pink {
+  color: #ffe600;
+}
+
+/* GOT IT Close button */
+.cursed-close-btn {
+  background: #00e5ff; /* Cyan Blue */
+  color: #000000;
+  border: 3px solid #000000;
+  box-shadow: 4px 4px 0px #000000;
+  border-radius: 4px;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 900;
+  font-size: 14px;
+  padding: 12px 24px;
+  width: 100%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: transform 0.05s ease, box-shadow 0.05s ease;
+  text-transform: uppercase;
+}
+
+.cursed-close-btn:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px #000000;
+}
+
+.cursed-close-btn:active {
+  transform: translate(4px, 4px);
+  box-shadow: 0px 0px 0px #000000;
+}
+
+/* Synced drop toast */
 .cursed-play-toast {
   position: fixed;
-  top: 75px;
+  top: 85px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 2000;
@@ -1870,20 +1937,16 @@
 }
 
 .cursed-toast-content {
-  background: #ff007f;
+  background: #ff007f; /* Hot Pink */
   border: 3px solid #000000;
-  box-shadow: 4px 4px 0px #000000;
-  border-radius: 16px;
-  padding: 12px 20px;
+  box-shadow: 6px 6px 0px #000000;
+  border-radius: 4px;
+  padding: 14px 20px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 12px;
   color: #ffffff;
-}
-
-.cursed-toast-icon {
-  font-size: 18px;
 }
 
 .cursed-toast-text {
@@ -1897,8 +1960,12 @@
 }
 
 .cursed-toast-text strong {
-  color: #ffe600;
-  text-shadow: 1px 1px 0px #000000;
+  color: #ffe600; /* Electric Yellow */
+  background: #000000;
+  padding: 2px 6px;
+  border-radius: 2px;
+  display: inline-block;
+  margin: 0 2px;
 }
 
 @keyframes toastSlideIn {
@@ -1906,76 +1973,78 @@
   to { transform: translate(-50%, 0); opacity: 1; }
 }
 
-/* Card in hand styles */
+/* Card in hand styles - Neubrutalist styling */
 .hand-card.cursed-card .card-svg-img {
-  border-color: #b026ff !important;
-  box-shadow: 0px 0px 14px rgba(176, 38, 255, 0.8), 4px 4px 0px #000000 !important;
-  animation: cursedCardGlow 2s ease-in-out infinite;
+  border: 4px solid #ff007f !important; /* Hot Pink Border */
+  box-shadow: 5px 5px 0px #ffe600, 4px 4px 0px #000000 !important; /* Yellow & Black offset flat shadows */
 }
 
 .hand-card.cursed-card:hover .card-svg-img {
-  border-color: #b026ff !important;
-  box-shadow: 0px 0px 20px rgba(176, 38, 255, 1.0), 6px 6px 0px #000000 !important;
+  border: 4px solid #ff007f !important;
+  box-shadow: 7px 7px 0px #000e5f, 7px 7px 0px #ffe600, 4px 4px 0px #000000 !important;
+  transform: translateY(-8px) scale(1.02);
 }
 
 .hand-card.cursed-card.selected .card-svg-img {
-  background: #ffe600;
-  border-color: #b026ff !important;
-  box-shadow: 0px 0px 25px rgba(176, 38, 255, 1.0), 6px 6px 0px #000000 !important;
+  border: 4px solid #00e5ff !important; /* Cyan border when selected */
+  box-shadow: 7px 7px 0px #ff007f, 4px 4px 0px #000000 !important;
 }
 
-/* Small indicator overlay on the hand card */
+/* Flat skull badge overlay on hand cards */
 .cursed-card-indicator {
   position: absolute;
-  top: 4px;
-  right: 4px;
-  background: #0d0a18;
-  border: 2px solid #b026ff;
-  width: 22px;
-  height: 22px;
+  top: -6px;
+  right: -6px;
+  background: #ffe600; /* Electric Yellow */
+  border: 2px solid #000000;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
-  box-shadow: 0px 0px 6px rgba(176, 38, 255, 0.8);
-  z-index: 10;
+  box-shadow: 2px 2px 0px #000000;
+  z-index: 15;
+  color: #000000;
 }
 
-/* Scoreboard item warned held cursed card at end of round */
+.cursed-hand-card-skull-svg {
+  color: #000000;
+}
+
+/* Scoreboard item round complete results */
 .round-score-item.round-cursed-row {
-  border-color: #b026ff !important;
-  box-shadow: 0px 0px 10px rgba(176, 38, 255, 0.4), 2px 2px 0px #000000 !important;
+  border: 3px solid #ff007f !important; /* Hot Pink */
+  box-shadow: 4px 4px 0px #ffe600, 2px 2px 0px #000000 !important; /* Flat Pop-Art shadow */
 }
 
 .cursed-row-badge {
-  background: #ff007f;
+  background: #ff007f; /* Hot Pink */
   color: #ffffff;
   border: 2px solid #000000;
-  padding: 1px 8px;
-  border-radius: 6px;
+  padding: 3px 8px;
+  border-radius: 4px;
   font-family: 'Outfit', sans-serif;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 900;
   letter-spacing: 0.5px;
   text-transform: uppercase;
-  margin-left: 6px;
-  box-shadow: 1px 1px 0px #000000;
+  margin-left: 8px;
+  box-shadow: 2px 2px 0px #000000;
   display: inline-flex;
   align-items: center;
-  gap: 2px;
+  gap: 4px;
   vertical-align: middle;
 }
 
-/* Keyframes animations */
-@keyframes cursedHeartbeat {
-  0%, 100% { transform: translate(-50%, -50%) scale(1); }
-  50% { transform: translate(-50%, -50%) scale(1.05); }
+.cursed-row-skull-svg {
+  color: #ffe600; /* Yellow skull */
 }
 
-@keyframes cursedCardGlow {
-  0%, 100% { box-shadow: 0px 0px 10px rgba(176, 38, 255, 0.5), 4px 4px 0px #000000; }
-  50% { box-shadow: 0px 0px 18px rgba(176, 38, 255, 0.9), 4px 4px 0px #000000; }
+/* Animations */
+@keyframes cursedHeartbeat {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
 }
 
 /* Responsive adjustments for Cursed overlays */
@@ -1990,36 +2059,36 @@
     padding: 0 4px;
   }
   .cursed-announcement-content {
-    max-width: 330px !important;
+    max-width: 320px !important;
     padding: 20px !important;
   }
   .cursed-title-neon {
-    font-size: 20px !important;
+    font-size: 22px !important;
   }
   .cursed-popup-card {
     width: 72px !important;
     height: 100px !important;
   }
   .cursed-popup-skull {
-    font-size: 24px;
-    width: 36px;
-    height: 36px;
+    width: 38px;
+    height: 38px;
   }
   .cursed-highlight {
-    font-size: 16px;
+    font-size: 18px;
+    padding: 1px 6px;
   }
   .cursed-instructions {
-    padding: 10px;
+    gap: 8px;
   }
   .cursed-inst-row {
-    font-size: 10px;
+    font-size: 11px;
+    padding: 8px 10px;
   }
   .cursed-play-toast {
-    top: 60px;
+    top: 65px;
   }
   .cursed-toast-content {
-    padding: 8px 14px;
-    border-radius: 12px;
+    padding: 10px 14px;
   }
   .cursed-toast-text {
     font-size: 10px;
