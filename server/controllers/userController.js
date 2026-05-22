@@ -206,9 +206,18 @@ export const updateUserStats = async (req, res) => {
       await stats.save();
     }
 
+    const coinsEarned = 10 + (won ? 20 : 0);
+    const user = await User.findOne({ id: userId });
+    if (user) {
+      user.coins = (user.coins || 0) + coinsEarned;
+      await user.save();
+    }
+
     res.json({
       success: true,
       message: 'Stats updated successfully',
+      coinsEarned,
+      coins: user ? user.coins : 0,
       stats: {
         total_games: stats.total_games,
         wins: stats.wins,

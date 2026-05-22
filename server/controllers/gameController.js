@@ -279,6 +279,14 @@ export const saveMultiplayerResults = async (req, res) => {
             total_playtime: 0
           });
         }
+
+        // Award multiplayer coins (20 base + 50 win bonus)
+        const coinsEarned = 20 + (player.isWinner ? 50 : 0);
+        const user = await User.findOne({ id: player.id });
+        if (user) {
+          user.coins = (user.coins || 0) + coinsEarned;
+          await user.save();
+        }
       } catch (e) {
         console.error(`Error saving results for player ${player.id}:`, e);
         errors.push(player.id);

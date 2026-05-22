@@ -5,8 +5,9 @@ import {
   Gamepad2, Target, Package, Zap, Lightbulb, Layers, BarChart3, Skull, 
   SkipForward, Moon, Flame, Brain, Trophy, ShieldHalf, Swords, User, 
   Rocket, Home, Frown, RefreshCw, X, VolumeX, BookOpen, ArrowLeft,
-  CircleDot, Play
+  CircleDot, Play, Coins
 } from 'lucide-react'
+import { authAPI, userAPI } from '../services/api'
 import './Game.css'
 import './PracticeGame.css'
 
@@ -125,6 +126,10 @@ function PracticeGame() {
   // All players (you + bots)
   const [players, setPlayers] = useState([])
   const [currentUser, setCurrentUser] = useState(null)
+  const [coinsEarned, setCoinsEarned] = useState(0)
+  const [updatedCoins, setUpdatedCoins] = useState(null)
+  const [isSavingStats, setIsSavingStats] = useState(false)
+  const [saveError, setSaveError] = useState(null)
   
   // Game state
   const [deck, setDeck] = useState([])

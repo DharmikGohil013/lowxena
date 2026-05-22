@@ -5,7 +5,7 @@ import {
   Trophy, Medal, AlertTriangle, Gamepad2, DoorOpen, Info,
   LogIn, LogOut, User, BarChart2, Image as ImageIcon, X, Settings,
   Plus, Search, Zap, Bot, Crown, Globe, Lock, Copy, Check, Play,
-  BookOpen, Users, Shield, Swords, TrendingUp, Star, Clock, Hash, Sparkles, Flame
+  BookOpen, Users, Shield, Swords, TrendingUp, Star, Clock, Hash, Sparkles, Flame, Coins
 } from 'lucide-react'
 import Loader from '../components/Loader'
 import { authAPI, gameAPI, userAPI } from '../services/api'
@@ -24,6 +24,7 @@ function Home() {
   const [playerEmail, setPlayerEmail] = useState('')
   const [playerPicture, setPlayerPicture] = useState('')
   const [userId, setUserId] = useState('')
+  const [playerCoins, setPlayerCoins] = useState(0)
   const [loading, setLoading] = useState(false)
   const [showProfileModal, setShowProfileModal] = useState(false)
   const [showScorePopup, setShowScorePopup] = useState(false)
@@ -88,6 +89,7 @@ function Home() {
           setPlayerEmail(userData.email || '');
           setPlayerPicture(userData.avatar_url || '');
           setUserId(userData.id || '');
+          setPlayerCoins(userData.coins || 0);
           setIsLoggedIn(true);
         }
       }
@@ -165,8 +167,18 @@ function Home() {
         if (response.success) {
           if (response.stats) setUserStats(response.stats);
           if (response.rank) setUserRankNum(response.rank);
-          if (response.user?.avatar_url) {
-            setPlayerPicture(response.user.avatar_url);
+          if (response.user) {
+            if (response.user.avatar_url) {
+              setPlayerPicture(response.user.avatar_url);
+            }
+            if (response.user.coins !== undefined) {
+              setPlayerCoins(response.user.coins);
+              const currentCached = authAPI.getCurrentUser();
+              if (currentCached) {
+                currentCached.coins = response.user.coins;
+                localStorage.setItem('userData', JSON.stringify(currentCached));
+              }
+            }
           }
         }
       } catch (error) {
@@ -270,6 +282,7 @@ function Home() {
         setPlayerEmail(response.user.email || '');
         setPlayerPicture(response.user.avatar_url || '');
         setUserId(response.user.id || '');
+        setPlayerCoins(response.user.coins || 0);
         setIsLoggedIn(true);
         setShowLoginModal(false);
       }
@@ -297,6 +310,7 @@ function Home() {
         setPlayerEmail(response.user.email || '');
         setPlayerPicture(response.user.avatar_url || '');
         setUserId(response.user.id || '');
+        setPlayerCoins(response.user.coins || 0);
         setIsLoggedIn(true);
         setShowLoginModal(false);
         setLoginError('');
@@ -593,9 +607,15 @@ function Home() {
           </div>
           <div className="profile-info" onClick={handleProfileClick} style={{ cursor: 'pointer' }}>
             <span className="profile-name">{playerName}</span>
-            <span className="profile-level">
-              {userRankNum ? `Rank #${userRankNum}` : 'Unranked'} · {userStats.wins}W/{userStats.losses}L
-            </span>
+            <div className="profile-details-row">
+              <span className="profile-level">
+                {userRankNum ? `Rank #${userRankNum}` : 'Unranked'} · {userStats.wins}W/{userStats.losses}L
+              </span>
+              <span className="profile-coins" title="Your Coins">
+                <Coins size={12} className="coin-icon" />
+                <span className="coin-value">{playerCoins.toLocaleString()}</span>
+              </span>
+            </div>
           </div>
           <button 
             className={`stats-toggle-btn ${showScorePopup ? 'active' : ''}`}
@@ -619,6 +639,10 @@ function Home() {
                 <span>Quick Stats</span>
               </div>
               <div className="popup-body">
+                <div className="popup-stat-row popup-coin-row animate-pop">
+                  <span className="popup-stat-label"><Coins size={14} className="coin-icon spinning-coin" /> Balance</span>
+                  <span className="popup-stat-val val-coins">{playerCoins.toLocaleString()} <span className="coin-suffix">coins</span></span>
+                </div>
                 <div className="popup-stat-row">
                   <span className="popup-stat-label">Highest Score</span>
                   <span className="popup-stat-val val-score">{userStats.highest_score || 0}</span>
