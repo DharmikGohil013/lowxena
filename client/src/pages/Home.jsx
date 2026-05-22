@@ -996,7 +996,7 @@ function Home() {
                     <button
                       key={pts}
                       type="button"
-                      className={`chip-select-btn ${customMatchConfig.maxPoints === pts ? 'active' : ''}`}
+                      className={`chip-select-btn ${customMatchConfig.maxPoints === pts ? 'active' : ''} chip-${pts}`}
                       onClick={() => setCustomMatchConfig({ ...customMatchConfig, maxPoints: pts })}
                     >
                       <span className="chip-points">{pts}</span>
@@ -1021,7 +1021,7 @@ function Home() {
                     <button
                       key={num}
                       type="button"
-                      className={`player-badge-btn ${customMatchConfig.numPlayers === num ? 'active' : ''}`}
+                      className={`player-badge-btn ${customMatchConfig.numPlayers === num ? 'active' : ''} player-${num}`}
                       onClick={() => setCustomMatchConfig({ ...customMatchConfig, numPlayers: num })}
                     >
                       <span className="player-badge-num">{num}</span>
