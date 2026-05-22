@@ -36,18 +36,19 @@ export function AvatarSVG({ avatarId, size = 80 }) {
         seed: seed,
         size: size,
       });
-      // Convert to a robust, fast data URI
-      return `data:image/svg+xml;utf8,${encodeURIComponent(avatar.toString())}`;
+      const svgStr = avatar.toString();
+      const base64 = btoa(unescape(encodeURIComponent(svgStr)));
+      return `data:image/svg+xml;base64,${base64}`;
     } catch (e) {
       console.error('Failed to generate Dicebear avatar:', e);
       // Fallback simple avatar
-      return `data:image/svg+xml;utf8,${encodeURIComponent(
-        `<svg width="${size}" height="${size}" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      const fallbackSvg = `<svg width="${size}" height="${size}" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
           <circle cx="60" cy="60" r="58" fill="#374151" stroke="#6b7280" strokeWidth="4"/>
           <circle cx="60" cy="45" r="20" fill="#9ca3af"/>
           <path d="M30 95 C30 75 42 65 60 65 C78 65 90 75 90 95" fill="#9ca3af"/>
-        </svg>`
-      )}`;
+        </svg>`;
+      const base64Fallback = btoa(unescape(encodeURIComponent(fallbackSvg)));
+      return `data:image/svg+xml;base64,${base64Fallback}`;
     }
   }, [seed, size]);
 

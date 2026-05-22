@@ -531,6 +531,22 @@ function Game() {
 
     try {
       await gameAPI.updateGameState(roomId, roundResultState)
+      
+      // Save multiplayer results for all players on natural game completion
+      if (gameOver && roomDetails?.players) {
+        try {
+          await gameAPI.saveMultiplayerResults({
+            players: roomDetails.players.map(player => ({
+              id: player.id,
+              score: newScores[player.id] || 0,
+              isWinner: gameWinner?.id === player.id,
+            })),
+            totalRounds: roundResultState.roundHistory?.length || gameState.roundNumber,
+          })
+        } catch (e) {
+          console.error('Error saving multiplayer results on natural game over:', e)
+        }
+      }
     } catch (err) {
       console.error('Error saving round result:', err)
     }
