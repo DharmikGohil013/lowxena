@@ -947,6 +947,7 @@ function Game() {
           <div 
             key={player.id} 
             className={`seat seat-${index} seat-of-${otherPlayers.length} ${gameState.currentTurn === player.id ? 'active-turn' : ''} ${gameState.eliminatedPlayers.includes(player.id) ? 'eliminated' : ''}`}
+            style={getPlayerPosition(index, otherPlayers.length)}
           >
             <div className="seat-avatar">
               {player.avatarUrl ? (
