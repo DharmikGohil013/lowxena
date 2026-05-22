@@ -533,44 +533,37 @@
   display: flex;
 }
 
-.hero-logo-wrapper:hover {
-  transform: translateY(-4px) rotate(1deg);
-  box-shadow: 8px 8px 0px #ff007f;
-}
 
-.hero-logo-img {
-  width: 100%;
-  height: auto;
-  display: block;
-}
+
+
 
 /* Title with pop-art flat outline */
 .hero-title {
-  font-family: 'Outfit', 'Inter', sans-serif;
-  font-size: 42px;
-  font-weight: 900;
+  /* font-family: 'Outfit', 'Inter', sans-serif; */
+  font-size: 8px;
+  /* font-weight: 900; */
   color: #ffe600; /* Electric Yellow */
-  -webkit-text-stroke: 1.5px #000000;
-  text-shadow: 3px 3px 0px #ff007f; /* Hot pink flat shadow */
+  -webkit-text-stroke: 1.2px #000000;
+  text-shadow: 2px 2px 0px #ff007f; /* Hot pink flat shadow */
   margin: 0;
-  letter-spacing: 3px;
+  letter-spacing: 2px;
   text-transform: uppercase;
   animation: pop-bounce 4s ease-in-out infinite;
 }
 
 @keyframes pop-bounce {
   0%, 100% { transform: translateY(0) scale(1); }
-  50% { transform: translateY(-2.5px) scale(1.01); }
+  50% { transform: translateY(-2px) scale(1.01); }
 }
 
 .hero-tagline {
-  font-size: 13px;
+  font-size: 11px;
   color: #00e5ff; /* Cyan Blue */
   font-weight: 800;
-  -webkit-text-stroke: 0.75px #000000;
-  text-shadow: 1.5px 1.5px 0px #000000;
-  margin: 6px 0 0;
-  letter-spacing: 1.5px;
+  -webkit-text-stroke: 0.5px #000000;
+  text-shadow: 1px 1px 0px #000000;
+  margin: 4px 0 0;
+  letter-spacing: 1px;
   text-transform: uppercase;
 }
 
@@ -2687,13 +2680,13 @@
 /* ---- Large Desktop (1441px+) ---- */
 @media (min-width: 1441px) {
   .hero-title {
-    font-size: 92px;
-    letter-spacing: 12px;
+    font-size: 45px;
+    letter-spacing: 8px;
   }
 
   .hero-tagline {
-    font-size: 22px;
-    letter-spacing: 7px;
+    font-size: 13px;
+    letter-spacing: 5px;
   }
 
   .leaderboard-section {
@@ -2745,13 +2738,13 @@
   }
 
   .hero-title {
-    font-size: 64px;
-    letter-spacing: 7px;
+    font-size: 42px;
+    letter-spacing: 6px;
   }
 
   .hero-tagline {
-    font-size: 16px;
-    letter-spacing: 3px;
+    font-size: 12px;
+    letter-spacing: 2px;
   }
 
   .leaderboard-content {
@@ -2833,7 +2826,7 @@
     left: auto;
     transform: none !important;
     order: 2;
-    width: 100%;
+    width: 200%;
     padding: 10px 0;
   }
 
@@ -2843,12 +2836,12 @@
   }
 
   .hero-title {
-    font-size: 44px !important;
+    font-size: 37px !important;
     letter-spacing: 4px;
   }
 
   .hero-tagline {
-    font-size: 14px !important;
+    font-size: 12px !important;
     letter-spacing: 2px;
   }
 
