@@ -326,13 +326,6 @@ function RoomList() {
             </div>
           ) : filteredRooms.length === 0 ? (
             <div className="no-rooms-card">
-              <div className="no-rooms-radar">
-                <div className="radar-circle radar-c1"></div>
-                <div className="radar-circle radar-c2"></div>
-                <div className="radar-circle radar-c3"></div>
-                <div className="radar-line"></div>
-                <div className="radar-center-dot"></div>
-              </div>
               <div className="no-rooms-content">
                 <h3>Lobby Radar Scanning...</h3>
                 <p>No active rooms match your current filters. Take the lead by hosting a custom match, practice against advanced AI, or clear your filters to find other decks!</p>
