@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google'
 import { 
   Trophy, Medal, AlertTriangle, Gamepad2, DoorOpen, Info,
@@ -1370,10 +1370,10 @@ function Home() {
               <span className="hero-play-icon"><Play size={18} fill="currentColor" /></span>
               <span>PLAY NOW</span>
             </button>
-            <button className="hero-rules-btn" onClick={() => navigate('/rules')}>
+            <Link className="hero-rules-btn" to="/rules">
               <BookOpen size={18} />
               <span>RULES</span>
-            </button>
+            </Link>
           </div>
         </div>
       </div>
@@ -1489,10 +1489,10 @@ function Home() {
 
       {/* Floating About Button */}
       <div className="about-button-container">
-        <button className="home-about-btn" onClick={() => navigate('/about')} title="About LowXena">
+        <Link className="home-about-btn" to="/about" title="About LowXena">
           <Info size={16} />
           <span>About</span>
-        </button>
+        </Link>
       </div>
 
       {/* Footer */}

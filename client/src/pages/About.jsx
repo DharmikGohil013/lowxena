@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useState, useEffect, useRef } from 'react'
 import { 
   Info, Cpu, Trophy, Sparkles, Code, Globe, 
@@ -318,14 +318,14 @@ function About() {
             <h2 className="cta-title">Claim Your Seat</h2>
             <p className="cta-subtitle">The table is dealt, and your opponents are waiting.</p>
             <div className="cta-buttons">
-              <button className="cta-btn cta-back" onClick={() => navigate('/')}>
+              <Link className="cta-btn cta-back" to="/">
                 <ArrowLeft size={18} />
                 <span>Back to Home</span>
-              </button>
-              <button className="cta-btn cta-play" onClick={() => navigate('/rooms')}>
+              </Link>
+              <Link className="cta-btn cta-play" to="/rooms">
                 <span>Enter Lobby</span>
                 <ArrowRight size={18} />
-              </button>
+              </Link>
             </div>
           </div>
         </footer>

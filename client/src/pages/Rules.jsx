@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import Lottie from 'lottie-react'
 import { useState, useEffect, useRef } from 'react'
 import { 
@@ -459,14 +459,14 @@ function Rules() {
             <h2 className="cta-title">Ready to Play?</h2>
             <p className="cta-subtitle">Put your skills to the test and dominate the table!</p>
             <div className="cta-buttons">
-              <button className="cta-btn cta-back" onClick={() => navigate('/')}>
+              <Link className="cta-btn cta-back" to="/">
                 <ArrowLeft size={18} />
                 <span>Back to Home</span>
-              </button>
-              <button className="cta-btn cta-play" onClick={() => navigate('/rooms')}>
+              </Link>
+              <Link className="cta-btn cta-play" to="/rooms">
                 <span>Play Now</span>
                 <ArrowRight size={18} />
-              </button>
+              </Link>
             </div>
           </div>
         </footer>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { gameAPI, authAPI } from '../services/api'
 import Loader from '../components/Loader'
 import { 
@@ -155,10 +155,10 @@ function RoomList() {
 
       <div className="room-list-content">
         <header className="room-list-header">
-          <button className="back-btn" onClick={() => navigate('/')}>
+          <Link className="back-btn" to="/">
             <ArrowLeft size={18} />
             Back
-          </button>
+          </Link>
           
           <div className="header-title">
             <Search size={24} />
