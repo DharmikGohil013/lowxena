@@ -53,7 +53,7 @@ apiClient.interceptors.response.use(
     if (error.response) {
       // Server responded with an error status
       const data = error.response.data || {};
-      normalized.message = data.message || error.response.statusText || normalized.message;
+      normalized.message = data.error || data.message || error.response.statusText || normalized.message;
       normalized.code = data.code || `ERR_HTTP_${error.response.status}`;
       normalized.status = error.response.status;
 
