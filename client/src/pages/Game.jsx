@@ -912,49 +912,51 @@ function Game() {
   }
 
   const getPlayerPosition = (index, total) => {
-    // Position other players around the table
-    // For 2 players total (1 other): top center
-    // For 3 players total (2 others): top left, top right
-    // For 4 players total (3 others): left, top, right
-    // For 5 players total (4 others): left, top-left, top-right, right
+    // Symmetrical Left/Right column layout for opponents
+    // 2 players total (1 other): Left
+    // 3 players total (2 others): 1 Left, 1 Right
+    // 4 players total (3 others): 2 Left, 1 Right
+    // 5 players total (4 others): 2 Left, 2 Right
+    // 6 players total (5 others): 3 Left, 2 Right
+    // 7 players total (6 others): 3 Left, 3 Right
     
     const positions = [
-      // 2 players: 1 other player
-      [{ top: '5%', left: '50%', transform: 'translate(-50%, 0)' }],
-      // 3 players: 2 other players  
+      // 2 players: 1 other player (Left)
+      [{ top: '50%', left: 'var(--seat-left, 8%)', transform: 'translate(0, -50%)' }],
+      // 3 players: 2 other players (1 Left, 1 Right)
       [
-        { top: '5%', left: '25%', transform: 'translate(-50%, 0)' },
-        { top: '5%', left: '75%', transform: 'translate(-50%, 0)' }
+        { top: '50%', left: 'var(--seat-left, 8%)', transform: 'translate(0, -50%)' },
+        { top: '50%', right: 'var(--seat-right, 8%)', transform: 'translate(0, -50%)' }
       ],
-      // 4 players: 3 other players
+      // 4 players: 3 other players (2 Left, 1 Right)
       [
-        { top: '40%', left: '8%', transform: 'translate(0, -50%)' },
-        { top: '5%', left: '50%', transform: 'translate(-50%, 0)' },
-        { top: '40%', right: '8%', transform: 'translate(0, -50%)' }
+        { top: '25%', left: 'var(--seat-left, 8%)', transform: 'translate(0, -50%)' },
+        { top: '75%', left: 'var(--seat-left, 8%)', transform: 'translate(0, -50%)' },
+        { top: '50%', right: 'var(--seat-right, 8%)', transform: 'translate(0, -50%)' }
       ],
-      // 5 players: 4 other players
+      // 5 players: 4 other players (2 Left, 2 Right)
       [
-        { top: '40%', left: '8%', transform: 'translate(0, -50%)' },
-        { top: '5%', left: '33%', transform: 'translate(-50%, 0)' },
-        { top: '5%', right: '33%', transform: 'translate(50%, 0)' },
-        { top: '40%', right: '8%', transform: 'translate(0, -50%)' }
+        { top: '25%', left: 'var(--seat-left, 8%)', transform: 'translate(0, -50%)' },
+        { top: '75%', left: 'var(--seat-left, 8%)', transform: 'translate(0, -50%)' },
+        { top: '25%', right: 'var(--seat-right, 8%)', transform: 'translate(0, -50%)' },
+        { top: '75%', right: 'var(--seat-right, 8%)', transform: 'translate(0, -50%)' }
       ],
-      // 6 players: 5 other players
+      // 6 players: 5 other players (3 Left, 2 Right)
       [
-        { top: '50%', left: '6%', transform: 'translate(0, -50%)' },
-        { top: '7%', left: '22%', transform: 'translate(-50%, 0)' },
-        { top: '5%', left: '50%', transform: 'translate(-50%, 0)' },
-        { top: '7%', right: '22%', transform: 'translate(50%, 0)' },
-        { top: '50%', right: '6%', transform: 'translate(0, -50%)' }
+        { top: '15%', left: 'var(--seat-left, 8%)', transform: 'translate(0, -50%)' },
+        { top: '50%', left: 'var(--seat-left, 8%)', transform: 'translate(0, -50%)' },
+        { top: '85%', left: 'var(--seat-left, 8%)', transform: 'translate(0, -50%)' },
+        { top: '25%', right: 'var(--seat-right, 8%)', transform: 'translate(0, -50%)' },
+        { top: '75%', right: 'var(--seat-right, 8%)', transform: 'translate(0, -50%)' }
       ],
-      // 7 players: 6 other players
+      // 7 players: 6 other players (3 Left, 3 Right)
       [
-        { top: '55%', left: '5%', transform: 'translate(0, -50%)' },
-        { top: '30%', left: '10%', transform: 'translate(0, -50%)' },
-        { top: '5%', left: '33%', transform: 'translate(-50%, 0)' },
-        { top: '5%', right: '33%', transform: 'translate(50%, 0)' },
-        { top: '30%', right: '10%', transform: 'translate(0, -50%)' },
-        { top: '55%', right: '5%', transform: 'translate(0, -50%)' }
+        { top: '15%', left: 'var(--seat-left, 8%)', transform: 'translate(0, -50%)' },
+        { top: '50%', left: 'var(--seat-left, 8%)', transform: 'translate(0, -50%)' },
+        { top: '85%', left: 'var(--seat-left, 8%)', transform: 'translate(0, -50%)' },
+        { top: '15%', right: 'var(--seat-right, 8%)', transform: 'translate(0, -50%)' },
+        { top: '50%', right: 'var(--seat-right, 8%)', transform: 'translate(0, -50%)' },
+        { top: '85%', right: 'var(--seat-right, 8%)', transform: 'translate(0, -50%)' }
       ]
     ]
     

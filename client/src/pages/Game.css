@@ -141,6 +141,8 @@
   justify-content: center;
   padding: 10px 20px;
   min-height: 0;
+  --seat-left: 8%;
+  --seat-right: 8%;
 }
 
 /* Positioning opponent seats */
@@ -1456,6 +1458,11 @@
 
 /* ---------- Responsive Layout Adjustments ---------- */
 @media (max-width: 900px) {
+  .casino-area {
+    --seat-left: 4%;
+    --seat-right: 4%;
+  }
+
   .game-table {
     width: min(460px, 80vw);
     height: min(220px, 80%);
@@ -1483,6 +1490,11 @@
 }
 
 @media (max-width: 650px) {
+  .casino-area {
+    --seat-left: 1%;
+    --seat-right: 1%;
+  }
+
   .game-top-bar {
     padding: 12px 16px;
   }
