@@ -92,6 +92,10 @@ function Game() {
   const [lastSeenRoundTimestamp, setLastSeenRoundTimestamp] = useState(null) // prevent re-showing same round result
   const navigate = useNavigate()
 
+  // Polling cooldown refs to prevent state rubber-banding
+  const pollCooldownRef = useRef(false)
+  const pollCooldownTimeoutRef = useRef(null)
+
   // Fireworks animation on win
   const fireworksRef = useRef(null)
   const fireworksInstance = useRef(null)
@@ -160,21 +164,13 @@ function Game() {
       [myId]: { emoji, timestamp: now }
     }
     
-    setGameState(prev => ({
-      ...prev,
+    const updatedState = {
+      ...gameState,
       activeReactions: updatedReactions
-    }))
+    }
     
     setShowEmojiPicker(false)
-    
-    try {
-      await gameAPI.updateGameState(roomId, {
-        ...gameState,
-        activeReactions: updatedReactions
-      })
-    } catch (err) {
-      console.error('Error sending emoji reaction:', err)
-    }
+    await saveAndPublishGameState(updatedState)
   }
 
   // Trigger Cursed Card round start announcement
@@ -216,9 +212,63 @@ function Game() {
   }, [cursedPlayToast])
   const roomId = searchParams.get('roomId')
 
+  // Unified helper to set state, cache locally, trigger polling freeze, and save to server
+  const saveAndPublishGameState = async (updatedState) => {
+    // 1. Optimistic UI update
+    setGameState(updatedState)
+    
+    // 2. Local stale-while-revalidate caching
+    if (roomId) {
+      try {
+        localStorage.setItem(`game_state_cache_${roomId}`, JSON.stringify(updatedState))
+      } catch (e) {
+        console.error('Error writing game state cache:', e)
+      }
+    }
+    
+    // 3. Initiate polling cooldown to prevent rubber-banding
+    pollCooldownRef.current = true
+    if (pollCooldownTimeoutRef.current) {
+      clearTimeout(pollCooldownTimeoutRef.current)
+    }
+    pollCooldownTimeoutRef.current = setTimeout(() => {
+      pollCooldownRef.current = false
+    }, 2200)
+    
+    // 4. Save state to MongoDB server
+    try {
+      await gameAPI.updateGameState(roomId, updatedState)
+    } catch (error) {
+      console.error('Error updating game state:', error)
+      pollCooldownRef.current = false // Release cooldown on failure
+    }
+  }
+
   useEffect(() => {
     fetchCurrentUser()
     if (roomId) {
+      // Instant paint using local storage caches (stale-while-revalidate pattern)
+      const cachedRoom = localStorage.getItem(`room_details_cache_${roomId}`)
+      if (cachedRoom) {
+        try {
+          const parsed = JSON.parse(cachedRoom)
+          setRoomDetails(parsed)
+          setLoading(false)
+        } catch (e) {
+          console.error('Error parsing cached room details:', e)
+        }
+      }
+      
+      const cachedState = localStorage.getItem(`game_state_cache_${roomId}`)
+      if (cachedState) {
+        try {
+          const parsed = JSON.parse(cachedState)
+          setGameState(parsed)
+        } catch (e) {
+          console.error('Error parsing cached game state:', e)
+        }
+      }
+
       fetchRoomDetails()
     } else {
       // No roomId in URL, redirect home
@@ -228,57 +278,85 @@ function Game() {
     }
     
     // Poll for game updates
+    let pollCount = 0
     const interval = setInterval(() => {
       if (roomId) {
-        fetchRoomDetails()
-        fetchGameState()
+        pollCount++
+        // Poll room details only once every 8 cycles (12 seconds) to minimize server load
+        if (pollCount % 8 === 0) {
+          fetchRoomDetails()
+        }
+        
+        // Skip fetching game state if client is in polling freeze cooldown
+        if (!pollCooldownRef.current) {
+          fetchGameState()
+        }
       }
     }, 1500)
     
-    return () => clearInterval(interval)
+    return () => {
+      clearInterval(interval)
+      if (pollCooldownTimeoutRef.current) {
+        clearTimeout(pollCooldownTimeoutRef.current)
+      }
+    }
   }, [roomId])
 
   // Once we have room details and current user, check if we need to initialize
   useEffect(() => {
     if (roomDetails && currentUser && roomId) {
-      fetchGameState()
+      if (!pollCooldownRef.current) {
+        fetchGameState()
+      }
     }
   }, [roomDetails?.id, currentUser?.id])
 
   // Sync game state across all players
   const fetchGameState = async () => {
     if (!roomId) return
+    if (pollCooldownRef.current) return
     
     try {
-
       const data = await gameAPI.getGameState(roomId)
       
       if (data && data.gameState && data.gameState.gameStarted) {
-        setGameState(prev => ({
-          ...prev,
-          deck: data.gameState.deck || prev.deck,
-          playerHands: data.gameState.playerHands || prev.playerHands,
-          playedCards: data.gameState.playedCards || prev.playedCards,
-          currentTurn: data.gameState.currentTurn || prev.currentTurn,
-          currentTurnIndex: data.gameState.currentTurnIndex ?? prev.currentTurnIndex,
-          scores: data.gameState.scores || prev.scores,
-          roundNumber: data.gameState.roundNumber ?? prev.roundNumber,
-          eliminatedPlayers: data.gameState.eliminatedPlayers || prev.eliminatedPlayers,
-          mustPickup: data.gameState.mustPickup ?? prev.mustPickup,
-          hasPlayedCard: data.gameState.hasPlayedCard ?? prev.hasPlayedCard,
-          gameOver: data.gameState.gameOver ?? prev.gameOver,
-          gameWinner: data.gameState.gameWinner || prev.gameWinner,
-          roundResult: data.gameState.roundResult || null,
-          roundHistory: data.gameState.roundHistory || prev.roundHistory || [],
-          gameEndedByHost: data.gameState.gameEndedByHost ?? prev.gameEndedByHost,
-          gameEndSummary: data.gameState.gameEndSummary || prev.gameEndSummary,
-          cursedNumber: data.gameState.cursedNumber || null,
-          lastCursedPlay: data.gameState.lastCursedPlay || null,
-          activeReactions: data.gameState.activeReactions || {},
-          gameStarted: true,
-          isShuffling: data.gameState.isShuffling ?? false,
-          isDealing: data.gameState.isDealing ?? false
-        }))
+        // Cache game state to localStorage
+        try {
+          localStorage.setItem(`game_state_cache_${roomId}`, JSON.stringify(data.gameState))
+        } catch (e) {
+          console.error('Error caching fetched game state:', e)
+        }
+
+        setGameState(prev => {
+          // Double check if poll cooldown got activated during the fetch
+          if (pollCooldownRef.current) return prev;
+
+          return {
+            ...prev,
+            deck: data.gameState.deck || prev.deck,
+            playerHands: data.gameState.playerHands || prev.playerHands,
+            playedCards: data.gameState.playedCards || prev.playedCards,
+            currentTurn: data.gameState.currentTurn || prev.currentTurn,
+            currentTurnIndex: data.gameState.currentTurnIndex ?? prev.currentTurnIndex,
+            scores: data.gameState.scores || prev.scores,
+            roundNumber: data.gameState.roundNumber ?? prev.roundNumber,
+            eliminatedPlayers: data.gameState.eliminatedPlayers || prev.eliminatedPlayers,
+            mustPickup: data.gameState.mustPickup ?? prev.mustPickup,
+            hasPlayedCard: data.gameState.hasPlayedCard ?? prev.hasPlayedCard,
+            gameOver: data.gameState.gameOver ?? prev.gameOver,
+            gameWinner: data.gameState.gameWinner || prev.gameWinner,
+            roundResult: data.gameState.roundResult || null,
+            roundHistory: data.gameState.roundHistory || prev.roundHistory || [],
+            gameEndedByHost: data.gameState.gameEndedByHost ?? prev.gameEndedByHost,
+            gameEndSummary: data.gameState.gameEndSummary || prev.gameEndSummary,
+            cursedNumber: data.gameState.cursedNumber || null,
+            lastCursedPlay: data.gameState.lastCursedPlay || null,
+            activeReactions: data.gameState.activeReactions || {},
+            gameStarted: true,
+            isShuffling: data.gameState.isShuffling ?? false,
+            isDealing: data.gameState.isDealing ?? false
+          }
+        })
         
         // Show round result overlay if we haven't seen this one yet
         if (data.gameState.roundResult && data.gameState.roundResult.timestamp) {
@@ -395,11 +473,10 @@ function Game() {
         lastCursedPlay: null,
       }
       
-      setGameState(prev => ({ ...prev, ...newState }))
       setCountdown(30)
       
-      // Save full game state to server for all players to sync
-      gameAPI.updateGameState(roomId, newState)
+      // Save full game state using optimized save helper
+      saveAndPublishGameState(newState)
         .catch(err => console.error('Error saving game state:', err))
     }, 2000)
   }, [roomDetails?.players?.length, currentUser?.id, gameState.gameStarted])
@@ -459,6 +536,11 @@ function Game() {
     try {
       const response = await gameAPI.getRoomDetails(roomId)
       setRoomDetails(response)
+      try {
+        localStorage.setItem(`room_details_cache_${roomId}`, JSON.stringify(response))
+      } catch (e) {
+        console.error('Error caching room details:', e)
+      }
       setLoading(false)
     } catch (err) {
       console.error('Error fetching room details:', err)
@@ -498,15 +580,10 @@ function Game() {
       isDealing: false
     }
     
-    setGameState(updatedState)
     setCountdown(30)
     setSelectedCard(null)
     
-    try {
-      await gameAPI.updateGameState(roomId, updatedState)
-    } catch (error) {
-      console.error('Error updating game state:', error)
-    }
+    await saveAndPublishGameState(updatedState)
   }
 
   // Auto end turn when timer runs out - pickup if needed, then advance
@@ -520,7 +597,7 @@ function Game() {
     if (!isMyTurn() || !currentUser) return
     if (gameState.deck.length === 0) {
       // No cards to pick up, just advance turn
-      handleNextTurn()
+      await handleNextTurn()
       return
     }
 
@@ -556,15 +633,10 @@ function Game() {
       isDealing: false
     }
 
-    setGameState(updatedState)
     setCountdown(30)
     setSelectedCard(null)
 
-    try {
-      await gameAPI.updateGameState(roomId, updatedState)
-    } catch (error) {
-      console.error('Error picking up card:', error)
-    }
+    await saveAndPublishGameState(updatedState)
   }
 
   const handleMove = () => {
@@ -765,15 +837,10 @@ function Game() {
         lastCursedPlay: null,
       }
 
-      setGameState(newState)
       setCountdown(30)
       setSelectedCard(null)
 
-      try {
-        await gameAPI.updateGameState(roomId, newState)
-      } catch (err) {
-        console.error('Error saving new round state:', err)
-      }
+      await saveAndPublishGameState(newState)
     }, 2000)
   }
 
@@ -819,7 +886,7 @@ function Game() {
       }
       setSelectedCard(null)
       setDraggingCard(null)
-      handleNextTurn(stateOverride)
+      await handleNextTurn(stateOverride)
     } else {
       // Don't advance turn yet - must pickup first
       const updatedState = {
@@ -833,15 +900,10 @@ function Game() {
         isDealing: false
       }
 
-      setGameState(updatedState)
       setSelectedCard(null)
       setDraggingCard(null)
 
-      try {
-        await gameAPI.updateGameState(roomId, updatedState)
-      } catch (error) {
-        console.error('Error playing card:', error)
-      }
+      await saveAndPublishGameState(updatedState)
     }
   }
 
@@ -1391,13 +1453,19 @@ function Game() {
                 </button>
               )}
               <button className="settings-item" onClick={async () => {
-                try { await gameAPI.leaveRoom(roomId) } catch(e) {}
+                try {
+                  localStorage.removeItem(`room_details_cache_${roomId}`)
+                  localStorage.removeItem(`game_state_cache_${roomId}`)
+                  await gameAPI.leaveRoom(roomId)
+                } catch(e) {}
                 navigate('/')
               }}>
                 <DoorOpen size={16} /> Leave Game
               </button>
               <button className="settings-item" onClick={async () => {
                 setShowSettings(false)
+                localStorage.removeItem(`room_details_cache_${roomId}`)
+                localStorage.removeItem(`game_state_cache_${roomId}`)
                 if (isHost()) {
                   try { await gameAPI.endGame(roomId) } catch(e) {}
                 }
@@ -1466,6 +1534,8 @@ function Game() {
             </div>
             <button className="win-btn" onClick={async () => {
               setShowGameWin(false)
+              localStorage.removeItem(`room_details_cache_${roomId}`)
+              localStorage.removeItem(`game_state_cache_${roomId}`)
               try { await gameAPI.endGame(roomId) } catch(e) {}
               navigate(`/room/${roomId}`)
             }}>
@@ -1492,6 +1562,8 @@ function Game() {
               </button>
               <button className="loss-btn loss-btn-leave" onClick={async () => {
                 setShowGameLoss(false)
+                localStorage.removeItem(`room_details_cache_${roomId}`)
+                localStorage.removeItem(`game_state_cache_${roomId}`)
                 try { await gameAPI.leaveRoom(roomId) } catch(e) {}
                 navigate('/rooms')
               }}>
@@ -1549,6 +1621,8 @@ function Game() {
             )}
             <button className="win-btn" onClick={async () => {
               setShowGameEndSummary(false)
+              localStorage.removeItem(`room_details_cache_${roomId}`)
+              localStorage.removeItem(`game_state_cache_${roomId}`)
               try { await gameAPI.endGame(roomId) } catch(e) {}
               navigate(`/room/${roomId}`)
             }}>

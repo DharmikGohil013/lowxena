@@ -18,7 +18,20 @@ function RoomLobby() {
 
   useEffect(() => {
     fetchCurrentUser();
-    fetchRoomDetails();
+    if (roomId) {
+      // Try to load cached data for instant initial paint
+      const cachedRoom = localStorage.getItem(`room_details_cache_${roomId}`);
+      if (cachedRoom) {
+        try {
+          const parsed = JSON.parse(cachedRoom);
+          setRoomDetails(parsed);
+          setLoading(false);
+        } catch (e) {
+          console.error('Error parsing cached room details in lobby:', e);
+        }
+      }
+      fetchRoomDetails();
+    }
     
     const interval = setInterval(() => {
       fetchRoomDetails();
@@ -54,6 +67,11 @@ function RoomLobby() {
       }
       
       setRoomDetails(response);
+      try {
+        localStorage.setItem(`room_details_cache_${roomId}`, JSON.stringify(response));
+      } catch (e) {
+        console.error('Error caching room details in lobby:', e);
+      }
       setLoading(false);
 
       // Gracefully rewrite browser URL to the slug URL if it doesn't match
@@ -70,6 +88,7 @@ function RoomLobby() {
   const handleLeaveRoom = async () => {
     setLeavingRoom(true);
     try {
+      localStorage.removeItem(`room_details_cache_${roomId}`);
       await gameAPI.leaveRoom(roomId);
       navigate('/rooms');
     } catch (err) {
