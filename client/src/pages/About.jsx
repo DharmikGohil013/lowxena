@@ -108,7 +108,7 @@ function About() {
         <header className="about-hero">
           <div className="hero-glow"></div>
           <div className="hero-badge">
-            <Info size={36} strokeWidth={1.5} />
+            <img src="/logo.png" alt="LowXena Logo" className="about-logo-img" />
           </div>
           <h1 className="hero-title">
             <span className="title-main">LOWXENA</span>
