@@ -58,5 +58,5 @@ export function getCardImage(card) {
  * @returns {string} Path to the card back image
  */
 export function getCardBack() {
-  return '/card_back.png'
+  return localStorage.getItem('selected_card_back') || '/card_back.png'
 }

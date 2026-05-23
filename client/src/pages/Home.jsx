@@ -13,6 +13,34 @@ import { AvatarSVG, AVATAR_LIST, isAvatarSVG } from '../components/Avatars'
 import './Home.css'
 
 const GOOGLE_CLIENT_ID = "878079171404-6o87ieel3jiio8aeb0mfmu4a407gh02n.apps.googleusercontent.com";
+
+const CARD_BACKS = [
+  {
+    id: 'default',
+    name: 'Default Cyber',
+    author: 'LowXena Team',
+    path: '/card_back.png'
+  },
+  {
+    id: 'cyber_raven_alpha',
+    name: 'Cyber-Raven Alpha',
+    author: 'Vapor-Net Syndicate',
+    path: '/card_backs/cyber_raven_alpha.jpg'
+  },
+  {
+    id: 'synth_raven',
+    name: 'Synth-Raven',
+    author: 'Vapor-Net Syndicate',
+    path: '/card_backs/synth_raven.jpg'
+  },
+  {
+    id: 'aetheria_systems',
+    name: 'Aetheria Systems',
+    author: 'Neon Regime Edition',
+    path: '/card_backs/aetheria_systems.jpg'
+  }
+];
+
 function Home() {
   const navigate = useNavigate()
   const location = useLocation()

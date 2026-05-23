@@ -26,6 +26,9 @@ function App() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    const selected = localStorage.getItem('selected_card_back') || '/card_back.png'
+    document.documentElement.style.setProperty('--card-back-image', `url('${selected}')`)
+
     const timer = setTimeout(() => {
       setLoading(false)
     }, 300)
