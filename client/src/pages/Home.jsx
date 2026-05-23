@@ -35,10 +35,22 @@ function Home() {
     birthdate: '',
     avatar_url: ''
   })
-  const [userStats, setUserStats] = useState({
-    total_games: 0, wins: 0, losses: 0, highest_score: 0, win_rate: 0, total_playtime: 0
+  const [userStats, setUserStats] = useState(() => {
+    try {
+      const cached = localStorage.getItem('user_stats_cache')
+      return cached ? JSON.parse(cached) : { total_games: 0, wins: 0, losses: 0, highest_score: 0, win_rate: 0, total_playtime: 0 }
+    } catch {
+      return { total_games: 0, wins: 0, losses: 0, highest_score: 0, win_rate: 0, total_playtime: 0 }
+    }
   })
-  const [userRankNum, setUserRankNum] = useState(null)
+  const [userRankNum, setUserRankNum] = useState(() => {
+    try {
+      const cached = localStorage.getItem('user_rank_num_cache')
+      return cached ? parseInt(cached) : null
+    } catch {
+      return null
+    }
+  })
   const [saving, setSaving] = useState(false)
   const [showGameModeModal, setShowGameModeModal] = useState(false)
   const [showCustomMatchModal, setShowCustomMatchModal] = useState(false)
@@ -49,9 +61,29 @@ function Home() {
     roomCode: ''
   })
   const [creatingRoom, setCreatingRoom] = useState(false)
-  const [leaderboard, setLeaderboard] = useState([])
-  const [currentUserRank, setCurrentUserRank] = useState(null)
-  const [totalPlayers, setTotalPlayers] = useState(0)
+  const [leaderboard, setLeaderboard] = useState(() => {
+    try {
+      const cached = localStorage.getItem('leaderboard_cache')
+      return cached ? JSON.parse(cached) : []
+    } catch {
+      return []
+    }
+  })
+  const [currentUserRank, setCurrentUserRank] = useState(() => {
+    try {
+      const cached = localStorage.getItem('leaderboard_user_rank_cache')
+      return cached ? JSON.parse(cached) : null
+    } catch {
+      return null
+    }
+  })
+  const [totalPlayers, setTotalPlayers] = useState(() => {
+    try {
+      return parseInt(localStorage.getItem('leaderboard_total_cache')) || 0
+    } catch {
+      return 0
+    }
+  })
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(false)
   const [showLeaderboardModal, setShowLeaderboardModal] = useState(false)
   const [leaderboardLimit, setLeaderboardLimit] = useState(5)
@@ -139,15 +171,34 @@ function Home() {
   // Fetch leaderboard
   useEffect(() => {
     const fetchLeaderboard = async () => {
-      setLoadingLeaderboard(true);
+      const cacheTime = localStorage.getItem('leaderboard_cache_time');
+      const cacheAge = cacheTime ? Date.now() - parseInt(cacheTime) : Infinity;
+      
+      if (cacheAge < 60000 && leaderboard.length > 0) {
+        return;
+      }
+      
+      if (leaderboard.length === 0) {
+        setLoadingLeaderboard(true);
+      }
+      
       try {
         const response = await gameAPI.getLeaderboard(100);
         if (response.success) {
-          setLeaderboard(response.leaderboard || []);
-          setTotalPlayers(response.totalPlayers || 0);
-          if (response.currentUserRank) {
-            setCurrentUserRank(response.currentUserRank);
+          const list = response.leaderboard || [];
+          const total = response.totalPlayers || 0;
+          const uRank = response.currentUserRank || null;
+          
+          setLeaderboard(list);
+          setTotalPlayers(total);
+          setCurrentUserRank(uRank);
+          
+          localStorage.setItem('leaderboard_cache', JSON.stringify(list));
+          localStorage.setItem('leaderboard_total_cache', total.toString());
+          if (uRank) {
+            localStorage.setItem('leaderboard_user_rank_cache', JSON.stringify(uRank));
           }
+          localStorage.setItem('leaderboard_cache_time', Date.now().toString());
         }
       } catch (error) {
         console.error('Error fetching leaderboard:', error);
@@ -163,11 +214,27 @@ function Home() {
   useEffect(() => {
     const fetchProfileAndStats = async () => {
       if (!isLoggedIn) return;
+      
+      const cacheTime = localStorage.getItem('user_profile_cache_time');
+      const cacheAge = cacheTime ? Date.now() - parseInt(cacheTime) : Infinity;
+      
+      if (cacheAge < 60000 && userStats.total_games > 0) {
+        return;
+      }
+      
       try {
         const response = await userAPI.getProfile();
         if (response.success) {
-          if (response.stats) setUserStats(response.stats);
-          if (response.rank) setUserRankNum(response.rank);
+          if (response.stats) {
+            setUserStats(response.stats);
+            localStorage.setItem('user_stats_cache', JSON.stringify(response.stats));
+          }
+          if (response.rank) {
+            setUserRankNum(response.rank);
+            localStorage.setItem('user_rank_num_cache', response.rank.toString());
+          }
+          localStorage.setItem('user_profile_cache_time', Date.now().toString());
+          
           if (response.user) {
             if (response.user.avatar_url) {
               setPlayerPicture(response.user.avatar_url);
@@ -339,6 +406,16 @@ function Home() {
     setPlayerEmail('');
     setPlayerPicture('');
     setUserId('');
+    // Clear leaderboard and profile local caches
+    localStorage.removeItem('user_stats_cache');
+    localStorage.removeItem('user_rank_num_cache');
+    localStorage.removeItem('user_profile_cache_time');
+    localStorage.removeItem('leaderboard_cache');
+    localStorage.removeItem('leaderboard_total_cache');
+    localStorage.removeItem('leaderboard_user_rank_cache');
+    localStorage.removeItem('leaderboard_cache_time');
+    setUserStats({ total_games: 0, wins: 0, losses: 0, highest_score: 0, win_rate: 0, total_playtime: 0 });
+    setUserRankNum(null);
   }
 
   const handleLeaveCurrentRoom = async () => {
