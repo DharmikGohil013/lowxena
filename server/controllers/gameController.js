@@ -1,5 +1,5 @@
 import { User, UserStat, GameHistory, Room } from '../models/index.js';
-import { findRoomByIdOrSlug } from './roomController.js';
+import { findRoomByIdOrSlug } from '../utils/roomLookup.js';
 export const getLeaderboard = async (req, res) => {
   try {
     const { limit = 20, offset = 0 } = req.query;
