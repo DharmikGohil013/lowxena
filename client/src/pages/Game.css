@@ -298,8 +298,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: min(650px, 80vw);
-  height: min(340px, 85%);
+  width: min(540px, 80vw);
+  height: min(260px, 80%);
   margin: 0 auto;
 }
 
@@ -314,7 +314,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 50px;
+  gap: 30px;
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   overflow: hidden;
 }
@@ -386,8 +386,8 @@
 
 .deck-stack {
   position: relative;
-  width: 72px;
-  height: 100px;
+  width: 60px;
+  height: 84px;
   cursor: pointer;
 }
 
@@ -423,8 +423,8 @@
 .played-area {
   position: relative;
   z-index: 2;
-  width: 170px;
-  height: 120px;
+  width: 140px;
+  height: 100px;
   background: #f4f4f6;
   border: 3px solid #000000;
   border-radius: 16px;
@@ -484,8 +484,8 @@
 
 /* ---------- Card Visuals & Outlines ---------- */
 .card-back {
-  width: 72px;
-  height: 100px;
+  width: 60px;
+  height: 84px;
   background: #ff007f; /* Hot Pink signature */
   border-radius: 8px;
   border: 3px solid #000000;
@@ -502,8 +502,8 @@
 }
 
 .playing-card {
-  width: 72px;
-  height: 100px;
+  width: 60px;
+  height: 84px;
   background: #ffffff;
   border-radius: 8px;
   border: 3px solid #000000;
@@ -722,10 +722,11 @@
   justify-content: center;
   gap: 0;
   padding: 10px 20px;
-  min-height: 110px;
+  min-height: 94px;
 }
 
 .hand-card {
+  position: relative;
   transition: transform .28s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   cursor: pointer;
   margin-left: -20px; /* Overlap slotting */
@@ -1456,28 +1457,28 @@
 /* ---------- Responsive Layout Adjustments ---------- */
 @media (max-width: 900px) {
   .game-table {
-    width: min(540px, 80vw);
-    height: min(270px, 80%);
+    width: min(460px, 80vw);
+    height: min(220px, 80%);
   }
 
   .deck-stack {
-    width: 64px;
-    height: 88px;
+    width: 54px;
+    height: 76px;
   }
 
   .card-back {
-    width: 64px;
-    height: 88px;
+    width: 54px;
+    height: 76px;
   }
 
   .playing-card {
-    width: 64px;
-    height: 88px;
+    width: 54px;
+    height: 76px;
   }
 
   .played-area {
-    width: 140px;
-    height: 105px;
+    width: 125px;
+    height: 90px;
   }
 }
 
@@ -1530,8 +1531,8 @@
   }
 
   .game-table {
-    width: min(340px, 82vw);
-    height: min(200px, 75%);
+    width: min(320px, 82vw);
+    height: min(170px, 75%);
   }
 
   .table-surface {
@@ -1546,18 +1547,18 @@
   }
 
   .deck-stack {
-    width: 52px;
-    height: 72px;
+    width: 46px;
+    height: 64px;
   }
 
   .card-back {
-    width: 52px;
-    height: 72px;
+    width: 46px;
+    height: 64px;
   }
 
   .playing-card {
-    width: 52px;
-    height: 72px;
+    width: 46px;
+    height: 64px;
   }
 
   .deck-label {
@@ -1566,8 +1567,8 @@
   }
 
   .played-area {
-    width: 110px;
-    height: 84px;
+    width: 105px;
+    height: 76px;
     border-radius: 12px;
   }
 
@@ -1703,8 +1704,8 @@
 
 @media (max-width: 380px) {
   .game-table {
-    width: min(290px, 90vw);
-    height: min(170px, 75%);
+    width: min(260px, 90vw);
+    height: min(145px, 75%);
   }
 
   .table-surface {
@@ -1712,23 +1713,23 @@
   }
 
   .deck-stack {
-    width: 44px;
-    height: 60px;
+    width: 38px;
+    height: 52px;
   }
 
   .card-back {
-    width: 44px;
-    height: 60px;
+    width: 38px;
+    height: 52px;
   }
 
   .playing-card {
-    width: 44px;
-    height: 60px;
+    width: 38px;
+    height: 52px;
   }
 
   .played-area {
-    width: 90px;
-    height: 70px;
+    width: 85px;
+    height: 60px;
   }
 
   .hand-card {

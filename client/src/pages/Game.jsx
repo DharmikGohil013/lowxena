@@ -292,7 +292,8 @@ function Game() {
         const initialScores = {}
         roomDetails.players.forEach(p => { initialScores[p.id] = 0 })
         
-        const randomCursed = VALUES[Math.floor(Math.random() * VALUES.length)]
+        const cursedPool = ['A', '2', '3', '4', '5']
+        const randomCursed = cursedPool[Math.floor(Math.random() * cursedPool.length)]
         
         const newState = {
           deck: remainingDeck,
@@ -665,7 +666,8 @@ function Game() {
       setGameState(prev => ({ ...prev, isDealing: true, isShuffling: false }))
 
       setTimeout(async () => {
-        const randomCursed = VALUES[Math.floor(Math.random() * VALUES.length)]
+        const cursedPool = ['A', '2', '3', '4', '5']
+        const randomCursed = cursedPool[Math.floor(Math.random() * cursedPool.length)]
 
         const newState = {
           deck: remainingDeck,
@@ -1195,20 +1197,21 @@ function Game() {
                 <div 
                   key={card.id} 
                   className={`hand-card ${selectedCard?.id === card.id ? 'selected' : ''} ${draggingCard?.id === card.id ? 'dragging' : ''} ${!isMyTurn() ? 'not-my-turn' : ''} ${isCardCursed ? 'cursed-card' : ''}`}
-                  style={{ '--i': i, '--total': myCards.length }}
+                  style={{ '--i': i, '--total': myCards.length, position: 'relative' }}
                   draggable={isMyTurn()}
                   onDragStart={(e) => handleDragStart(e, card)}
                   onDragEnd={handleDragEnd}
                   onClick={() => handleCardClick(card)}
+                  title={isCardCursed ? "Cursed card! Play to drop & skip without draw penalty!" : undefined}
                 >
                   <div className="playing-card svg-card">
                     <img src={getCardImage(card)} alt={`${card.value} of ${card.suit}`} className="card-svg-img" draggable="false" />
-                    {isCardCursed && (
-                      <div className="cursed-card-indicator" title="Cursed card! Play to drop & skip without draw penalty!">
-                        <Skull size={20} className="cursed-hand-card-skull-svg" />
-                      </div>
-                    )}
                   </div>
+                  {isCardCursed && (
+                    <div className="cursed-card-indicator">
+                      <Skull size={18} className="cursed-hand-card-skull-svg" />
+                    </div>
+                  )}
                 </div>
               );
             }) || (
