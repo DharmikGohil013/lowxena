@@ -8,6 +8,7 @@ import {
   CircleDot, Play, Coins
 } from 'lucide-react'
 import { authAPI, userAPI } from '../services/api'
+import { Fireworks } from 'fireworks-js'
 import './Game.css'
 import './PracticeGame.css'
 
@@ -164,6 +165,43 @@ function PracticeGame() {
   
   const botTimerRef = useRef(null)
   const tipTimerRef = useRef(null)
+
+  // Fireworks animation on win
+  const fireworksRef = useRef(null)
+  const fireworksInstance = useRef(null)
+
+  useEffect(() => {
+    const hasWon = gamePhase === 'gameOver' && gameWinner?.id === currentUser?.id
+
+    if (hasWon && fireworksRef.current) {
+      if (!fireworksInstance.current) {
+        fireworksInstance.current = new Fireworks(fireworksRef.current, {
+          autoresize: true,
+          opacity: 0.5,
+          acceleration: 1.05,
+          friction: 0.98,
+          gravity: 1.5,
+          particles: 80,
+          explosion: 6,
+          intensity: 30,
+          traceSpeed: 3,
+        })
+        fireworksInstance.current.start()
+      }
+    } else {
+      if (fireworksInstance.current) {
+        fireworksInstance.current.stop()
+        fireworksInstance.current = null
+      }
+    }
+
+    return () => {
+      if (fireworksInstance.current) {
+        fireworksInstance.current.stop()
+        fireworksInstance.current = null
+      }
+    }
+  }, [gamePhase, gameWinner, currentUser])
 
   // Show a tip if not shown before (or force it)
   const showTip = useCallback((tipKey, force = false) => {
@@ -1118,7 +1156,10 @@ function PracticeGame() {
       {/* Game Over Screen */}
       {gamePhase === 'gameOver' && (
         <div className="overlay-screen game-win-overlay">
-          <div className="overlay-content game-win-content">
+          {gameWinner?.id === currentUser?.id && (
+            <div ref={fireworksRef} className="fireworks-container"></div>
+          )}
+          <div className="overlay-content game-win-content" style={{ zIndex: 10 }}>
             <div className="win-trophy">
               {gameWinner?.id === currentUser?.id ? <Trophy size={48} /> : <Frown size={48} />}
             </div>

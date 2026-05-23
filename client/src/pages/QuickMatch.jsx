@@ -9,6 +9,7 @@ import {
   TrendingUp, Heart, AlertTriangle, Clock, Award, Crosshair,
   ArrowLeft, Layers, Lightbulb, VolumeX, X
 } from 'lucide-react'
+import { Fireworks } from 'fireworks-js'
 import './Game.css'
 import './QuickMatch.css'
 
@@ -134,6 +135,43 @@ function QuickMatch() {
 
   const botTimerRef = useRef(null)
   const tipTimerRef = useRef(null)
+
+  // Fireworks animation on win
+  const fireworksRef = useRef(null)
+  const fireworksInstance = useRef(null)
+
+  useEffect(() => {
+    const hasWon = gamePhase === 'gameOver' && gameWinner?.id === currentUser?.id
+
+    if (hasWon && fireworksRef.current) {
+      if (!fireworksInstance.current) {
+        fireworksInstance.current = new Fireworks(fireworksRef.current, {
+          autoresize: true,
+          opacity: 0.5,
+          acceleration: 1.05,
+          friction: 0.98,
+          gravity: 1.5,
+          particles: 80,
+          explosion: 6,
+          intensity: 30,
+          traceSpeed: 3,
+        })
+        fireworksInstance.current.start()
+      }
+    } else {
+      if (fireworksInstance.current) {
+        fireworksInstance.current.stop()
+        fireworksInstance.current = null
+      }
+    }
+
+    return () => {
+      if (fireworksInstance.current) {
+        fireworksInstance.current.stop()
+        fireworksInstance.current = null
+      }
+    }
+  }, [gamePhase, gameWinner, currentUser])
 
   // ── Init user ──
   useEffect(() => {
@@ -1173,7 +1211,10 @@ function QuickMatch() {
       {/* Game Over Screen */}
       {gamePhase === 'gameOver' && (
         <div className="overlay-screen game-win-overlay">
-          <div className="overlay-content game-win-content">
+          {gameWinner?.id === currentUser?.id && (
+            <div ref={fireworksRef} className="fireworks-container"></div>
+          )}
+          <div className="overlay-content game-win-content" style={{ zIndex: 10 }}>
             <div className="win-trophy">
               {gameWinner?.id === currentUser?.id ? <Trophy size={56} /> : <Frown size={56} />}
             </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { gameAPI } from '../services/api'
 import { getCardImage, getCardBack } from '../utils/cardImages'
@@ -8,6 +8,7 @@ import {
 } from 'lucide-react'
 import Loader from '../components/Loader'
 import { AvatarSVG, isAvatarSVG } from '../components/Avatars'
+import { Fireworks } from 'fireworks-js'
 import './Game.css'
 
 // Card suits and values
@@ -90,6 +91,43 @@ function Game() {
   const [showGameLoss, setShowGameLoss] = useState(false)      // current user got eliminated
   const [lastSeenRoundTimestamp, setLastSeenRoundTimestamp] = useState(null) // prevent re-showing same round result
   const navigate = useNavigate()
+
+  // Fireworks animation on win
+  const fireworksRef = useRef(null)
+  const fireworksInstance = useRef(null)
+
+  useEffect(() => {
+    const hasWon = showGameWin && showGameWin.winnerName === currentUser?.name
+
+    if (hasWon && fireworksRef.current) {
+      if (!fireworksInstance.current) {
+        fireworksInstance.current = new Fireworks(fireworksRef.current, {
+          autoresize: true,
+          opacity: 0.5,
+          acceleration: 1.05,
+          friction: 0.98,
+          gravity: 1.5,
+          particles: 80,
+          explosion: 6,
+          intensity: 30,
+          traceSpeed: 3,
+        })
+        fireworksInstance.current.start()
+      }
+    } else {
+      if (fireworksInstance.current) {
+        fireworksInstance.current.stop()
+        fireworksInstance.current = null
+      }
+    }
+
+    return () => {
+      if (fireworksInstance.current) {
+        fireworksInstance.current.stop()
+        fireworksInstance.current = null
+      }
+    }
+  }, [showGameWin, currentUser])
 
   // Cursed Card Twist states & timers
   const [lastSeenCursedRound, setLastSeenCursedRound] = useState(0)
@@ -1042,13 +1080,22 @@ function Game() {
 
       {/* Top Bar: controls + turn info */}
       <div className="game-top-bar">
-        <button 
-          className="control-btn"
-          onClick={() => setShowScoreboard(!showScoreboard)}
-          title="Scoreboard"
-        >
-          <BarChart3 size={22} />
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', zIndex: 10 }}>
+          <button 
+            className="control-btn"
+            onClick={() => setShowScoreboard(!showScoreboard)}
+            title="Scoreboard"
+          >
+            <BarChart3 size={22} />
+          </button>
+
+          {gameState.gameStarted && gameState.cursedNumber && (
+            <div className="cursed-indicator-badge animate-pulse" title="Cursed card rank for this round! Play to skip, hold to lose!">
+              <Skull size={14} className="cursed-badge-icon-svg" />
+              <span className="cursed-badge-text">CURSED: <strong className="cursed-glowing-number">{gameState.cursedNumber}</strong></span>
+            </div>
+          )}
+        </div>
 
         {gameState.gameStarted && (
           <div className="turn-indicator">
@@ -1062,22 +1109,15 @@ function Game() {
           </div>
         )}
 
-        {gameState.gameStarted && gameState.cursedNumber && (
-          <div className="cursed-indicator-badge animate-pulse" title="Cursed card rank for this round! Play to skip, hold to lose!">
-            <Skull size={14} className="cursed-badge-icon-svg" />
-            <span className="cursed-badge-text">CURSED: <strong className="cursed-glowing-number">{gameState.cursedNumber}</strong></span>
-          </div>
-        )}
-
-
-
-        <button 
-          className="control-btn"
-          onClick={() => setShowSettings(!showSettings)}
-          title="Settings"
-        >
-          <Settings size={22} />
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', zIndex: 10 }}>
+          <button 
+            className="control-btn"
+            onClick={() => setShowSettings(!showSettings)}
+            title="Settings"
+          >
+            <Settings size={22} />
+          </button>
+        </div>
       </div>
 
       {/* Casino Table Area with Players Around It */}
@@ -1408,7 +1448,10 @@ function Game() {
       {/* Game Win Screen */}
       {showGameWin && (
         <div className="overlay-screen game-win-overlay">
-          <div className="overlay-content game-win-content">
+          {showGameWin.winnerName === currentUser?.name && (
+            <div ref={fireworksRef} className="fireworks-container"></div>
+          )}
+          <div className="overlay-content game-win-content" style={{ zIndex: 10 }}>
             <div className="win-trophy"><Trophy size={48} /></div>
             <h2 className="overlay-title game-win-title">
               {showGameWin.winnerName === currentUser?.name ? 'You Win!' : `${showGameWin.winnerName} Wins!`}
