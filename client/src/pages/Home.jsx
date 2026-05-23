@@ -551,7 +551,7 @@ function Home() {
                 leaderboard.slice(0, 2).map((player, index) => (
                   <div key={player.user_id || index} className={`leaderboard-item ${player.user_id === userId ? 'current-user' : ''}`}>
                     <div className={`rank rank-${index + 1}`}>
-                      {index === 0 ? <Medal size={18} style={{color:'#FFD700'}} /> : index === 1 ? <Medal size={18} style={{color:'#C0C0C0'}} /> : index === 2 ? <Medal size={18} style={{color:'#CD7F32'}} /> : `#${player.rank}`}
+                      {index === 0 ? <Medal size={18} color="#000000" fill="#FFD700" style={{ filter: 'drop-shadow(1.5px 1.5px 0px rgba(0,0,0,0.2))' }} /> : index === 1 ? <Medal size={18} color="#000000" fill="#C0C0C0" style={{ filter: 'drop-shadow(1.5px 1.5px 0px rgba(0,0,0,0.2))' }} /> : index === 2 ? <Medal size={18} color="#000000" fill="#CD7F32" style={{ filter: 'drop-shadow(1.5px 1.5px 0px rgba(0,0,0,0.2))' }} /> : `#${player.rank}`}
                     </div>
                     <div className="player-info">
                       <div className="player-avatar-wrap">
@@ -1438,7 +1438,7 @@ function Home() {
               {leaderboard.slice(0, leaderboardLimit).map((player, index) => (
                 <div key={player.user_id || index} className={`lb-modal-item ${player.user_id === userId ? 'current-user' : ''}`}>
                   <span className="lb-col-rank">
-                    {index === 0 ? <Medal size={18} style={{color:'#FFD700'}} /> : index === 1 ? <Medal size={18} style={{color:'#C0C0C0'}} /> : index === 2 ? <Medal size={18} style={{color:'#CD7F32'}} /> : `#${player.rank}`}
+                    {index === 0 ? <Medal size={18} color="#000000" fill="#FFD700" style={{ filter: 'drop-shadow(1.5px 1.5px 0px rgba(0,0,0,0.2))' }} /> : index === 1 ? <Medal size={18} color="#000000" fill="#C0C0C0" style={{ filter: 'drop-shadow(1.5px 1.5px 0px rgba(0,0,0,0.2))' }} /> : index === 2 ? <Medal size={18} color="#000000" fill="#CD7F32" style={{ filter: 'drop-shadow(1.5px 1.5px 0px rgba(0,0,0,0.2))' }} /> : `#${player.rank}`}
                   </span>
                   <span className="lb-col-player">
                     <span className="lb-avatar-mini">{renderAvatar(player.avatar_url, 28, player.name)}</span>
