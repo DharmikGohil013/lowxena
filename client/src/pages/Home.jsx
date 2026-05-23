@@ -153,6 +153,10 @@ function Home() {
     }
   })
 
+  const [isCustomAvatarUnlocked, setIsCustomAvatarUnlocked] = useState(() => {
+    return localStorage.getItem('custom_avatar_generator_unlocked') === 'true'
+  })
+
   const handlePurchaseAvatar = async (avatar) => {
     if (playerCoins < avatar.price) {
       alert(`Not enough coins! You need ${avatar.price} coins to unlock this avatar (you have ${playerCoins}). Win games to earn more!`)
@@ -1176,11 +1180,85 @@ function Home() {
                     })}
                   </div>
                   
-                  <div className="pm-avatar-custom-section">
+                  <div className="pm-avatar-custom-section" style={{ position: 'relative' }}>
                     <div className="pm-avatar-divider">
                       <span>OR CREATE A CUSTOM ADVENTURER</span>
                     </div>
-                    <div className="pm-custom-avatar-generator">
+
+                    {!isCustomAvatarUnlocked ? (
+                      <div className="pm-custom-avatar-locked-overlay" style={{
+                        position: 'absolute',
+                        inset: 0,
+                        background: 'rgba(255, 255, 255, 0.88)',
+                        backdropFilter: 'blur(4px)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 10,
+                        borderRadius: '16px',
+                        border: '3px dashed #000000',
+                        padding: '24px',
+                        marginTop: '20px',
+                        boxShadow: '4px 4px 0px #000000'
+                      }}>
+                        <Lock size={32} style={{ color: '#ff007f', marginBottom: '8px', filter: 'drop-shadow(1.5px 1.5px 0px #000000)' }} />
+                        <h4 style={{ margin: '0 0 6px', fontWeight: '900', textTransform: 'uppercase', fontFamily: "'Outfit', sans-serif", fontSize: '15px' }}>Custom Generator Locked</h4>
+                        <p style={{ margin: '0 0 16px', fontSize: '12px', color: '#666', textAlign: 'center', fontWeight: '700', maxWidth: '280px' }}>
+                          Create infinitely unique adventurer looks using any name seed!
+                        </p>
+                        <button
+                          type="button"
+                          className="cc-select-btn cc-unlock-btn"
+                          onClick={async () => {
+                            const price = 2000;
+                            if (playerCoins < price) {
+                              alert(`Not enough coins! You need ${price} coins to unlock the Custom Generator (you have ${playerCoins}).`);
+                              return;
+                            }
+                            if (window.confirm(`Unlock the Custom Seed Generator forever for ${price} coins?`)) {
+                              const newCoins = playerCoins - price;
+                              localStorage.setItem('custom_avatar_generator_unlocked', 'true');
+                              setIsCustomAvatarUnlocked(true);
+                              setPlayerCoins(newCoins);
+                              if (isLoggedIn) {
+                                try {
+                                  await userAPI.updateProfile({ coins: newCoins });
+                                  const cachedUser = authAPI.getCurrentUser();
+                                  if (cachedUser) {
+                                    cachedUser.coins = newCoins;
+                                    localStorage.setItem('userData', JSON.stringify(cachedUser));
+                                  }
+                                } catch (e) {
+                                  console.error(e);
+                                }
+                              }
+                              alert("Custom Seed Generator unlocked forever!");
+                            }
+                          }}
+                          style={{
+                            background: '#ffe600',
+                            color: '#000000',
+                            borderColor: '#000000',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '8px',
+                            padding: '10px 24px',
+                            fontWeight: '900',
+                            borderRadius: '12px',
+                            border: '3px solid #000000',
+                            boxShadow: '3px 3px 0px #000000',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          <Coins size={16} />
+                          <span>Unlock Generator (2000)</span>
+                        </button>
+                      </div>
+                    ) : null}
+
+                    <div className="pm-custom-avatar-generator" style={!isCustomAvatarUnlocked ? { filter: 'blur(2px) grayscale(0.5)', pointerEvents: 'none' } : undefined}>
                       <div className="pm-custom-avatar-preview">
                         <AvatarSVG avatarId={`avatar-adventurer-${customSeed || 'Felix'}`} size={70} />
                       </div>
