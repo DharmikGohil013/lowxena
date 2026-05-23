@@ -327,46 +327,41 @@ function Game() {
       
       const remainingDeck = shuffledDeck.slice(totalCards)
       
-      // Show dealing animation briefly
-      setGameState(prev => ({ ...prev, isDealing: true }))
+      // Initialize scores for all players
+      const initialScores = {}
+      roomDetails.players.forEach(p => { initialScores[p.id] = 0 })
       
-      setTimeout(() => {
-        // Initialize scores for all players
-        const initialScores = {}
-        roomDetails.players.forEach(p => { initialScores[p.id] = 0 })
-        
-        const cursedPool = ['A', '2', '3', '4', '5']
-        const randomCursed = cursedPool[Math.floor(Math.random() * cursedPool.length)]
-        
-        const newState = {
-          deck: remainingDeck,
-          playerHands: newPlayerHands,
-          playedCards: [],
-          currentTurn: roomDetails.players[0]?.id,
-          currentTurnIndex: 0,
-          gameStarted: true,
-          isShuffling: false,
-          isDealing: false,
-          countdownTimestamp: Date.now(),
-          scores: initialScores,
-          roundNumber: 1,
-          eliminatedPlayers: [],
-          mustPickup: false,
-          hasPlayedCard: false,
-          gameOver: false,
-          gameWinner: null,
-          roundResult: null,
-          cursedNumber: randomCursed,
-          lastCursedPlay: null,
-        }
-        
-        setGameState(prev => ({ ...prev, ...newState }))
-        setCountdown(30)
-        
-        // Save full game state to server for all players to sync
-        gameAPI.updateGameState(roomId, newState)
-          .catch(err => console.error('Error saving game state:', err))
-      }, 1500)
+      const cursedPool = ['A', '2', '3', '4', '5']
+      const randomCursed = cursedPool[Math.floor(Math.random() * cursedPool.length)]
+      
+      const newState = {
+        deck: remainingDeck,
+        playerHands: newPlayerHands,
+        playedCards: [],
+        currentTurn: roomDetails.players[0]?.id,
+        currentTurnIndex: 0,
+        gameStarted: true,
+        isShuffling: false,
+        isDealing: false,
+        countdownTimestamp: Date.now(),
+        scores: initialScores,
+        roundNumber: 1,
+        eliminatedPlayers: [],
+        mustPickup: false,
+        hasPlayedCard: false,
+        gameOver: false,
+        gameWinner: null,
+        roundResult: null,
+        cursedNumber: randomCursed,
+        lastCursedPlay: null,
+      }
+      
+      setGameState(prev => ({ ...prev, ...newState }))
+      setCountdown(30)
+      
+      // Save full game state to server for all players to sync
+      gameAPI.updateGameState(roomId, newState)
+        .catch(err => console.error('Error saving game state:', err))
     }, 2000)
   }, [roomDetails?.players?.length, currentUser?.id, gameState.gameStarted])
 
@@ -706,44 +701,40 @@ function Game() {
 
       const remainingDeck = shuffledDeck.slice(remaining.length * cardsPerPlayer)
 
-      setGameState(prev => ({ ...prev, isDealing: true, isShuffling: false }))
+      const cursedPool = ['A', '2', '3', '4', '5']
+      const randomCursed = cursedPool[Math.floor(Math.random() * cursedPool.length)]
 
-      setTimeout(async () => {
-        const cursedPool = ['A', '2', '3', '4', '5']
-        const randomCursed = cursedPool[Math.floor(Math.random() * cursedPool.length)]
+      const newState = {
+        deck: remainingDeck,
+        playerHands: newPlayerHands,
+        playedCards: [],
+        currentTurn: remaining[0]?.id,
+        currentTurnIndex: roomDetails.players.findIndex(p => p.id === remaining[0]?.id),
+        gameStarted: true,
+        isShuffling: false,
+        isDealing: false,
+        countdownTimestamp: Date.now(),
+        scores: scores,
+        roundNumber: roundNumber,
+        eliminatedPlayers: eliminated,
+        mustPickup: false,
+        hasPlayedCard: false,
+        gameOver: false,
+        gameWinner: null,
+        roundResult: null,  // Clear round result for all players
+        cursedNumber: randomCursed,
+        lastCursedPlay: null,
+      }
 
-        const newState = {
-          deck: remainingDeck,
-          playerHands: newPlayerHands,
-          playedCards: [],
-          currentTurn: remaining[0]?.id,
-          currentTurnIndex: roomDetails.players.findIndex(p => p.id === remaining[0]?.id),
-          gameStarted: true,
-          isShuffling: false,
-          isDealing: false,
-          countdownTimestamp: Date.now(),
-          scores: scores,
-          roundNumber: roundNumber,
-          eliminatedPlayers: eliminated,
-          mustPickup: false,
-          hasPlayedCard: false,
-          gameOver: false,
-          gameWinner: null,
-          roundResult: null,  // Clear round result for all players
-          cursedNumber: randomCursed,
-          lastCursedPlay: null,
-        }
+      setGameState(newState)
+      setCountdown(30)
+      setSelectedCard(null)
 
-        setGameState(newState)
-        setCountdown(30)
-        setSelectedCard(null)
-
-        try {
-          await gameAPI.updateGameState(roomId, newState)
-        } catch (err) {
-          console.error('Error saving new round state:', err)
-        }
-      }, 1500)
+      try {
+        await gameAPI.updateGameState(roomId, newState)
+      } catch (err) {
+        console.error('Error saving new round state:', err)
+      }
     }, 2000)
   }
 
@@ -1327,19 +1318,7 @@ function Game() {
         </div>
       )}
 
-      {/* Dealing Overlay */}
-      {gameState.isDealing && (
-        <div className="overlay-screen">
-          <div className="overlay-content">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="flying-card" style={{ animationDelay: `${i * 0.3}s` }}>
-                <div className="card-back"><div className="card-pattern"></div></div>
-              </div>
-            ))}
-            <h2 className="overlay-title">Dealing Cards...</h2>
-          </div>
-        </div>
-      )}
+      {/* Dealing Overlay removed */}
 
       {/* Scoreboard Modal */}
       {showScoreboard && (

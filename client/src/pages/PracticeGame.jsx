@@ -226,25 +226,22 @@ function PracticeGame() {
       const shuffled = shuffleArray(fullDeck)
       
       setIsShuffling(false)
-      setIsDealing(true)
+      setIsDealing(false)
       
-      setTimeout(() => {
-        // Deal 7 cards each
-        const hands = {}
-        allPlayers.forEach((player, index) => {
-          hands[player.id] = shuffled.slice(index * 7, (index + 1) * 7)
-        })
-        const remaining = shuffled.slice(allPlayers.length * 7)
-        
-        setDeck(remaining)
-        setPlayerHands(hands)
-        setPlayedCards([])
-        setCurrentTurn(user.id) // Player goes first
-        setMustPickup(false)
-        setHasPlayedCard(false)
-        setIsDealing(false)
-        setCountdown(45)
-      }, 1200)
+      // Deal 7 cards each
+      const hands = {}
+      allPlayers.forEach((player, index) => {
+        hands[player.id] = shuffled.slice(index * 7, (index + 1) * 7)
+      })
+      const remaining = shuffled.slice(allPlayers.length * 7)
+      
+      setDeck(remaining)
+      setPlayerHands(hands)
+      setPlayedCards([])
+      setCurrentTurn(user.id) // Player goes first
+      setMustPickup(false)
+      setHasPlayedCard(false)
+      setCountdown(45)
     }, 1500)
   }
 
@@ -275,28 +272,25 @@ function PracticeGame() {
       const shuffled = shuffleArray(fullDeck)
       
       setIsShuffling(false)
-      setIsDealing(true)
+      setIsDealing(false)
       
-      setTimeout(() => {
-        const hands = {}
-        remaining.forEach((player, index) => {
-          hands[player.id] = shuffled.slice(index * 7, (index + 1) * 7)
-        })
-        updatedEliminated.forEach(id => { hands[id] = [] })
-        
-        const remainingDeck = shuffled.slice(remaining.length * 7)
-        
-        setDeck(remainingDeck)
-        setPlayerHands(hands)
-        setPlayedCards([])
-        setCurrentTurn(remaining[0].id)
-        setMustPickup(false)
-        setHasPlayedCard(false)
-        setIsDealing(false)
-        setRoundNumber(newRoundNum)
-        setCountdown(45)
-        setSelectedCard(null)
-      }, 1200)
+      const hands = {}
+      remaining.forEach((player, index) => {
+        hands[player.id] = shuffled.slice(index * 7, (index + 1) * 7)
+      })
+      updatedEliminated.forEach(id => { hands[id] = [] })
+      
+      const remainingDeck = shuffled.slice(remaining.length * 7)
+      
+      setDeck(remainingDeck)
+      setPlayerHands(hands)
+      setPlayedCards([])
+      setCurrentTurn(remaining[0].id)
+      setMustPickup(false)
+      setHasPlayedCard(false)
+      setRoundNumber(newRoundNum)
+      setCountdown(45)
+      setSelectedCard(null)
     }, 1500)
   }
 
@@ -1085,19 +1079,7 @@ function PracticeGame() {
         </div>
       )}
 
-      {/* Dealing Overlay */}
-      {isDealing && (
-        <div className="overlay-screen">
-          <div className="overlay-content">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="flying-card" style={{ animationDelay: `${i * 0.3}s` }}>
-                <div className="card-back"><div className="card-pattern"></div></div>
-              </div>
-            ))}
-            <h2 className="overlay-title">Dealing Cards...</h2>
-          </div>
-        </div>
-      )}
+      {/* Dealing Overlay removed */}
 
       {/* Round Result Overlay */}
       {gamePhase === 'roundResult' && roundResult && (
