@@ -4,16 +4,16 @@ import { adventurer } from '@dicebear/collection';
 
 // 10 awesome predefined Adventurer presets
 export const AVATAR_LIST = [
-  { id: 'avatar-adventurer-Felix', name: 'Felix', color: '#e94560' },
-  { id: 'avatar-adventurer-Aneka', name: 'Aneka', color: '#533483' },
-  { id: 'avatar-adventurer-Jack', name: 'Jack', color: '#10b981' },
-  { id: 'avatar-adventurer-Aria', name: 'Aria', color: '#3b82f6' },
-  { id: 'avatar-adventurer-Max', name: 'Max', color: '#22c55e' },
-  { id: 'avatar-adventurer-Luna', name: 'Luna', color: '#fbbf24' },
-  { id: 'avatar-adventurer-Kiki', name: 'Kiki', color: '#7c3aed' },
-  { id: 'avatar-adventurer-Leo', name: 'Leo', color: '#10b981' },
-  { id: 'avatar-adventurer-Buster', name: 'Buster', color: '#ef4444' },
-  { id: 'avatar-adventurer-Finn', name: 'Finn', color: '#a78bfa' },
+  { id: 'avatar-adventurer-Felix', name: 'Felix', color: '#e94560', price: 0 },
+  { id: 'avatar-adventurer-Aneka', name: 'Aneka', color: '#533483', price: 0 },
+  { id: 'avatar-adventurer-Jack', name: 'Jack', color: '#10b981', price: 0 },
+  { id: 'avatar-adventurer-Aria', name: 'Aria', color: '#3b82f6', price: 500 },
+  { id: 'avatar-adventurer-Max', name: 'Max', color: '#22c55e', price: 500 },
+  { id: 'avatar-adventurer-Luna', name: 'Luna', color: '#fbbf24', price: 1000 },
+  { id: 'avatar-adventurer-Kiki', name: 'Kiki', color: '#7c3aed', price: 1000 },
+  { id: 'avatar-adventurer-Leo', name: 'Leo', color: '#10b981', price: 1500 },
+  { id: 'avatar-adventurer-Buster', name: 'Buster', color: '#ef4444', price: 1500 },
+  { id: 'avatar-adventurer-Finn', name: 'Finn', color: '#a78bfa', price: 1500 },
 ];
 
 export function AvatarSVG({ avatarId, size = 80 }) {

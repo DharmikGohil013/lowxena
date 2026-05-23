@@ -171,7 +171,10 @@ function PracticeGame() {
   const fireworksInstance = useRef(null)
 
   useEffect(() => {
-    const hasWon = gamePhase === 'gameOver' && gameWinner?.id === currentUser?.id
+    const hasWon = gamePhase === 'gameOver' && gameWinner && currentUser && (
+      gameWinner.id === currentUser.id ||
+      (gameWinner.name && currentUser.name && gameWinner.name.trim().toLowerCase() === currentUser.name.trim().toLowerCase())
+    )
 
     if (hasWon && fireworksRef.current) {
       if (!fireworksInstance.current) {

@@ -143,6 +143,54 @@ function Home() {
 
     alert(`Successfully unlocked "${skin.name}"! You can now select it.`)
   }
+
+  const [unlockedAvatars, setUnlockedAvatars] = useState(() => {
+    try {
+      const saved = localStorage.getItem('unlocked_avatars')
+      return saved ? JSON.parse(saved) : ['avatar-adventurer-Felix', 'avatar-adventurer-Aneka', 'avatar-adventurer-Jack']
+    } catch {
+      return ['avatar-adventurer-Felix', 'avatar-adventurer-Aneka', 'avatar-adventurer-Jack']
+    }
+  })
+
+  const handlePurchaseAvatar = async (avatar) => {
+    if (playerCoins < avatar.price) {
+      alert(`Not enough coins! You need ${avatar.price} coins to unlock this avatar (you have ${playerCoins}). Win games to earn more!`)
+      return
+    }
+
+    if (!window.confirm(`Unlock "${avatar.name}" avatar for ${avatar.price} coins?`)) {
+      return
+    }
+
+    const newCoins = playerCoins - avatar.price
+    const newUnlocked = [...unlockedAvatars, avatar.id]
+
+    // Save to local storage
+    localStorage.setItem('unlocked_avatars', JSON.stringify(newUnlocked))
+    setUnlockedAvatars(newUnlocked)
+    setPlayerCoins(newCoins)
+
+    // Deduct coins from server if logged in
+    if (isLoggedIn) {
+      try {
+        const response = await userAPI.updateProfile({ coins: newCoins })
+        if (response.success) {
+          // Update cached user details
+          const cachedUser = authAPI.getCurrentUser()
+          if (cachedUser) {
+            cachedUser.coins = newCoins
+            localStorage.setItem('userData', JSON.stringify(cachedUser))
+          }
+        }
+      } catch (err) {
+        console.error('Failed to sync coin deduction with server:', err)
+      }
+    }
+
+    alert(`Successfully unlocked "${avatar.name}" avatar! You can now select it.`)
+  }
+
   const [leaderboard, setLeaderboard] = useState(() => {
     try {
       const cached = localStorage.getItem('leaderboard_cache')
@@ -1062,20 +1110,70 @@ function Home() {
                 <div className="pm-avatar-tab">
                   <p className="pm-avatar-hint">Choose your avatar</p>
                   <div className="pm-avatar-grid">
-                    {AVATAR_LIST.map(avatar => (
-                      <div 
-                        key={avatar.id}
-                        className={`pm-avatar-option ${profileData.avatar_url === avatar.id ? 'selected' : ''}`}
-                        onClick={() => handleAvatarSelect(avatar.id)}
-                        style={{ '--avatar-color': avatar.color }}
-                      >
-                        <AvatarSVG avatarId={avatar.id} size={70} />
-                        <span className="pm-avatar-name">{avatar.name}</span>
-                        {profileData.avatar_url === avatar.id && (
-                          <div className="pm-avatar-check">✓</div>
-                        )}
-                      </div>
-                    ))}
+                    {AVATAR_LIST.map(avatar => {
+                      const isUnlocked = unlockedAvatars.includes(avatar.id) || avatar.price === 0;
+                      return (
+                        <div 
+                          key={avatar.id}
+                          className={`pm-avatar-option ${profileData.avatar_url === avatar.id ? 'selected' : ''} ${!isUnlocked ? 'locked-avatar' : ''}`}
+                          onClick={() => {
+                            if (isUnlocked) {
+                              handleAvatarSelect(avatar.id);
+                            } else {
+                              handlePurchaseAvatar(avatar);
+                            }
+                          }}
+                          style={{ '--avatar-color': avatar.color, position: 'relative', cursor: 'pointer' }}
+                        >
+                          <div style={!isUnlocked ? { filter: 'blur(1.5px) brightness(0.6)' } : undefined}>
+                            <AvatarSVG avatarId={avatar.id} size={70} />
+                          </div>
+                          <span className="pm-avatar-name" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                            {avatar.name}
+                            {!isUnlocked && (
+                              <span style={{ 
+                                display: 'inline-flex', 
+                                alignItems: 'center', 
+                                gap: '2px', 
+                                fontSize: '10px', 
+                                color: '#ffe600', 
+                                marginTop: '4px',
+                                background: '#000000',
+                                padding: '1px 5px',
+                                borderRadius: '4px',
+                                border: '1px solid #000000',
+                                fontWeight: '800'
+                              }}>
+                                <Coins size={8} /> {avatar.price}
+                              </span>
+                            )}
+                          </span>
+                          {isUnlocked && profileData.avatar_url === avatar.id && (
+                            <div className="pm-avatar-check">✓</div>
+                          )}
+                          {!isUnlocked && (
+                            <div className="pm-avatar-lock" style={{
+                              position: 'absolute',
+                              top: '6px',
+                              right: '6px',
+                              background: '#ff007f',
+                              border: '2px solid #000000',
+                              borderRadius: '50%',
+                              width: '22px',
+                              height: '22px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              color: '#ffffff',
+                              zIndex: 2,
+                              boxShadow: '1.5px 1.5px 0px #000000'
+                            }}>
+                              <Lock size={10} />
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                   
                   <div className="pm-avatar-custom-section">

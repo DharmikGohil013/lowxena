@@ -97,7 +97,8 @@ function Game() {
   const fireworksInstance = useRef(null)
 
   useEffect(() => {
-    const hasWon = showGameWin && showGameWin.winnerName === currentUser?.name
+    const hasWon = showGameWin && showGameWin.winnerName && currentUser?.name && 
+      showGameWin.winnerName.trim().toLowerCase() === currentUser.name.trim().toLowerCase()
 
     if (hasWon && fireworksRef.current) {
       if (!fireworksInstance.current) {
