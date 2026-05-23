@@ -54,6 +54,7 @@ function Home() {
   const [totalPlayers, setTotalPlayers] = useState(0)
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(false)
   const [showLeaderboardModal, setShowLeaderboardModal] = useState(false)
+  const [leaderboardLimit, setLeaderboardLimit] = useState(5)
   const [showRoomWarning, setShowRoomWarning] = useState(false)
   const [currentRoomInfo, setCurrentRoomInfo] = useState(null)
   const [profileTab, setProfileTab] = useState('info') // 'info' | 'stats' | 'avatar'
@@ -140,7 +141,7 @@ function Home() {
     const fetchLeaderboard = async () => {
       setLoadingLeaderboard(true);
       try {
-        const response = await gameAPI.getLeaderboard(10);
+        const response = await gameAPI.getLeaderboard(100);
         if (response.success) {
           setLeaderboard(response.leaderboard || []);
           setTotalPlayers(response.totalPlayers || 0);
@@ -547,7 +548,7 @@ function Home() {
               {leaderboard.length === 0 ? (
                 <div className="leaderboard-empty">No players yet. Be the first!</div>
               ) : (
-                leaderboard.slice(0, 5).map((player, index) => (
+                leaderboard.slice(0, 2).map((player, index) => (
                   <div key={player.user_id || index} className={`leaderboard-item ${player.user_id === userId ? 'current-user' : ''}`}>
                     <div className={`rank rank-${index + 1}`}>
                       {index === 0 ? <Medal size={18} style={{color:'#FFD700'}} /> : index === 1 ? <Medal size={18} style={{color:'#C0C0C0'}} /> : index === 2 ? <Medal size={18} style={{color:'#CD7F32'}} /> : `#${player.rank}`}
@@ -566,8 +567,8 @@ function Home() {
                 ))
               )}
               
-              {/* Show current user position if not in top 5 */}
-              {currentUserRank && currentUserRank.rank > 5 && isLoggedIn && (
+              {/* Show current user position if not in top 2 */}
+              {currentUserRank && currentUserRank.rank > 2 && isLoggedIn && (
                 <>
                   <div className="leaderboard-divider">···</div>
                   <div className="leaderboard-item current-user">
@@ -586,7 +587,7 @@ function Home() {
                 </>
               )}
               
-              <button className="see-more-btn" onClick={() => setShowLeaderboardModal(true)}>
+              <button className="see-more-btn" onClick={() => { setLeaderboardLimit(5); setShowLeaderboardModal(true); }}>
                 View Full Leaderboard ({totalPlayers} players)
               </button>
             </>
@@ -1434,7 +1435,7 @@ function Home() {
             </div>
 
             <div className="lb-modal-list">
-              {leaderboard.map((player, index) => (
+              {leaderboard.slice(0, leaderboardLimit).map((player, index) => (
                 <div key={player.user_id || index} className={`lb-modal-item ${player.user_id === userId ? 'current-user' : ''}`}>
                   <span className="lb-col-rank">
                     {index === 0 ? <Medal size={18} style={{color:'#FFD700'}} /> : index === 1 ? <Medal size={18} style={{color:'#C0C0C0'}} /> : index === 2 ? <Medal size={18} style={{color:'#CD7F32'}} /> : `#${player.rank}`}
@@ -1451,7 +1452,7 @@ function Home() {
                 </div>
               ))}
               
-              {currentUserRank && currentUserRank.rank > leaderboard.length && isLoggedIn && (
+              {currentUserRank && currentUserRank.rank > leaderboardLimit && isLoggedIn && (
                 <>
                   <div className="leaderboard-divider">···</div>
                   <div className="lb-modal-item current-user">
@@ -1467,6 +1468,21 @@ function Home() {
                 </>
               )}
             </div>
+
+            {leaderboard.length > leaderboardLimit && (
+              <button 
+                className="lb-show-more-btn"
+                onClick={() => {
+                  if (leaderboardLimit === 5) {
+                    setLeaderboardLimit(10);
+                  } else {
+                    setLeaderboardLimit(prev => Math.min(100, prev + 10));
+                  }
+                }}
+              >
+                Show More
+              </button>
+            )}
           </div>
         </div>
       )}
