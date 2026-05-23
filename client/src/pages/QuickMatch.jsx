@@ -399,24 +399,21 @@ function QuickMatch() {
     setTimeout(() => {
       const shuffled = createDeck(1)
       setIsShuffling(false)
-      setIsDealing(true)
+      setIsDealing(false)
 
-      setTimeout(() => {
-        const hands = {}
-        allPlayers.forEach((p, i) => {
-          hands[p.id] = shuffled.slice(i * cardsPerHand, (i + 1) * cardsPerHand)
-        })
-        const remaining = shuffled.slice(allPlayers.length * cardsPerHand)
+      const hands = {}
+      allPlayers.forEach((p, i) => {
+        hands[p.id] = shuffled.slice(i * cardsPerHand, (i + 1) * cardsPerHand)
+      })
+      const remaining = shuffled.slice(allPlayers.length * cardsPerHand)
 
-        setDeck(remaining)
-        setPlayerHands(hands)
-        setPlayedCards([])
-        setCurrentTurn(user.id)
-        setMustPickup(false)
-        setHasPlayedCard(false)
-        setIsDealing(false)
-        setCountdown(turnTime)
-      }, 1200)
+      setDeck(remaining)
+      setPlayerHands(hands)
+      setPlayedCards([])
+      setCurrentTurn(user.id)
+      setMustPickup(false)
+      setHasPlayedCard(false)
+      setCountdown(turnTime)
     }, 1500)
   }
 
@@ -443,27 +440,24 @@ function QuickMatch() {
     setTimeout(() => {
       const shuffled = createDeck(newRoundNum)
       setIsShuffling(false)
-      setIsDealing(true)
+      setIsDealing(false)
 
-      setTimeout(() => {
-        const hands = {}
-        remaining.forEach((p, i) => {
-          hands[p.id] = shuffled.slice(i * cardsPerHand, (i + 1) * cardsPerHand)
-        })
-        updatedEliminated.forEach(id => { hands[id] = [] })
-        const remainingDeck = shuffled.slice(remaining.length * cardsPerHand)
+      const hands = {}
+      remaining.forEach((p, i) => {
+        hands[p.id] = shuffled.slice(i * cardsPerHand, (i + 1) * cardsPerHand)
+      })
+      updatedEliminated.forEach(id => { hands[id] = [] })
+      const remainingDeck = shuffled.slice(remaining.length * cardsPerHand)
 
-        setDeck(remainingDeck)
-        setPlayerHands(hands)
-        setPlayedCards([])
-        setCurrentTurn(remaining[0].id)
-        setMustPickup(false)
-        setHasPlayedCard(false)
-        setIsDealing(false)
-        setRoundNumber(newRoundNum)
-        setCountdown(turnTime)
-        setSelectedCard(null)
-      }, 1200)
+      setDeck(remainingDeck)
+      setPlayerHands(hands)
+      setPlayedCards([])
+      setCurrentTurn(remaining[0].id)
+      setMustPickup(false)
+      setHasPlayedCard(false)
+      setRoundNumber(newRoundNum)
+      setCountdown(turnTime)
+      setSelectedCard(null)
     }, 1500)
   }
 
@@ -1140,19 +1134,7 @@ function QuickMatch() {
         </div>
       )}
 
-      {/* Dealing Overlay */}
-      {isDealing && (
-        <div className="overlay-screen">
-          <div className="overlay-content">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="flying-card" style={{ animationDelay: `${i * 0.3}s` }}>
-                <div className="card-back"><div className="card-pattern" /></div>
-              </div>
-            ))}
-            <h2 className="overlay-title">Dealing Cards...</h2>
-          </div>
-        </div>
-      )}
+      {/* Dealing Overlay removed */}
 
       {/* Round Result Overlay */}
       {gamePhase === 'roundResult' && roundResult && (
