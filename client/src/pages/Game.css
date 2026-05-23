@@ -805,28 +805,75 @@
   margin-top: 20px;
 }
 
-.shuffle-cards {
+/* ---------- Brutalist Shuffling Loader ---------- */
+.brutalist-loader-content {
+  box-shadow: 12px 12px 0px #ff007f !important;
+  border-radius: 24px !important;
+}
+
+.brutalist-loader-cards {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin: 10px auto 25px;
+}
+
+.loader-card {
+  width: 54px;
+  height: 76px;
+  border: 3.5px solid #000000;
+  border-radius: 10px;
   position: relative;
-  width: 140px;
-  height: 140px;
-  margin: 0 auto;
+  box-shadow: 4px 4px 0px #000000;
+  animation: brutalistBounce 1.2s infinite ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.shuffle-card {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 52px;
-  height: 72px;
-  margin-left: -26px;
-  margin-top: -36px;
-  animation: shuffleSpin 2s ease-in-out infinite;
+.loader-card-pink {
+  background-color: #ff007f;
+  animation-delay: 0s;
 }
 
-.shuffle-card .card-back {
-  width: 100%;
-  height: 100%;
-  border-color: #000000;
+.loader-card-yellow {
+  background-color: #ffe600;
+  animation-delay: 0.15s;
+}
+
+.loader-card-cyan {
+  background-color: #00e5ff;
+  animation-delay: 0.3s;
+}
+
+.loader-card-pattern {
+  font-family: 'Outfit', sans-serif;
+  font-size: 24px;
+  font-weight: 900;
+  color: #ffffff;
+  text-shadow: 2px 2px 0px #000000;
+  user-select: none;
+}
+
+.loader-card-yellow .loader-card-pattern {
+  color: #000000;
+  text-shadow: none;
+}
+
+@keyframes brutalistBounce {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    box-shadow: 4px 4px 0px #000000;
+  }
+  30% {
+    transform: translateY(-20px) scale(1.05);
+    box-shadow: 4px 24px 0px rgba(0, 0, 0, 0.15);
+  }
+  60% {
+    transform: translateY(0) scale(1);
+    box-shadow: 4px 4px 0px #000000;
+  }
 }
 
 .flying-card {
@@ -844,13 +891,6 @@
   width: 100%;
   height: 100%;
   border-color: #000000;
-}
-
-@keyframes shuffleSpin {
-  0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 1; }
-  25%      { transform: translate(32px, -32px) rotate(180deg) scale(.8); opacity: .8; }
-  50%      { transform: translate(0, 0) rotate(360deg) scale(1); opacity: 1; }
-  75%      { transform: translate(-32px, 32px) rotate(540deg) scale(.8); opacity: .8; }
 }
 
 @keyframes flyCard {
@@ -1622,16 +1662,35 @@
     margin-top: 14px;
   }
 
-  .shuffle-cards {
-    width: 110px;
-    height: 110px;
+  .brutalist-loader-cards {
+    gap: 12px;
+    margin-bottom: 15px;
   }
-
-  .shuffle-card {
-    width: 44px;
+  
+  .loader-card {
+    width: 42px;
     height: 60px;
-    margin-left: -22px;
-    margin-top: -30px;
+    border-width: 2.5px;
+    box-shadow: 3px 3px 0px #000000;
+  }
+  
+  .loader-card-pattern {
+    font-size: 18px;
+  }
+  
+  @keyframes brutalistBounce {
+    0%, 100% {
+      transform: translateY(0) scale(1);
+      box-shadow: 3px 3px 0px #000000;
+    }
+    30% {
+      transform: translateY(-15px) scale(1.05);
+      box-shadow: 3px 18px 0px rgba(0, 0, 0, 0.15);
+    }
+    60% {
+      transform: translateY(0) scale(1);
+      box-shadow: 3px 3px 0px #000000;
+    }
   }
 
   .flying-card {

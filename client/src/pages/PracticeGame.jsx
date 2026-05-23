@@ -1068,13 +1068,17 @@ function PracticeGame() {
       {/* Shuffle Overlay */}
       {isShuffling && (
         <div className="overlay-screen">
-          <div className="overlay-content">
-            <div className="shuffle-cards">
-              {[...Array(6)].map((_, i) => (
-                <div key={i} className="shuffle-card" style={{ animationDelay: `${i * 0.12}s` }}>
-                  <div className="card-back"><div className="card-pattern"></div></div>
-                </div>
-              ))}
+          <div className="overlay-content brutalist-loader-content">
+            <div className="brutalist-loader-cards">
+              <div className="loader-card loader-card-pink">
+                <div className="loader-card-pattern">♠</div>
+              </div>
+              <div className="loader-card loader-card-yellow">
+                <div className="loader-card-pattern">♥</div>
+              </div>
+              <div className="loader-card loader-card-cyan">
+                <div className="loader-card-pattern">♦</div>
+              </div>
             </div>
             <h2 className="overlay-title">Shuffling Deck...</h2>
           </div>
