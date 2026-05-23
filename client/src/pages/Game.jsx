@@ -1069,15 +1069,7 @@ function Game() {
           </div>
         )}
 
-        {isHost() && gameState.gameStarted && !gameState.gameOver && (
-          <button 
-            className="control-btn end-game-btn"
-            onClick={handleEndGame}
-            title="End Game"
-          >
-            <StopCircle size={20} />
-          </button>
-        )}
+
 
         <button 
           className="control-btn"
