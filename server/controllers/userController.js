@@ -99,13 +99,14 @@ export const getProfile = async (req, res) => {
 export const updateProfile = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { name, avatar_url, birthdate, username } = req.body;
+    const { name, avatar_url, birthdate, username, coins } = req.body;
 
     const updateData = {};
     if (name !== undefined) updateData.name = String(name).slice(0, 50);
     if (username !== undefined) updateData.username = String(username).slice(0, 30);
     if (birthdate !== undefined) updateData.birthdate = birthdate || null;
     if (avatar_url !== undefined) updateData.avatar_url = avatar_url;
+    if (coins !== undefined) updateData.coins = Number(coins);
 
     const user = await User.findOneAndUpdate({ id: userId }, updateData, { new: true });
 

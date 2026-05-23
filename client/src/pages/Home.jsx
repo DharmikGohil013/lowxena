@@ -19,25 +19,29 @@ const CARD_BACKS = [
     id: 'default',
     name: 'Default Cyber',
     author: 'LowXena Team',
-    path: '/card_back.png'
+    path: '/card_back.png',
+    price: 0
   },
   {
     id: 'cyber_raven_alpha',
     name: 'Cyber-Raven Alpha',
     author: 'Vapor-Net Syndicate',
-    path: '/card_backs/cyber_raven_alpha.jpg'
+    path: '/card_backs/cyber_raven_alpha.jpg',
+    price: 500
   },
   {
     id: 'synth_raven',
     name: 'Synth-Raven',
     author: 'Vapor-Net Syndicate',
-    path: '/card_backs/synth_raven.jpg'
+    path: '/card_backs/synth_raven.jpg',
+    price: 1000
   },
   {
     id: 'aetheria_systems',
     name: 'Aetheria Systems',
     author: 'Neon Regime Edition',
-    path: '/card_backs/aetheria_systems.jpg'
+    path: '/card_backs/aetheria_systems.jpg',
+    price: 1500
   }
 ];
 
@@ -93,6 +97,52 @@ function Home() {
   const [activeCardBack, setActiveCardBack] = useState(() => {
     return localStorage.getItem('selected_card_back') || '/card_back.png'
   })
+  const [unlockedCardBacks, setUnlockedCardBacks] = useState(() => {
+    try {
+      const saved = localStorage.getItem('unlocked_card_backs')
+      return saved ? JSON.parse(saved) : ['/card_back.png']
+    } catch {
+      return ['/card_back.png']
+    }
+  })
+
+  const handlePurchaseCardBack = async (skin) => {
+    if (playerCoins < skin.price) {
+      alert(`Not enough coins! You need ${skin.price} coins to unlock this skin (you have ${playerCoins}). Win games to earn more!`)
+      return
+    }
+
+    if (!window.confirm(`Unlock "${skin.name}" for ${skin.price} coins?`)) {
+      return
+    }
+
+    const newCoins = playerCoins - skin.price
+    const newUnlocked = [...unlockedCardBacks, skin.path]
+
+    // Save to local storage
+    localStorage.setItem('unlocked_card_backs', JSON.stringify(newUnlocked))
+    setUnlockedCardBacks(newUnlocked)
+    setPlayerCoins(newCoins)
+
+    // Deduct coins from server if logged in
+    if (isLoggedIn) {
+      try {
+        const response = await userAPI.updateProfile({ coins: newCoins })
+        if (response.success) {
+          // Update cached user details
+          const cachedUser = authAPI.getCurrentUser()
+          if (cachedUser) {
+            cachedUser.coins = newCoins
+            localStorage.setItem('userData', JSON.stringify(cachedUser))
+          }
+        }
+      } catch (err) {
+        console.error('Failed to sync coin deduction with server:', err)
+      }
+    }
+
+    alert(`Successfully unlocked "${skin.name}"! You can now select it.`)
+  }
   const [leaderboard, setLeaderboard] = useState(() => {
     try {
       const cached = localStorage.getItem('leaderboard_cache')
@@ -1630,31 +1680,71 @@ function Home() {
               <div className="cc-grid">
                 {CARD_BACKS.map((skin) => {
                   const isActive = activeCardBack === skin.path;
+                  const isUnlocked = unlockedCardBacks.includes(skin.path) || skin.price === 0;
                   return (
                     <div 
                       key={skin.id} 
-                      className={`cc-card-item ${isActive ? 'active-skin' : ''}`}
+                      className={`cc-card-item ${isActive ? 'active-skin' : ''} ${!isUnlocked ? 'locked-skin' : ''}`}
                       id={`skin-item-${skin.id}`}
                     >
-                      <div className="cc-card-preview-wrap">
-                        <img src={skin.path} alt={skin.name} className="cc-card-img" />
+                      <div className="cc-card-preview-wrap" style={{ position: 'relative' }}>
+                        <img 
+                          src={skin.path} 
+                          alt={skin.name} 
+                          className="cc-card-img" 
+                          style={!isUnlocked ? { filter: 'blur(3px) brightness(0.6)' } : undefined}
+                        />
+                        {!isUnlocked && (
+                          <div className="cc-lock-overlay" style={{
+                            position: 'absolute',
+                            inset: 0,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: '#ffffff',
+                            background: 'rgba(0, 0, 0, 0.25)',
+                            borderRadius: '10px'
+                          }}>
+                            <Lock size={24} style={{ filter: 'drop-shadow(2px 2px 0px #000000)' }} />
+                          </div>
+                        )}
                       </div>
                       <div className="cc-card-info">
                         <span className="cc-card-name">{skin.name}</span>
                         <span className="cc-card-designer">{skin.author}</span>
                       </div>
-                      <button 
-                        className={`cc-select-btn ${isActive ? 'active-btn' : ''}`}
-                        onClick={() => {
-                          if (!isActive) {
-                            handleSelectCardBack(skin.path);
-                          }
-                        }}
-                        disabled={isActive}
-                        id={`skin-select-${skin.id}`}
-                      >
-                        {isActive ? 'Active' : 'Select'}
-                      </button>
+                      {isUnlocked ? (
+                        <button 
+                          className={`cc-select-btn ${isActive ? 'active-btn' : ''}`}
+                          onClick={() => {
+                            if (!isActive) {
+                              handleSelectCardBack(skin.path);
+                            }
+                          }}
+                          disabled={isActive}
+                          id={`skin-select-${skin.id}`}
+                        >
+                          {isActive ? 'Active' : 'Select'}
+                        </button>
+                      ) : (
+                        <button 
+                          className="cc-select-btn cc-unlock-btn"
+                          onClick={() => handlePurchaseCardBack(skin)}
+                          style={{
+                            background: '#ffe600',
+                            color: '#000000',
+                            borderColor: '#000000',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '6px'
+                          }}
+                          id={`skin-unlock-${skin.id}`}
+                        >
+                          <Coins size={14} />
+                          <span>Unlock ({skin.price})</span>
+                        </button>
+                      )}
                     </div>
                   );
                 })}
