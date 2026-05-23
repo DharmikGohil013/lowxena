@@ -4,7 +4,7 @@ import { gameAPI } from '../services/api'
 import { getCardImage, getCardBack } from '../utils/cardImages'
 import { 
   Package, Target, Crown, BarChart3, Settings, DoorOpen, Trophy, Skull, Hourglass, StopCircle,
-  BookOpen, X, Flame, Zap, AlertTriangle, Coins
+  BookOpen, X, Flame, Zap, AlertTriangle, Coins, MessageSquare
 } from 'lucide-react'
 import Loader from '../components/Loader'
 import { AvatarSVG, isAvatarSVG } from '../components/Avatars'
@@ -76,6 +76,7 @@ function Game() {
     gameEndSummary: null,   // { roundWinners, overallWinner, finalScores }
     cursedNumber: null,     // dynamic cursed card rank for the round
     lastCursedPlay: null,   // tracks latest cursed card drop event
+    activeReactions: {},    // player emoji reactions { playerId: { emoji, timestamp } }
   })
   const [countdown, setCountdown] = useState(30)
   const [showScoreboard, setShowScoreboard] = useState(false)
@@ -95,6 +96,47 @@ function Game() {
   const [showCursedPop, setShowCursedPop] = useState(false)
   const [lastSeenCursedPlayTimestamp, setLastSeenCursedPlayTimestamp] = useState(null)
   const [cursedPlayToast, setCursedPlayToast] = useState(null)
+
+  // Emoji reaction states & helpers
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false)
+  const REACTION_EMOJIS = ['😂', '😮', '😡', '😭', '😎']
+
+  const getFreshReaction = (playerId) => {
+    const rx = gameState.activeReactions?.[playerId]
+    if (!rx) return null
+    // If reaction was sent within the last 4 seconds, return it
+    if (Math.abs(Date.now() - rx.timestamp) < 4000) {
+      return rx.emoji
+    }
+    return null
+  }
+
+  const handleSendEmoji = async (emoji) => {
+    if (!currentUser) return
+    const myId = currentUser.id
+    
+    const now = Date.now()
+    const updatedReactions = {
+      ...(gameState.activeReactions || {}),
+      [myId]: { emoji, timestamp: now }
+    }
+    
+    setGameState(prev => ({
+      ...prev,
+      activeReactions: updatedReactions
+    }))
+    
+    setShowEmojiPicker(false)
+    
+    try {
+      await gameAPI.updateGameState(roomId, {
+        ...gameState,
+        activeReactions: updatedReactions
+      })
+    } catch (err) {
+      console.error('Error sending emoji reaction:', err)
+    }
+  }
 
   // Trigger Cursed Card round start announcement
   useEffect(() => {
@@ -193,6 +235,7 @@ function Game() {
           gameEndSummary: data.gameState.gameEndSummary || prev.gameEndSummary,
           cursedNumber: data.gameState.cursedNumber || null,
           lastCursedPlay: data.gameState.lastCursedPlay || null,
+          activeReactions: data.gameState.activeReactions || {},
           gameStarted: true,
           isShuffling: data.gameState.isShuffling ?? false,
           isDealing: data.gameState.isDealing ?? false
@@ -1057,28 +1100,36 @@ function Game() {
       {/* Casino Table Area with Players Around It */}
       <div className="casino-area">
         {/* Opponent seats positioned around the table */}
-        {otherPlayers.map((player, index) => (
-          <div 
-            key={player.id} 
-            className={`seat seat-${index} seat-of-${otherPlayers.length} ${gameState.currentTurn === player.id ? 'active-turn' : ''} ${gameState.eliminatedPlayers.includes(player.id) ? 'eliminated' : ''}`}
-            style={getPlayerPosition(index, otherPlayers.length)}
-          >
-            <div className="seat-avatar">
-              {player.avatarUrl ? (
-                renderAvatar(player.avatarUrl, player.name)
-              ) : (
-                <span className="seat-letter">{player.name?.charAt(0).toUpperCase()}</span>
-              )}
-              {player.isHost && <span className="crown-badge"><Crown size={12} /></span>}
-              {gameState.eliminatedPlayers.includes(player.id) && <span className="eliminated-badge">✕</span>}
+        {otherPlayers.map((player, index) => {
+          const freshReaction = getFreshReaction(player.id);
+          return (
+            <div 
+              key={player.id} 
+              className={`seat seat-${index} seat-of-${otherPlayers.length} ${gameState.currentTurn === player.id ? 'active-turn' : ''} ${gameState.eliminatedPlayers.includes(player.id) ? 'eliminated' : ''}`}
+              style={getPlayerPosition(index, otherPlayers.length)}
+            >
+              <div className="seat-avatar" style={{ position: 'relative' }}>
+                {player.avatarUrl ? (
+                  renderAvatar(player.avatarUrl, player.name)
+                ) : (
+                  <span className="seat-letter">{player.name?.charAt(0).toUpperCase()}</span>
+                )}
+                {player.isHost && <span className="crown-badge"><Crown size={12} /></span>}
+                {gameState.eliminatedPlayers.includes(player.id) && <span className="eliminated-badge">✕</span>}
+                {freshReaction && (
+                  <div className="emoji-reaction-bubble">
+                    {freshReaction}
+                  </div>
+                )}
+              </div>
+              <div className="seat-info">
+                <span className="seat-name">{player.name}</span>
+                <span className="seat-score">{gameState.scores?.[player.id] || 0} pts</span>
+                <span className="seat-cards">{gameState.playerHands[player.id]?.length || 0} cards</span>
+              </div>
             </div>
-            <div className="seat-info">
-              <span className="seat-name">{player.name}</span>
-              <span className="seat-score">{gameState.scores?.[player.id] || 0} pts</span>
-              <span className="seat-cards">{gameState.playerHands[player.id]?.length || 0} cards</span>
-            </div>
-          </div>
-        ))}
+          );
+        })}
 
         {/* Central Game Table */}
         <div className="game-table">
@@ -1179,17 +1230,46 @@ function Game() {
       {orderedPlayers[0] && (
         <div className="my-hand-section">
           <div className="my-info-bar">
-            <div className="my-avatar">
+            <div className="my-avatar" style={{ position: 'relative' }}>
               {orderedPlayers[0].avatarUrl ? (
                 renderAvatar(orderedPlayers[0].avatarUrl, orderedPlayers[0].name, 45)
               ) : (
                 <span className="my-avatar-letter">{orderedPlayers[0].name?.charAt(0).toUpperCase()}</span>
               )}
               {orderedPlayers[0].isHost && <span className="crown-badge"><Crown size={14} /></span>}
+              {getFreshReaction(orderedPlayers[0].id) && (
+                <div className="emoji-reaction-bubble">
+                  {getFreshReaction(orderedPlayers[0].id)}
+                </div>
+              )}
             </div>
             <div className="my-details">
               <span className="my-name">{orderedPlayers[0].name}</span>
               <span className="my-stats">{myCards?.length || 0} cards · {calculateHandPoints(myCards)} pts · Score: {gameState.scores?.[orderedPlayers[0]?.id] || 0}</span>
+            </div>
+            
+            {/* Reaction button */}
+            <div className="my-reaction-trigger-container">
+              <button 
+                className="reaction-trigger-btn"
+                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                title="Send Emoji Reaction"
+              >
+                <MessageSquare size={16} />
+              </button>
+              {showEmojiPicker && (
+                <div className="quick-emoji-picker">
+                  {REACTION_EMOJIS.map(emoji => (
+                    <button 
+                      key={emoji} 
+                      className="quick-emoji-btn" 
+                      onClick={() => handleSendEmoji(emoji)}
+                    >
+                      {emoji}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
           <div className="my-cards-fan">
