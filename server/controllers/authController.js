@@ -36,7 +36,10 @@ export const googleLogin = async (req, res) => {
     } else {
       user.last_login = new Date();
       user.name = name;
-      user.avatar_url = picture;
+      // Preserve custom avatar if it is already set (custom avatars start with 'avatar-')
+      if (!user.avatar_url || !user.avatar_url.startsWith('avatar-')) {
+        user.avatar_url = picture;
+      }
       await user.save();
     }
 
