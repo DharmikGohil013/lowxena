@@ -488,7 +488,10 @@
 .card-back {
   width: 60px;
   height: 84px;
-  background: #ff007f; /* Hot Pink signature */
+  background-image: url('/card_back.png');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center;
   border-radius: 8px;
   border: 3px solid #000000;
   box-shadow: 2px 2px 0px #000000;
@@ -537,17 +540,7 @@
 }
 
 .card-back .card-svg-img {
-  width: 60%;
-  height: 60%;
-  object-fit: contain;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  border-radius: 0;
-  border: none;
-  box-shadow: none;
-  background: transparent;
+  display: none; /* Hide the old logo overlay since the card back image is fully integrated! */
 }
 
 .empty-deck {
