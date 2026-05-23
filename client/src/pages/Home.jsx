@@ -238,8 +238,11 @@ function Home() {
         roomCode: config.roomCode
       })
       
-      // Navigate to room lobby
-      navigate(`/room/${response.roomId}`)
+      // Navigate to room lobby using a friendly slug
+      const roomSlug = response.roomName 
+        ? response.roomName.toLowerCase().replace(/\s+/g, '-') 
+        : response.roomId;
+      navigate(`/room/${roomSlug}`)
     } catch (err) {
       console.error('Error creating room:', err)
       alert('Failed to create room. Please try again.')
@@ -354,7 +357,10 @@ function Home() {
   const handleGoToRoom = () => {
     if (currentRoomInfo && currentRoomInfo.roomId) {
       setShowRoomWarning(false);
-      navigate(`/room/${currentRoomInfo.roomId}`);
+      const roomSlug = currentRoomInfo.roomName 
+        ? currentRoomInfo.roomName.toLowerCase().replace(/\s+/g, '-') 
+        : currentRoomInfo.roomId;
+      navigate(`/room/${roomSlug}`);
     }
   };
 

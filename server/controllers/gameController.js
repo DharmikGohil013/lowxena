@@ -1,5 +1,5 @@
 import { User, UserStat, GameHistory, Room } from '../models/index.js';
-
+import { findRoomByIdOrSlug } from './roomController.js';
 export const getLeaderboard = async (req, res) => {
   try {
     const { limit = 20, offset = 0 } = req.query;
@@ -197,7 +197,10 @@ export const updateGameState = async (req, res) => {
     const { roomId } = req.params;
     const gameState = req.body;
 
-    await Room.findByIdAndUpdate(roomId, {
+    const room = await findRoomByIdOrSlug(roomId);
+    if (!room) throw new Error('Room not found');
+
+    await Room.findByIdAndUpdate(room._id, {
       game_state: gameState,
     });
 
@@ -220,7 +223,7 @@ export const getGameState = async (req, res) => {
   try {
     const { roomId } = req.params;
 
-    const room = await Room.findById(roomId).select('game_state');
+    const room = await findRoomByIdOrSlug(roomId);
 
     if (!room) throw new Error('Room not found');
 

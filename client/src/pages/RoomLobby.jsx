@@ -42,14 +42,24 @@ function RoomLobby() {
     try {
       const response = await gameAPI.getRoomDetails(roomId);
       
+      // Convert roomName to a friendly URL slug
+      const expectedSlug = response.roomName 
+        ? response.roomName.toLowerCase().replace(/\s+/g, '-') 
+        : response.id;
+      
       // Check if game has started and navigate all players to game page
       if (response.status === 'playing') {
-        navigate(`/game?roomId=${roomId}`);
+        navigate(`/game?roomId=${expectedSlug}`);
         return;
       }
       
       setRoomDetails(response);
       setLoading(false);
+
+      // Gracefully rewrite browser URL to the slug URL if it doesn't match
+      if (roomId !== expectedSlug) {
+        navigate(`/room/${expectedSlug}`, { replace: true });
+      }
     } catch (err) {
       console.error('Error fetching room details:', err);
       setError('Failed to load room details');

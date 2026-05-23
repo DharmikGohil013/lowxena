@@ -1,5 +1,39 @@
+import mongoose from 'mongoose';
 import { Room, User } from '../models/index.js';
 import * as roomNames from '../utils/roomNames.js';
+
+export const findRoomByIdOrSlug = async (roomIdOrSlug) => {
+  if (!roomIdOrSlug) return null;
+  
+  // 1. Try finding by database ObjectId
+  if (mongoose.Types.ObjectId.isValid(roomIdOrSlug)) {
+    const room = await Room.findById(roomIdOrSlug);
+    if (room) return room;
+  }
+  
+  // 2. Try finding by slugified room_name
+  // Convert "swift-dragon-arena-2" -> "Swift Dragon Arena 2"
+  const expectedRoomName = roomIdOrSlug
+    .split('-')
+    .map(word => {
+      if (!word) return '';
+      if (/^\d+$/.test(word)) return word;
+      return word.charAt(0).toUpperCase() + word.slice(1);
+    })
+    .join(' ');
+    
+  let room = await Room.findOne({ room_name: expectedRoomName });
+  if (room) return room;
+  
+  // 3. Fallback: Search all rooms and slugify their names to find a case-insensitive match
+  const allRooms = await Room.find();
+  const matchedRoom = allRooms.find(r => {
+    const slug = r.room_name.toLowerCase().replace(/\s+/g, '-');
+    return slug === roomIdOrSlug.toLowerCase();
+  });
+  
+  return matchedRoom || null;
+};
 
 export const createRoom = async (req, res) => {
   try {
@@ -90,7 +124,7 @@ export const getRoomDetails = async (req, res) => {
   try {
     const { roomId } = req.params;
 
-    const room = await Room.findById(roomId);
+    const room = await findRoomByIdOrSlug(roomId);
     if (!room) {
       return res.status(404).json({ error: 'Room not found' });
     }
@@ -134,7 +168,7 @@ export const joinRoom = async (req, res) => {
     const { code } = req.body;
     const userId = req.user.id;
 
-    const room = await Room.findById(roomId);
+    const room = await findRoomByIdOrSlug(roomId);
     if (!room) {
       return res.status(404).json({ error: 'Room not found' });
     }
@@ -180,7 +214,7 @@ export const leaveRoom = async (req, res) => {
     const { roomId } = req.params;
     const userId = req.user.id;
 
-    const room = await Room.findById(roomId);
+    const room = await findRoomByIdOrSlug(roomId);
     if (!room) {
       return res.status(404).json({ error: 'Room not found' });
     }
@@ -194,7 +228,7 @@ export const leaveRoom = async (req, res) => {
     room.members.splice(memberIndex, 1);
 
     if (room.members.length === 0) {
-      await Room.findByIdAndDelete(roomId);
+      await Room.findByIdAndDelete(room._id);
     } else {
       if (wasHost) {
         room.members[0].is_host = true;
@@ -215,7 +249,7 @@ export const startGame = async (req, res) => {
     const { roomId } = req.params;
     const userId = req.user.id;
 
-    const room = await Room.findById(roomId);
+    const room = await findRoomByIdOrSlug(roomId);
     if (!room) {
       return res.status(404).json({ error: 'Room not found' });
     }
@@ -248,7 +282,7 @@ export const kickPlayer = async (req, res) => {
     const { playerId } = req.body;
     const userId = req.user.id;
 
-    const room = await Room.findById(roomId);
+    const room = await findRoomByIdOrSlug(roomId);
     if (!room) {
       return res.status(404).json({ error: 'Room not found' });
     }
@@ -301,7 +335,7 @@ export const toggleReady = async (req, res) => {
     const { roomId } = req.params;
     const userId = req.user.id;
 
-    const room = await Room.findById(roomId);
+    const room = await findRoomByIdOrSlug(roomId);
     if (!room) {
       return res.status(404).json({ error: 'Not in this room' });
     }
@@ -329,7 +363,7 @@ export const endGame = async (req, res) => {
     const { roomId } = req.params;
     const userId = req.user.id;
 
-    const room = await Room.findById(roomId);
+    const room = await findRoomByIdOrSlug(roomId);
     if (!room) {
       return res.status(404).json({ error: 'Room not found' });
     }

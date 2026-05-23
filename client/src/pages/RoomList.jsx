@@ -92,7 +92,7 @@ function RoomList() {
     );
 
     if (joinableRoom) {
-      joinRoom(joinableRoom.id);
+      joinRoom(joinableRoom.id, joinableRoom.roomName);
     } else {
       alert("No open public rooms waiting for players were found. Take the lead and host one!");
     }
@@ -103,16 +103,17 @@ function RoomList() {
       setSelectedRoom(room)
       setShowJoinModal(true)
     } else {
-      joinRoom(room.id)
+      joinRoom(room.id, room.roomName)
     }
   }
 
-  const joinRoom = async (roomId, code = null) => {
+  const joinRoom = async (roomId, roomName, code = null) => {
     setLoading(true)
     setJoiningRoomId(roomId) // Set the room being joined
     try {
       await gameAPI.joinRoom(roomId, code)
-      navigate(`/room/${roomId}`)
+      const roomSlug = roomName ? roomName.toLowerCase().replace(/\s+/g, '-') : roomId;
+      navigate(`/room/${roomSlug}`)
     } catch (error) {
       console.error('Error joining room:', error)
       alert(error.error || 'Failed to join room')
@@ -129,7 +130,7 @@ function RoomList() {
       alert('Please enter a valid 6-digit room code')
       return
     }
-    joinRoom(selectedRoom.id, roomCode)
+    joinRoom(selectedRoom.id, selectedRoom.roomName, roomCode)
   }
 
   return (
