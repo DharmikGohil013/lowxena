@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { getCardImage, getCardBack } from '../utils/cardImages'
 import { 
   Gamepad2, Target, Package, Zap, Lightbulb, Layers, BarChart3, Skull, 
@@ -766,9 +766,9 @@ function PracticeGame() {
         </div>
         
         <div className="practice-setup">
-          <button className="practice-back-btn" onClick={() => navigate('/')}>
+          <Link className="practice-back-btn" to="/">
             ← Back
-          </button>
+          </Link>
           
           <div className="practice-setup-card">
             <div className="setup-icon"><Gamepad2 size={48} /></div>

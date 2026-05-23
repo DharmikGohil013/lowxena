@@ -16,51 +16,82 @@
   position: absolute;
   top: 24px;
   left: 24px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: white;
+  background: #ffffff;
+  border: 2.5px solid #000000;
+  color: #000000;
   padding: 10px 20px;
   border-radius: 12px;
   cursor: pointer;
   font-size: 14px;
-  font-weight: 600;
-  transition: all 0.3s ease;
+  font-weight: 800;
+  transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 3.5px 3.5px 0px #000000;
   z-index: 20;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-family: 'Outfit', sans-serif;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 .practice-back-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: #ffe600; /* Yellow */
+  transform: translate(-2px, -2px);
+  box-shadow: 5.5px 5.5px 0px #000000;
+}
+.practice-back-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1.5px 1.5px 0px #000000;
 }
 
 .practice-setup-card {
-  background: linear-gradient(135deg, rgba(10, 10, 25, 0.95) 0%, rgba(20, 15, 40, 0.95) 100%);
-  backdrop-filter: blur(20px);
-  border: 2px solid rgba(139, 92, 246, 0.3);
-  border-radius: 28px;
+  background: #ffffff;
+  border: 4px solid #000000;
+  border-radius: 24px;
   padding: 40px;
   max-width: 560px;
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
   text-align: center;
-  box-shadow: 0 25px 60px rgba(139, 92, 246, 0.2);
+  box-shadow: 8px 8px 0px #ff007f; /* Hot Pink solid flat pop-art shadow */
+  box-sizing: border-box;
+  position: relative;
 }
 
 .setup-icon {
   font-size: 52px;
   margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #000000;
+}
+.setup-icon svg {
+  color: #ff007f !important;
+  filter: drop-shadow(2px 2px 0px #000000);
 }
 
 .practice-setup-card h1 {
-  color: white;
-  font-size: 32px;
-  margin: 0 0 8px 0;
-  font-weight: 800;
+  color: #ffe600; /* Yellow */
+  font-size: 42px;
+  margin: 0 0 4px 0;
+  font-weight: 900;
+  -webkit-text-stroke: 1.2px #000000;
+  text-shadow: 2.5px 2.5px 0px #ff007f;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-family: 'Outfit', sans-serif;
 }
 
 .setup-subtitle {
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 15px;
+  color: #000000;
+  font-size: 13px;
+  font-weight: 800;
   margin: 0 0 28px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .setup-section {
@@ -70,12 +101,14 @@
 
 .setup-section > label {
   display: block;
-  color: #a78bfa;
+  color: #000000;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 1px;
   margin-bottom: 12px;
+  border-bottom: 2px solid #000000;
+  padding-bottom: 4px;
 }
 
 /* Difficulty Options */
@@ -89,42 +122,49 @@
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 14px 18px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 2px solid rgba(255, 255, 255, 0.06);
-  border-radius: 14px;
+  padding: 12px 18px;
+  background: #ffffff;
+  border: 2.5px solid #000000;
+  border-radius: 12px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   text-align: left;
-  color: white;
+  color: #000000;
+  box-shadow: 3px 3px 0px #000000;
 }
 
 .setup-option:hover {
-  background: rgba(139, 92, 246, 0.08);
-  border-color: rgba(139, 92, 246, 0.2);
+  background: #fdfdfd;
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0px #ff007f; /* glow with pink */
 }
 
 .setup-option.active {
-  background: rgba(139, 92, 246, 0.12);
-  border-color: #8b5cf6;
-  box-shadow: 0 0 15px rgba(139, 92, 246, 0.15);
+  background: #00e5ff; /* Cyan active */
+  border-color: #000000;
+  color: #000000;
+  box-shadow: 4px 4px 0px #000000;
 }
 
 .opt-emoji {
   font-size: 24px;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
 }
 
 .opt-label {
-  font-size: 15px;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 900;
   display: block;
   min-width: 65px;
+  text-transform: uppercase;
 }
 
 .opt-desc {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(0, 0, 0, 0.65);
+  font-weight: 700;
   flex: 1;
 }
 
@@ -138,23 +178,33 @@
 .bot-count-btn {
   flex: 1;
   padding: 12px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 2px solid rgba(255, 255, 255, 0.08);
+  background: #ffffff;
+  border: 2.5px solid #000000;
   border-radius: 12px;
-  color: white;
-  font-size: 15px;
-  font-weight: 600;
+  color: #000000;
+  font-size: 14px;
+  font-weight: 800;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.15s ease;
+  box-shadow: 3px 3px 0px #000000;
+  text-transform: uppercase;
 }
 
 .bot-count-btn:hover {
-  border-color: rgba(139, 92, 246, 0.3);
+  background: #ffe600;
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0px #000000;
 }
 
 .bot-count-btn.active {
-  background: rgba(139, 92, 246, 0.15);
-  border-color: #8b5cf6;
+  background: #ff007f; /* Pink active count */
+  color: white;
+  box-shadow: 3px 3px 0px #000000;
+}
+
+.bot-count-btn.active:hover {
+  background: #ff007f;
+  color: white;
 }
 
 /* Bot Preview */
@@ -170,11 +220,13 @@
   align-items: center;
   gap: 4px;
   padding: 14px 18px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 2px solid rgba(255, 255, 255, 0.08);
-  border-radius: 14px;
+  background: #ffffff;
+  border: 2.5px solid #000000;
+  border-radius: 12px;
   flex: 1;
   max-width: 140px;
+  box-shadow: 3px 3px 0px #000000;
+  box-sizing: border-box;
 }
 
 .bot-emoji {
@@ -182,14 +234,15 @@
 }
 
 .bot-name {
-  color: white;
+  color: #000000;
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 900;
+  text-transform: uppercase;
 }
 
 .bot-style {
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 10px;
+  font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -197,17 +250,24 @@
 /* Rules Summary */
 .setup-rules-summary {
   text-align: left;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: #fdfdfd;
+  border: 2.5px solid #000000;
   border-radius: 14px;
   padding: 18px 20px;
   margin-bottom: 24px;
+  box-shadow: 3px 3px 0px #000000;
 }
 
 .setup-rules-summary h3 {
-  color: white;
-  font-size: 15px;
+  color: #000000;
+  font-size: 14px;
+  font-weight: 900;
   margin: 0 0 10px 0;
+  text-transform: uppercase;
+  border-bottom: 2.5px dashed #000000;
+  padding-bottom: 6px;
+  display: flex;
+  align-items: center;
 }
 
 .setup-rules-summary ul {
@@ -217,10 +277,11 @@
 }
 
 .setup-rules-summary li {
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 13px;
-  padding: 5px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  color: #333333;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .setup-rules-summary li:last-child {
@@ -228,26 +289,37 @@
 }
 
 .setup-rules-summary li strong {
-  color: #a78bfa;
+  color: #ff007f;
 }
 
 /* Start Button */
 .practice-start-btn {
   padding: 16px 40px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border: none;
-  border-radius: 14px;
+  background: #ff007f; /* Hot Pink start button */
+  border: 3px solid #000000;
+  border-radius: 12px;
   color: white;
   font-size: 18px;
-  font-weight: 700;
+  font-weight: 900;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   width: 100%;
+  box-shadow: 4px 4px 0px #000000;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-family: 'Outfit', sans-serif;
 }
 
 .practice-start-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4);
+  background: #ffe600; /* yellow on hover */
+  color: #000000;
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px #000000;
+}
+
+.practice-start-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px #000000;
 }
 
 /* ===== IN-GAME PRACTICE ELEMENTS ===== */
