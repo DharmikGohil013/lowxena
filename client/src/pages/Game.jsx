@@ -689,7 +689,7 @@ function Game() {
     // Show shuffle animation
     setGameState(prev => ({ ...prev, isShuffling: true }))
 
-    setTimeout(() => {
+    setTimeout(async () => {
       // Deal 7 cards to each remaining player
       const cardsPerPlayer = 7
       const newPlayerHands = {}
