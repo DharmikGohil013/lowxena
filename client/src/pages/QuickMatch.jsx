@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { getCardImage, getCardBack } from '../utils/cardImages'
 import {
   Zap, Target, Package, BarChart3, Skull, SkipForward, Trophy, User,
@@ -784,9 +784,9 @@ function QuickMatch() {
         </div>
 
         <div className="qm-setup">
-          <button className="qm-back-btn" onClick={() => navigate('/')}>
+          <Link className="qm-back-btn" to="/">
             <ArrowLeft size={16} /> Back
-          </button>
+          </Link>
 
           <div className="qm-setup-card">
             <div className="qm-setup-header">
