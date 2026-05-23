@@ -1,8 +1,5 @@
-/**
- * LowXena — Dynamic SEO Manager
- * Updates meta tags, OG tags, Twitter cards, canonical URL, and robots per route.
- * Works with React Router to ensure each page has unique, optimized SEO.
- */
+import React from 'react';
+import { Helmet } from 'react-helmet-async';
 
 const BASE_URL = 'https://lowxena.com';
 const OG_IMAGE = `${BASE_URL}/og-image.png`;
@@ -84,7 +81,6 @@ const SEO_CONFIG = {
   },
 };
 
-// Match dynamic routes like /room/abc123 to their base config
 function getConfigForPath(path) {
   if (SEO_CONFIG[path]) return SEO_CONFIG[path];
   if (path.startsWith('/room/')) return SEO_CONFIG['/room'];
@@ -92,54 +88,50 @@ function getConfigForPath(path) {
   return SEO_CONFIG['/'];
 }
 
-// Helper: set or create a meta tag
-function setMeta(attr, attrValue, content) {
-  let el = document.querySelector(`meta[${attr}="${attrValue}"]`);
-  if (!el) {
-    el = document.createElement('meta');
-    el.setAttribute(attr, attrValue);
-    document.head.appendChild(el);
+export function SEO({ path, roomName }) {
+  const baseConfig = getConfigForPath(path);
+  const config = { ...baseConfig };
+
+  // Expert-Level Dynamic Overrides
+  if (path.startsWith('/room/') && roomName) {
+    const formattedRoom = roomName.trim();
+    config.title = `LowXena — Waiting in Room ${formattedRoom} Lobby`;
+    config.description = `Join room "${formattedRoom}" and play LowXena, the ultimate free online multiplayer card game. Join the cosmic table and start playing!`;
+    config.canonical = `${BASE_URL}${path}`;
+  } else if (path.startsWith('/game') && roomName) {
+    const formattedRoom = roomName.trim();
+    config.title = `LowXena — Live Playing in Room ${formattedRoom}`;
+    config.description = `Active least-count card gameplay session in room "${formattedRoom}" on LowXena. Beat your opponents with the lowest hand score!`;
+    config.canonical = `${BASE_URL}${path}`;
   }
-  el.setAttribute('content', content);
-}
 
-// Helper: set or create a link tag
-function setLink(rel, href) {
-  let el = document.querySelector(`link[rel="${rel}"]`);
-  if (!el) {
-    el = document.createElement('link');
-    el.setAttribute('rel', rel);
-    document.head.appendChild(el);
-  }
-  el.setAttribute('href', href);
-}
+  return (
+    <Helmet>
+      {/* Title */}
+      <title>{config.title}</title>
 
-export function updateSEO(path) {
-  const config = getConfigForPath(path);
+      {/* Standard Meta Tags */}
+      <meta name="description" content={config.description} />
+      <meta name="keywords" content={config.keywords} />
+      <meta name="robots" content={config.robots} />
 
-  // Title
-  document.title = config.title;
+      {/* Canonical Link */}
+      <link rel="canonical" href={config.canonical} />
 
-  // Standard meta tags
-  setMeta('name', 'description', config.description);
-  setMeta('name', 'keywords', config.keywords);
-  setMeta('name', 'robots', config.robots);
+      {/* Open Graph Tags */}
+      <meta property="og:title" content={config.ogTitle || config.title} />
+      <meta property="og:description" content={config.ogDescription || config.description} />
+      <meta property="og:url" content={config.canonical} />
+      <meta property="og:image" content={OG_IMAGE} />
+      <meta property="og:site_name" content={SITE_NAME} />
+      <meta property="og:type" content="website" />
 
-  // Canonical URL
-  setLink('canonical', config.canonical);
-
-  // Open Graph tags
-  setMeta('property', 'og:title', config.ogTitle);
-  setMeta('property', 'og:description', config.ogDescription);
-  setMeta('property', 'og:url', config.canonical);
-  setMeta('property', 'og:image', OG_IMAGE);
-  setMeta('property', 'og:site_name', SITE_NAME);
-  setMeta('property', 'og:type', 'website');
-
-  // Twitter Card tags
-  setMeta('name', 'twitter:title', config.ogTitle);
-  setMeta('name', 'twitter:description', config.ogDescription);
-  setMeta('name', 'twitter:image', OG_IMAGE);
-  setMeta('name', 'twitter:card', 'summary_large_image');
-  setMeta('name', 'twitter:creator', TWITTER_CREATOR);
+      {/* Twitter Cards */}
+      <meta name="twitter:title" content={config.ogTitle || config.title} />
+      <meta name="twitter:description" content={config.ogDescription || config.description} />
+      <meta name="twitter:image" content={OG_IMAGE} />
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:creator" content={TWITTER_CREATOR} />
+    </Helmet>
+  );
 }

@@ -1,8 +1,9 @@
 import { useState, useEffect, lazy, Suspense } from 'react'
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
+import { HelmetProvider } from 'react-helmet-async'
 import Loader from './components/Loader'
 import { NetworkStatusProvider } from './components/NetworkStatus'
-import { updateSEO } from './utils/seo'
+import { SEO } from './utils/seo'
 import './App.css'
 
 const Home = lazy(() => import('./pages/Home'))
@@ -16,10 +17,7 @@ const About = lazy(() => import('./pages/About'))
 
 function SEOUpdater() {
   const location = useLocation()
-  useEffect(() => {
-    updateSEO(location.pathname)
-  }, [location.pathname])
-  return null
+  return <SEO path={location.pathname} />
 }
 
 function App() {
@@ -42,21 +40,23 @@ function App() {
 
   return (
     <NetworkStatusProvider>
-      <Router>
-        <SEOUpdater />
-        <Suspense fallback={<Loader message="Loading..." />}>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/game" element={<Game />} />
-            <Route path="/practice" element={<PracticeGame />} />
-            <Route path="/quickmatch" element={<QuickMatch />} />
-            <Route path="/rules" element={<Rules />} />
-            <Route path="/rooms" element={<RoomList />} />
-            <Route path="/room/:roomId" element={<RoomLobby />} />
-            <Route path="/about" element={<About />} />
-          </Routes>
-        </Suspense>
-      </Router>
+      <HelmetProvider>
+        <Router>
+          <SEOUpdater />
+          <Suspense fallback={<Loader message="Loading..." />}>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/game" element={<Game />} />
+              <Route path="/practice" element={<PracticeGame />} />
+              <Route path="/quickmatch" element={<QuickMatch />} />
+              <Route path="/rules" element={<Rules />} />
+              <Route path="/rooms" element={<RoomList />} />
+              <Route path="/room/:roomId" element={<RoomLobby />} />
+              <Route path="/about" element={<About />} />
+            </Routes>
+          </Suspense>
+        </Router>
+      </HelmetProvider>
     </NetworkStatusProvider>
   )
 }

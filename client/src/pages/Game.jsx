@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { gameAPI } from '../services/api'
 import { getCardImage, getCardBack } from '../utils/cardImages'
+import { SEO } from '../utils/seo'
 import { 
   Package, Target, Crown, BarChart3, Settings, DoorOpen, Trophy, Skull, Hourglass, StopCircle,
   BookOpen, X, Flame, Zap, AlertTriangle, Coins, MessageSquare
@@ -1135,6 +1136,7 @@ function Game() {
 
   return (
     <div className="game-container">
+      <SEO path={window.location.pathname} roomName={roomDetails?.roomName} />
       {/* Background */}
       <div className="game-background">
         <div className="stars"></div>

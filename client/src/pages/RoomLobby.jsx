@@ -4,6 +4,7 @@ import { gameAPI, authAPI } from '../services/api';
 import Loader from '../components/Loader';
 import { AvatarSVG, isAvatarSVG } from '../components/Avatars';
 import { ArrowLeft, Copy, Play, Check, X, Crown, Award, Users, Lock, Globe, AlertTriangle } from 'lucide-react';
+import { SEO } from '../utils/seo';
 import './RoomLobby.css';
 
 function RoomLobby() {
@@ -236,6 +237,7 @@ function RoomLobby() {
 
   return (
     <div className="room-lobby-container">
+      <SEO path={window.location.pathname} roomName={roomDetails?.roomName} />
       <video
         className="video-background"
         autoPlay
