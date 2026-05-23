@@ -89,6 +89,10 @@ function Home() {
     roomCode: ''
   })
   const [creatingRoom, setCreatingRoom] = useState(false)
+  const [showCardCustomizerModal, setShowCardCustomizerModal] = useState(false)
+  const [activeCardBack, setActiveCardBack] = useState(() => {
+    return localStorage.getItem('selected_card_back') || '/card_back.png'
+  })
   const [leaderboard, setLeaderboard] = useState(() => {
     try {
       const cached = localStorage.getItem('leaderboard_cache')
@@ -283,6 +287,12 @@ function Home() {
     };
     fetchProfileAndStats();
   }, [isLoggedIn]);
+
+  const handleSelectCardBack = (path) => {
+    localStorage.setItem('selected_card_back', path)
+    setActiveCardBack(path)
+    document.documentElement.style.setProperty('--card-back-image', `url('${path}')`)
+  }
 
   const handlePlay = () => {
     if (!isLoggedIn) {
@@ -1588,6 +1598,68 @@ function Home() {
                 Show More
               </button>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Floating Card Customizer Button */}
+      <div className="custom-card-button-container">
+        <button 
+          className="home-customize-card-btn" 
+          onClick={() => setShowCardCustomizerModal(true)}
+          title="Customize Card Skins"
+          id="custom-card-skins-btn"
+        >
+          <ImageIcon size={16} />
+          <span>Card Skins</span>
+        </button>
+      </div>
+
+      {/* Card Customizer Modal */}
+      {showCardCustomizerModal && (
+        <div className="modal-overlay" onClick={() => setShowCardCustomizerModal(false)} id="card-customizer-overlay">
+          <div className="card-customizer-modal" onClick={(e) => e.stopPropagation()} id="card-customizer-modal-content">
+            <div className="cc-header">
+              <div className="modal-close" onClick={() => setShowCardCustomizerModal(false)} id="card-customizer-close-btn">
+                <X size={24} />
+              </div>
+              <h2>Card Skins</h2>
+              <p>Customize your card back in-game</p>
+            </div>
+            <div className="cc-body">
+              <div className="cc-grid">
+                {CARD_BACKS.map((skin) => {
+                  const isActive = activeCardBack === skin.path;
+                  return (
+                    <div 
+                      key={skin.id} 
+                      className={`cc-card-item ${isActive ? 'active-skin' : ''}`}
+                      id={`skin-item-${skin.id}`}
+                    >
+                      <div className="cc-card-preview-wrap">
+                        <img src={skin.path} alt={skin.name} className="cc-card-img" />
+                      </div>
+                      <div className="cc-card-info">
+                        <span className="cc-card-name">{skin.name}</span>
+                        <span className="cc-card-designer">{skin.author}</span>
+                      </div>
+                      <button 
+                        className={`cc-select-btn ${isActive ? 'active-btn' : ''}`}
+                        onClick={() => {
+                          if (!isActive) {
+                            handleSelectCardBack(skin.path);
+                          }
+                        }}
+                        disabled={isActive}
+                        id={`skin-select-${skin.id}`}
+                      >
+                        {isActive ? 'Active' : 'Select'}
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         </div>
       )}
