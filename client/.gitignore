@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Pre-optimization originals (kept locally for rollback only)
+public/.original-assets/
+
 # Environment variables
 .env
 .env.local

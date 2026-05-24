@@ -235,7 +235,7 @@
 }
 
 .wins-count {
-  color: #ff007f;
+  color: #c70066; /* darker pink — meets WCAG AA contrast on white */
   font-size: 12px;
   font-weight: 900;
 }
@@ -894,7 +894,7 @@
   align-items: center;
   gap: 8px;
   padding: 10px 24px;
-  background: #ff007f; /* Hot Pink */
+  background: #c70066; /* darker pink — meets WCAG AA contrast for white text */
   border: 2px solid #000000;
   border-radius: 8px;
   color: #ffffff;
@@ -2986,7 +2986,7 @@
 }
 
 .home-footer a {
-  color: #ff007f; /* Hot pink creator link */
+  color: #c70066; /* darker pink — meets WCAG AA contrast on white */
   text-decoration: none;
   font-weight: 900;
   margin-left: 2px;

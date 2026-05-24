@@ -33,6 +33,10 @@ body {
   height: 100%;
 }
 
+main#main-content {
+  display: contents; /* preserve previous layout — main is purely a landmark */
+}
+
 /* ===== Global Custom Scrollbar ===== */
 ::-webkit-scrollbar {
   width: 6px;

@@ -59,6 +59,19 @@ function Home() {
   const [playerCoins, setPlayerCoins] = useState(0)
   const [loading, setLoading] = useState(false)
   const [showProfileModal, setShowProfileModal] = useState(false)
+  // Defer the decorative background video so it never competes with LCP.
+  const [showVideoBg, setShowVideoBg] = useState(false)
+  // Delay mounting GoogleOAuthProvider — it pulls in the 98 KiB GIS client.
+  const [enableOAuth, setEnableOAuth] = useState(false)
+  useEffect(() => {
+    const idle = window.requestIdleCallback
+      ? window.requestIdleCallback(() => { setShowVideoBg(true); setEnableOAuth(true) }, { timeout: 4000 })
+      : setTimeout(() => { setShowVideoBg(true); setEnableOAuth(true) }, 2500)
+    return () => {
+      if (window.cancelIdleCallback && typeof idle === 'number') window.cancelIdleCallback(idle)
+      else clearTimeout(idle)
+    }
+  }, [])
   const [showScorePopup, setShowScorePopup] = useState(false)
   const [profileData, setProfileData] = useState({
     name: '',
@@ -468,6 +481,7 @@ function Home() {
   }
 
   const handleLoginClick = () => {
+    setEnableOAuth(true)
     setShowLoginModal(true)
   }
 
@@ -712,23 +726,29 @@ function Home() {
     );
   }
 
-  return (
-    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+  // The GIS client (~98 KiB) is loaded as soon as GoogleOAuthProvider mounts.
+  // Delay mounting it so it doesn't block the initial paint; always mount it
+  // once the login modal is open so GoogleLogin has its required context.
+  const oauthReady = enableOAuth || showLoginModal
+
+  const pageBody = (
     <div className="home-container">
-      {/* Video Background */}
-      <video
-        className="video-background"
-        autoPlay
-        loop
-        muted
-        playsInline
-        preload="metadata"
-        poster="/background.jpg"
-        aria-hidden="true"
-        tabIndex={-1}
-      >
-        <source src="/background.mp4" type="video/mp4" />
-      </video>
+      {/* Video Background — defer until after first paint to protect LCP. */}
+      {showVideoBg && (
+        <video
+          className="video-background"
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="auto"
+          poster="/background.jpg"
+          aria-hidden="true"
+          tabIndex={-1}
+        >
+          <source src="/background.mp4" type="video/mp4" />
+        </video>
+      )}
       
       {/* Animated background */}
       <div className="animated-bg">
@@ -1949,7 +1969,12 @@ function Home() {
         <span>made by <a href="https://dharmikgohil.art/" target="_blank" rel="noopener noreferrer">dharmikgohil.art</a></span>
       </div>
     </div>
-    </GoogleOAuthProvider>
+  )
+
+  return oauthReady ? (
+    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>{pageBody}</GoogleOAuthProvider>
+  ) : (
+    pageBody
   )
 }
 

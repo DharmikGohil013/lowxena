@@ -27,15 +27,12 @@ function App() {
     const selected = localStorage.getItem('selected_card_back') || '/card_back.png'
     document.documentElement.style.setProperty('--card-back-image', `url('${selected}')`)
 
-    const timer = setTimeout(() => {
-      setLoading(false)
-      // Signal to prerender (Puppeteer) that the SPA has mounted and is ready to snapshot.
-      if (typeof document !== 'undefined' && document.dispatchEvent) {
-        document.dispatchEvent(new Event('app-rendered'))
-      }
-    }, 300)
-
-    return () => clearTimeout(timer)
+    // Skip the artificial loader delay — the route's own Suspense fallback covers
+    // the lazy-chunk wait, and the extra paint hurt FCP/LCP.
+    setLoading(false)
+    if (typeof document !== 'undefined' && document.dispatchEvent) {
+      document.dispatchEvent(new Event('app-rendered'))
+    }
   }, [])
 
   if (loading) {
@@ -47,18 +44,20 @@ function App() {
       <HelmetProvider>
         <Router>
           <SEOUpdater />
-          <Suspense fallback={<Loader message="Loading..." />}>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/game" element={<Game />} />
-              <Route path="/practice" element={<PracticeGame />} />
-              <Route path="/quickmatch" element={<QuickMatch />} />
-              <Route path="/rules" element={<Rules />} />
-              <Route path="/rooms" element={<RoomList />} />
-              <Route path="/room/:roomId" element={<RoomLobby />} />
-              <Route path="/about" element={<About />} />
-            </Routes>
-          </Suspense>
+          <main id="main-content">
+            <Suspense fallback={<Loader message="Loading..." />}>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/game" element={<Game />} />
+                <Route path="/practice" element={<PracticeGame />} />
+                <Route path="/quickmatch" element={<QuickMatch />} />
+                <Route path="/rules" element={<Rules />} />
+                <Route path="/rooms" element={<RoomList />} />
+                <Route path="/room/:roomId" element={<RoomLobby />} />
+                <Route path="/about" element={<About />} />
+              </Routes>
+            </Suspense>
+          </main>
         </Router>
       </HelmetProvider>
     </NetworkStatusProvider>

@@ -84,6 +84,10 @@ export default defineConfig(async () => {
     },
     build: {
       outDir: path.resolve(__dirname, 'dist'),
+      target: 'es2019',
+      minify: 'esbuild',
+      cssMinify: true,
+      reportCompressedSize: false,
       rollupOptions: {
         output: {
           manualChunks: {
@@ -91,6 +95,9 @@ export default defineConfig(async () => {
             'vendor-oauth': ['@react-oauth/google', 'jwt-decode'],
             'vendor-lottie': ['lottie-react'],
             'vendor-icons': ['lucide-react'],
+            // Dicebear is loaded on-demand by AvatarSVG; isolate the parts we
+            // actually use (core + adventurer style) into a single chunk.
+            'vendor-dicebear': ['@dicebear/core', '@dicebear/adventurer'],
           },
         },
       },
