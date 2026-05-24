@@ -185,6 +185,10 @@ function RoomLobby() {
           loop
           muted
           playsInline
+          preload="metadata"
+          poster="/background.jpg"
+          aria-hidden="true"
+          tabIndex={-1}
         >
           <source src="/background.mp4" type="video/mp4" />
         </video>
@@ -214,6 +218,10 @@ function RoomLobby() {
           loop
           muted
           playsInline
+          preload="metadata"
+          poster="/background.jpg"
+          aria-hidden="true"
+          tabIndex={-1}
         >
           <source src="/background.mp4" type="video/mp4" />
         </video>
@@ -244,6 +252,10 @@ function RoomLobby() {
         loop
         muted
         playsInline
+        preload="metadata"
+        poster="/background.jpg"
+        aria-hidden="true"
+        tabIndex={-1}
       >
         <source src="/background.mp4" type="video/mp4" />
       </video>

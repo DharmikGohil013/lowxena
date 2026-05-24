@@ -29,6 +29,10 @@ function App() {
 
     const timer = setTimeout(() => {
       setLoading(false)
+      // Signal to prerender (Puppeteer) that the SPA has mounted and is ready to snapshot.
+      if (typeof document !== 'undefined' && document.dispatchEvent) {
+        document.dispatchEvent(new Event('app-rendered'))
+      }
     }, 300)
 
     return () => clearTimeout(timer)

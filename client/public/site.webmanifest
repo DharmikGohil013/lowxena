@@ -1,0 +1,29 @@
+{
+  "name": "LowXena — Free Funny Multiplayer Card Game",
+  "short_name": "LowXena",
+  "description": "A hilarious free multiplayer browser card game with persistent rewards. Quick 15-minute sessions, solo or with friends.",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "theme_color": "#0a0a1a",
+  "background_color": "#0a0a1a",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["games", "entertainment", "social"],
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

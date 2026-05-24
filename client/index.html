@@ -16,7 +16,15 @@
 
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/logo.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/logo.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+    <!-- Performance hints (improves LCP / Core Web Vitals) -->
+    <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+    <link rel="dns-prefetch" href="https://www.google-analytics.com" />
+    <link rel="preload" as="image" href="/logo.png" fetchpriority="high" />
 
     <!-- Primary SEO Meta Tags -->
     <title>LowXena - Play Free Funny Multiplayer Card Game Online</title>
@@ -25,6 +33,8 @@
     <meta name="author" content="Dharmik Gohil" />
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <link rel="canonical" href="https://lowxena.com/" />
+    <link rel="alternate" hreflang="en" href="https://lowxena.com/" />
+    <link rel="alternate" hreflang="x-default" href="https://lowxena.com/" />
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
@@ -52,11 +62,26 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="LowXena" />
+    <meta name="msapplication-TileColor" content="#0a0a1a" />
+    <meta name="format-detection" content="telephone=no" />
 
-    <!-- Fonts -->
+    <!-- Fonts: non-blocking load (improves FCP/LCP) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;900&display=swap" rel="stylesheet" />
+    <link
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;900&display=swap"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;900&display=swap"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript>
+      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;900&display=swap" rel="stylesheet" />
+    </noscript>
 
     <!-- JSON-LD: VideoGame Schema -->
     <script type="application/ld+json">
@@ -68,10 +93,7 @@
       "description": "A hilarious free multiplayer card game you can play in your browser. Quick 15-minute sessions, in-game rewards that carry over, solo & multiplayer modes. No downloads required.",
       "url": "https://lowxena.com",
       "image": "https://lowxena.com/og-image.png",
-      "screenshot": [
-        "https://lowxena.com/screenshots/gameplay-1.png",
-        "https://lowxena.com/screenshots/multiplayer.png"
-      ],
+      "screenshot": "https://lowxena.com/og-image.png",
       "gamePlatform": ["Web Browser", "Desktop", "Mobile"],
       "applicationCategory": "Game",
       "genre": ["Card Game", "Multiplayer", "Casual", "Comedy"],

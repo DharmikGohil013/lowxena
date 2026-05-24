@@ -77,12 +77,16 @@ function Rules() {
     <div className="rules-page">
       {/* Animated Background */}
       <div className="rules-bg">
-        <video 
-          className="rules-video-bg" 
-          autoPlay 
-          loop 
-          muted 
+        <video
+          className="rules-video-bg"
+          autoPlay
+          loop
+          muted
           playsInline
+          preload="metadata"
+          poster="/background.jpg"
+          aria-hidden="true"
+          tabIndex={-1}
         >
           <source src="/background.mp4" type="video/mp4" />
         </video>

@@ -716,12 +716,16 @@ function Home() {
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
     <div className="home-container">
       {/* Video Background */}
-      <video 
-        className="video-background" 
-        autoPlay 
-        loop 
-        muted 
+      <video
+        className="video-background"
+        autoPlay
+        loop
+        muted
         playsInline
+        preload="metadata"
+        poster="/background.jpg"
+        aria-hidden="true"
+        tabIndex={-1}
       >
         <source src="/background.mp4" type="video/mp4" />
       </video>
@@ -1864,10 +1868,12 @@ function Home() {
                       id={`skin-item-${skin.id}`}
                     >
                       <div className="cc-card-preview-wrap" style={{ position: 'relative' }}>
-                        <img 
-                          src={skin.path} 
-                          alt={skin.name} 
-                          className="cc-card-img" 
+                        <img
+                          src={skin.path}
+                          alt={`${skin.name} card back design`}
+                          className="cc-card-img"
+                          loading="lazy"
+                          decoding="async"
                           style={!isUnlocked ? { filter: 'blur(3px) brightness(0.6)' } : undefined}
                         />
                         {!isUnlocked && (

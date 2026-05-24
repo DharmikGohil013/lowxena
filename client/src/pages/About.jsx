@@ -54,12 +54,16 @@ function About() {
     <div className="about-page">
       {/* Animated Atmosphere Background */}
       <div className="about-bg">
-        <video 
-          className="about-video-bg" 
-          autoPlay 
-          loop 
-          muted 
+        <video
+          className="about-video-bg"
+          autoPlay
+          loop
+          muted
           playsInline
+          preload="metadata"
+          poster="/background.jpg"
+          aria-hidden="true"
+          tabIndex={-1}
         >
           <source src="/background.mp4" type="video/mp4" />
         </video>
@@ -108,7 +112,7 @@ function About() {
         <header className="about-hero">
           <div className="hero-glow"></div>
           <div className="hero-badge">
-            <img src="/logo.png" alt="LowXena Logo" className="about-logo-img" />
+            <img src="/logo.png" alt="LowXena Logo" className="about-logo-img" loading="eager" decoding="async" fetchpriority="high" width="200" height="200" />
           </div>
           <h1 className="hero-title">
             <span className="title-main">LOWXENA</span>

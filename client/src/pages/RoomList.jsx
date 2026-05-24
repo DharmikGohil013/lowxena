@@ -135,12 +135,16 @@ function RoomList() {
 
   return (
     <div className="room-list-container">
-      <video 
-        className="video-background" 
-        autoPlay 
-        loop 
-        muted 
+      <video
+        className="video-background"
+        autoPlay
+        loop
+        muted
         playsInline
+        preload="metadata"
+        poster="/background.jpg"
+        aria-hidden="true"
+        tabIndex={-1}
       >
         <source src="/background.mp4" type="video/mp4" />
       </video>
