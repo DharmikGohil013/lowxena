@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import morgan from 'morgan';
-
+import { connectRedis } from './config/redis.js';
 import { connectDB } from './config/db.js';
 
 import authRoutes from './routes/auth.js';
@@ -17,8 +17,11 @@ const mongoose = require("mongoose");
 
 // Connect MongoDB
 connectDB();
+<<<<<<< HEAD
 
 // Connect Redis
+=======
+>>>>>>> f0b6495 (Added Redis integration for multiplayer backend)
 connectRedis();
 const app = express();
 const PORT = process.env.PORT || 3000;
