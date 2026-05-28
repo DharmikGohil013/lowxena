@@ -57,12 +57,21 @@ apiClient.interceptors.response.use(
       normalized.code = data.code || `ERR_HTTP_${error.response.status}`;
       normalized.status = error.response.status;
 
+      if (typeof normalized.message === 'object' && normalized.message !== null) {
+        normalized.message = normalized.message.message || normalized.message.error || JSON.stringify(normalized.message);
+      }
+      if (typeof normalized.message !== 'string') {
+        normalized.message = String(normalized.message || 'An unexpected error occurred');
+      }
+
       // Handle token expiration or invalidity (401 or 403)
       const isAuthError = normalized.status === 401 || normalized.status === 403;
-      const isTokenExpired = normalized.message.toLowerCase().includes('token expired') || 
-                            normalized.message.toLowerCase().includes('expired token') ||
-                            normalized.message.toLowerCase().includes('invalid token') ||
-                            normalized.message.toLowerCase().includes('token is required');
+      const isTokenExpired = isAuthError && (
+        normalized.message.toLowerCase().includes('token expired') || 
+        normalized.message.toLowerCase().includes('expired token') ||
+        normalized.message.toLowerCase().includes('invalid token') ||
+        normalized.message.toLowerCase().includes('token is required')
+      );
 
       if (isAuthError && isTokenExpired) {
         // Clear auth tokens from storage

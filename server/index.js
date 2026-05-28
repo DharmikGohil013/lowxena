@@ -13,15 +13,10 @@ import { errorHandler } from './middleware/errorHandler.js';
 
 // Load environment variables
 dotenv.config();
-const mongoose = require("mongoose");
-
 // Connect MongoDB
 connectDB();
-<<<<<<< HEAD
 
 // Connect Redis
-=======
->>>>>>> f0b6495 (Added Redis integration for multiplayer backend)
 connectRedis();
 const app = express();
 const PORT = process.env.PORT || 3000;
